@@ -89,7 +89,7 @@ function installPackages {
   LC_ALL=${BUILD_LANG} LANGUAGE=${BUILD_LANG} LANG=${BUILD_LANG} chroot ${BUILD_MNT_ROOT}/ apt-get --quiet -y install ${@} >> ${BUILD_LOG_FILE} 2>&1
 }
 
-# Usage : configPackages 
+# Usage : configPackages <PKG1> [<PKG2> ...]
 function configPackages {
   printStatus "configPackages" "Configuring ${@}"
   LC_ALL=${BUILD_LANG} LANGUAGE=${BUILD_LANG} LANG=${BUILD_LANG} chroot ${BUILD_MNT_ROOT}/ dpkg-reconfigure ${@}
@@ -111,8 +111,8 @@ function addInitTab {
   printf "%s:%s:respawn:/sbin/getty -L %s %s %s\n" ${1} ${2} ${3} ${4} ${5} >> ${BUILD_MNT_ROOT}/etc/inittab
 }
 
-# Usage addFStab <file system> <mount point> <type> <options> <dump> <pass>
-function addFStab {
+# Usage addFSTab <file system> <mount point> <type> <options> <dump> <pass>
+function addFSTab {
   printStatus "addFStab" "Device ${1} will be mount as ${2}"
   if [ ! -e "${BUILD_MNT_ROOT}/etc/fstab" ]; then
     printf "#%- 15s% -15s%- 10s%- 15s%- 10s%- 10s\n" "<file system>" "<mount point>" "<type>" "<options>" "<dump>" "<pass>" > ${BUILD_MNT_ROOT}/etc/fstab
@@ -120,8 +120,8 @@ function addFStab {
   printf "%- 15s% -15s%- 10s%- 15s%- 10s%- 10s\n" >> ${BUILD_MNT_ROOT}/etc/fstab
 }
 
-# usage addModules <KERNEL MODULE> [<COMMENT>]
-function addModule {
+# usage addKernelModules <KERNEL MODULE> [<COMMENT>]
+function addKernelModule {
 
   printStatus "addModule" "Configuring kernel module ${1}"
   if [ ! -z "${2}" ]; then
