@@ -1,10 +1,4 @@
 
-function logIt {
-  local TMP_TIME=`date +%y/%m/%d-%H:%M:%S`
-  
-  printf "[% 17s] % 15s : %s\n" "${TMP_TIME}" "${1}" "${2}" >> ${BUILD_LOG_FILE}
-}
-
 function showTitle {
  printf "\n%s version %s\n" "`basename ${0}`" "${PRG_VERSION}"
  printf "Copyright (C) 2013 Eddy Beaupre\n\n"
@@ -52,6 +46,10 @@ function showUsage {
 
 function logStatus {
   local TMP_TIME=`date +%y/%m/%d-%H:%M:%S`
+  
+  if [ ! -d "${BUILD_LOG}" ]; then
+    mkdir -p ${BUILD_LOG}
+  fi
   
   printf "[% 17s] % 15s : %s\n" "${TMP_TIME}" "${1}" "${2}" >> ${BUILD_LOG_FILE}
 }
