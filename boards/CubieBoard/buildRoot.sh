@@ -1,6 +1,5 @@
 # Usage: buildRoot
-
-function buildRoot () {
+function buildRoot {
   printStatus "buildRoot" "Starting"
 
   bootStrap ${BUILD_ARCH} ${BUILD_ARCH_EABI} ${DEB_SUITE}
@@ -19,6 +18,7 @@ function buildRoot () {
       printf "CONF_SWAPSIZE=%s" ${BOARD_SWAP_SIZE} > ${BUILD_MNT_ROOT}/etc/dphys-swapfile
     else
       installPackages "${DEB_EXTRAPACKAGES}"
+    fi
   fi
 
   configPackages ${DEB_RECONFIG}
@@ -27,6 +27,7 @@ function buildRoot () {
   
   addInitTab "T0" "2345" "ttyS0" "115200" "vt100"
 
+  initFSTab
   addFSTab "/dev/root" "/" "ext4" "defaults" "0" "1"
 
   addKernelModule "sw_ahci_platform" "#For SATA Support"
@@ -48,4 +49,5 @@ function buildRoot () {
   bootClean ${BUILD_ARCH}
   
   printStatus "buildRoot" "Done"
+
 }

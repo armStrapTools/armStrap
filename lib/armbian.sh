@@ -7,7 +7,7 @@ function installQEMU {
 # Usage removeQEMU <ARCH>
 function removeQEMU {
   printStatus removeQEMU "Removing QEMU User Emulator (${1})"  
-  rm -f ${BUILD_MNT_ROOT}/usr/bin
+  rm -f ${BUILD_MNT_ROOT}/usr/bin/qemu-${1}-static
 }
 
 # Usage : disableServices
@@ -17,7 +17,7 @@ function disableServices {
 #!/bin/sh
 exit 101 
 EOF
-  chmod +x ${1}/usr/sbin/policy-rc.d
+  chmod +x ${BUILD_MNT_ROOT}/usr/sbin/policy-rc.d
 }
 
 # Usage : enableServices
@@ -60,9 +60,9 @@ ${1}
 EOF
 }
 
-# Usage : clearSourcesList
+# Usage : clearSources
 function clearSourcesList {
-  printStatus "clearSourcesList" "Removing current sources list"
+  printStatus "clearSources" "Removing current sources list"
   rm -f ${BUILD_MNT_ROOT}/etc/apt/sources.list
   touch ${BUILD_MNT_ROOT}/etc/apt/sources.list
 }
@@ -111,24 +111,27 @@ function addInitTab {
   printf "%s:%s:respawn:/sbin/getty -L %s %s %s\n" ${1} ${2} ${3} ${4} ${5} >> ${BUILD_MNT_ROOT}/etc/inittab
 }
 
+function initFSTab {
+  printStatus "initFSTab" "Initializing ${BUILD_MNT_ROOT}/etc/fstab"
+  printf "%- 20s% -15s%- 10s%- 15s%- 8s%- 8s\n" "#<file system>" "<mount point>" "<type>" "<options>" "<dump>" "<pass>" > ${BUILD_MNT_ROOT}/etc/fstab
+}
+
 # Usage addFSTab <file system> <mount point> <type> <options> <dump> <pass>
 function addFSTab {
-  printStatus "addFStab" "Device ${1} will be mount as ${2}"
-  if [ ! -e "${BUILD_MNT_ROOT}/etc/fstab" ]; then
-    printf "#%- 15s% -15s%- 10s%- 15s%- 10s%- 10s\n" "<file system>" "<mount point>" "<type>" "<options>" "<dump>" "<pass>" > ${BUILD_MNT_ROOT}/etc/fstab
-  fi
-  printf "%- 15s% -15s%- 10s%- 15s%- 10s%- 10s\n" >> ${BUILD_MNT_ROOT}/etc/fstab
+  printStatus "addFSTab" "Device ${1} will be mount as ${2}"
+  printf "%- 20s% -15s%- 10s%- 15s%- 8s%- 8s\n" ${1} ${2} ${3} ${4} ${5} ${6} >>${BUILD_MNT_ROOT}/etc/fstab
 }
 
 # usage addKernelModules <KERNEL MODULE> [<COMMENT>]
 function addKernelModule {
-
+  local TMP_MODULE=${1}
   printStatus "addModule" "Configuring kernel module ${1}"
   if [ ! -z "${2}" ]; then
-    printf "\n# %s\n", ${2} >> ${BUILD_MNT_ROOT}/etc/modules
+    shift
+    echo "# ${@}" >> ${BUILD_MNT_ROOT}/etc/modules
   fi
   
-  printf "%s\n" ${1} >> ${BUILD_MNT_ROOT}/etc/modules
+  printf "%s\n" ${TMP_MODULE} >> ${BUILD_MNT_ROOT}/etc/modules
 }
 
 # Usage : addIface <INTERFACE> <dhcp|static> [<address> <netmask> <gateway>]
