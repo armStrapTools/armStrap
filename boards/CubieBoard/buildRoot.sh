@@ -43,7 +43,7 @@ function buildRoot {
   if [ "${BOARD_ETH0_MODE}" != "dhcp" ]; then
     initResolvConf
     addSearchDomain "${BOARD_DOMAIN}"
-    addNameServer "${BOARD_DNS1}" "${BOARD_DNS2}"
+    addNameServer "${BOARD_DNS}"
   fi
   
   bootClean ${BUILD_ARCH}

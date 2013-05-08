@@ -33,12 +33,23 @@ EOF
 }
 
 function showUsage {
-  printf "Usage :\n\n"
-  printf "% 4s %- 15s %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
-  printf "% 4s %- 15s %s\n" "-d" "<DEVICE>" "Write to <DEVICE> instead of creating an image."
-  printf "% 4s %- 15s %s\n" "-i" "<FILE>" "Set image filename to <FILE>."
-  printf "% 4s %- 15s %s\n\n" "-c" "" "Show licence."
-  printf "With no parameter, create an image using default values.\n"
+  printf "Usage : sudo %s [PARAMETERS]\n\n" "`basename ${0}`"
+  printf "% 4s %- 20s %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
+  printf "% 4s %- 20s %s\n" "-d" "<DEVICE>" "Write to <DEVICE> instead of creating an image."
+  printf "% 4s %- 20s %s\n" "-i" "<FILE>" "Set image filename to <FILE>."
+  printf "% 4s %- 20s %s\n" "-s" "<SIZE>" "Set image size to <SIZE>MB."
+  printf "% 4s %- 20s %s\n" "-h" "<HOSTNAME>" "Set hostname"
+  printf "% 4s %- 20s %s\n" "-h" "<HOSTNAME>" "Set hostname"
+  printf "% 4s %- 20s %s\n" "-p" "<PASSWORD>" "Set root password"
+  printf "% 4s %- 20s %s\n" "-w" "" "Enable swapfile"
+  printf "% 4s %- 20s %s\n" "-W" "" "Disable swapfile"
+  printf "% 4s %- 20s %s\n" "-Z" "<SIZE>" "Set swapfile size to <SIZE>MB"
+  printf "% 4s %- 20s %s\n" "-n" "\"<IP> <MASK> <GW>\"" "Set static IP"
+  printf "% 4s %- 20s %s\n" "-N" "" "Set DHCP IP"
+  printf "% 4s %- 20s %s\n" "-r" "\"<NS1> [NS2] [NS3]\"" "Set nameservers"
+  printf "% 4s %- 20s %s\n" "-e" "<DOMAIN>" "Set search domain"
+  printf "% 4s %- 20s %s\n\n" "-c" "" "Show licence."
+  printf "With no parameter, create an image using values found in config.sh.\n"
   printf "\nYou need to be root to run this script.\n\n"
 }
 

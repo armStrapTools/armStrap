@@ -31,7 +31,7 @@ done
 
 showTitle
 
-while getopts ":b:d:i:s:h:p:w:x:z:n:r:c" opt; do
+while getopts ":b:d:i:s:h:p:z:n:r:cwWN" opt; do
   case $opt in
     b)
       BOARD_CONFIG="${OPTARG}"
@@ -54,7 +54,7 @@ while getopts ":b:d:i:s:h:p:w:x:z:n:r:c" opt; do
     w)
       BOARD_SWAP="yes"
       ;;
-    x)
+    W)
       BOARD_SWAP=""
       ;;
     z)
@@ -67,8 +67,14 @@ while getopts ":b:d:i:s:h:p:w:x:z:n:r:c" opt; do
       BOARD_ETH0_MASK="${ip[1]}"
       BOARD_ETH0_GW="${ip[2]}"
       ;;
+    N)
+      BOARD_ETH0_MODE="static"
+      ;;
     r)
       BOARD_DNS="${OPTARG}"
+      ;;
+    e)
+      BOARD_DOMAIN="${OPTARG}"
       ;;
     c)
       showLicence
@@ -86,9 +92,8 @@ while getopts ":b:d:i:s:h:p:w:x:z:n:r:c" opt; do
   esac
 done
 
-echo "IP : ${BOARD_ETH0_IP} MASK $BOARD_ETH0_MASK GW : $BOARD_ETH0_GW"
-
 isRoot
+checkStatus "Only root can run this script"
 
 checkDirectory ${BUILD_SRC}
 checkDirectory ${BUILD_OBJ}
@@ -105,9 +110,6 @@ for i in ${BUILD_SCRIPTS}; do
   source ./boards/${BOARD_CONFIG}/${i}
 done
 
-
-checkStatus "Only root can run this script"
-
 funExist init
 if [ ${?} -eq 0 ]; then
   init
@@ -115,12 +117,11 @@ fi
 
 installPrereqs
 
-echo "Mac Address : ${BUILD_MAC_ADDRESS}"
-exit 1
-
-#mkImage ${IMAGE_NAME} ${IMAGE_SIZE}
-
-setupDevice ${BUILD_DEVICE}
+if [ -z "${BUILD_DEVICE}" ] then
+  mkImage ${IMAGE_NAME} ${IMAGE_SIZE}
+else
+  setupDevice ${BUILD_DEVICE}
+fi
 
 createFS ${IMAGE_ROOTP}
 
@@ -130,6 +131,6 @@ installOS
 
 unmountAll
 
-sync
-
-#freeImage ${IMAGE_DEVICE}
+if [ -z "${BUILD_DEVICE}" ]; then
+  freeImage ${IMAGE_DEVICE}
+fi

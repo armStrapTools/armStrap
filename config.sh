@@ -26,6 +26,11 @@ BOARD_ETH0_MODE="dhcp"
 #BOARD_ETH0_IP="192.168.0.100"
 #BOARD_ETH0_MASK="255.255.255.0"
 #BOARD_ETH0_GW="192.168.0.1"
-#BOARD_DNS1="8.8.8.8"
-#BOARD_DNS2="8.8.4.4"
+#BOARD_DNS="8.8.8.8 8.8.4.4"
 #BOARD_DOMAIN="localhost.com"
+
+##############################################################################
+# Output configuration
+#
+# If you want to install directly into your SD card, put the device here
+BUILD_DEVICE="/dev/sdc"
