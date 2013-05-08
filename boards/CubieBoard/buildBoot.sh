@@ -17,7 +17,7 @@ function buildBoot {
 
   printStatus "Setting up" "/boot/boot.cmd"
   cat > ${BUILD_MNT_ROOT}/boot/boot.cmd <<END
-setenv bootargs console=tty0 console=ttyS0,115200 hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BOARD_ROOT_DEV} rootwait panic=10 ${extra}
+setenv bootargs console=tty0 console=ttyS0,115200 hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BUILD_ROOT_DEV} rootwait panic=10 ${extra}
 ext2load mmc 0 0x43000000 boot/script.bin
 ext2load mmc 0 0x48000000 boot/uImage
 bootm 0x48000000
@@ -29,11 +29,11 @@ END
   printStatus "Setting up" "/boot/cubieboard.fex"
   cp ${BUILD_SRC}/sunxi-boards/sys_config/a10/cubieboard.fex ${BUILD_MNT_ROOT}/boot/
 
-  if [ "${BOARD_MAC_ADDRESS}" != "" ]; then
+  if [ "${BUILD_MAC_ADDRESS}" != "" ]; then
     cat >> ${BUILD_MNT_ROOT}/boot/cubieboard.fex <<END
 
 [dynamic]
-MAC = "${BOARD_MAC_ADDRESS}"
+MAC = "${BUILD_MAC_ADDRESS}"
 END
   fi
 
@@ -42,8 +42,8 @@ END
   
   printStatus "Setting up" "Bootloader"
   if [ -z ${BUILD_DEVICE} ]; then
-    dd if=${BUILD_SRC}/u-boot-sunxi/spl/sunxi-spl.bin of=${IMAGE_DEVICE} bs=1024 seek=8 >> ${BUILD_LOG_FILE} 2>&1
-    dd if=${BUILD_SRC}/u-boot-sunxi/u-boot.bin of=${IMAGE_DEVICE} bs=1024 seek=32 >> ${BUILD_LOG_FILE} 2>&1
+    dd if=${BUILD_SRC}/u-boot-sunxi/spl/sunxi-spl.bin of=${BUILD_IMAGE_DEVICE} bs=1024 seek=8 >> ${BUILD_LOG_FILE} 2>&1
+    dd if=${BUILD_SRC}/u-boot-sunxi/u-boot.bin of=${BUILD_IMAGE_DEVICE} bs=1024 seek=32 >> ${BUILD_LOG_FILE} 2>&1
   else
     dd if=${BUILD_SRC}/u-boot-sunxi/spl/sunxi-spl.bin of=${BUILD_DEVICE} bs=1024 seek=8 >> ${BUILD_LOG_FILE} 2>&1
     dd if=${BUILD_SRC}/u-boot-sunxi/u-boot.bin of=${BUILD_DEVICE} bs=1024 seek=32 >> ${BUILD_LOG_FILE} 2>&1

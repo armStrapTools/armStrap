@@ -2,26 +2,26 @@
 function buildRoot {
   printStatus "buildRoot" "Starting"
 
-  bootStrap ${BUILD_ARCH} ${BUILD_ARCH_EABI} ${DEB_SUITE}
+  bootStrap ${BUILD_ARCH} ${BUILD_ARCH_EABI} ${BUILD_DEB_SUITE}
 
   setHostName ${BOARD_HOSTNAME}
   
   clearSourcesList
-  addSource "http://ftp.debian.org/debian" "${DEB_SUITE}" "main" "contrib" "non-free"
-  addSource "http://ftp.debian.org/debian/" "${DEB_SUITE}-updates" "main" "contrib" "non-free"
-  addSource "http://security.debian.org/" "${DEB_SUITE}/updates" "main" "contrib" "non-free"
+  addSource "http://ftp.debian.org/debian" "${BUILD_DEB_SUITE}" "main" "contrib" "non-free"
+  addSource "http://ftp.debian.org/debian/" "${BUILD_DEB_SUITE}-updates" "main" "contrib" "non-free"
+  addSource "http://security.debian.org/" "${BUILD_DEB_SUITE}/updates" "main" "contrib" "non-free"
   initSources
   
-  if [ -n "${DEB_EXTRAPACKAGES}" ]; then
+  if [ -n "${BUILD_DEB_EXTRAPACKAGES}" ]; then
     if [ -n "${BOARD_SWAP}" ]; then
-      installPackages "${DEB_EXTRAPACKAGES} dphys-swapfile"
+      installPackages "${BUILD_DEB_EXTRAPACKAGES} dphys-swapfile"
       printf "CONF_SWAPSIZE=%s" ${BOARD_SWAP_SIZE} > ${BUILD_MNT_ROOT}/etc/dphys-swapfile
     else
-      installPackages "${DEB_EXTRAPACKAGES}"
+      installPackages "${BUILD_DEB_EXTRAPACKAGES}"
     fi
   fi
 
-  configPackages ${DEB_RECONFIG}
+  configPackages ${BUILD_DEB_RECONFIG}
 
   setRootPassword ${BOARD_PASSWORD}
   

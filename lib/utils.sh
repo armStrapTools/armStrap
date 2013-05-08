@@ -63,7 +63,7 @@ function printStatus {
 
 # Usage: installPrereq 
 function installPrereqs {
-  for i in ${PREREQ}; do testInstall ${i}; done
+  for i in ${BUILD_PREREQ}; do testInstall ${i}; done
 }
 
 # Usage: isRoot
@@ -185,12 +185,6 @@ function mkImage {
   checkStatus "dd exit with status $?"
 }
 
-# Generate a mac address if the board need one.
-function macAddress {
-  if [ -n ${BOARD_MAC_VENDOR} ]; then
-    if [ -z ${BOARD_MAC_ADDRESS} ]; then
-      BOARD_MAC_ADDRESS=$( printf "%012x" $((${BUILD_MAC_VENDOR}*16777216+$[ $RANDOM % 16777216 ])) )
-    fi
-  fi
+function funExist {
+  declare -f -F ${1} > /dev/null
 }
-

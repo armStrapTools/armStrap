@@ -2,69 +2,36 @@
 
 PRG_VERSION="0.21"
 
-BOARD_CONFIG="CubieBoard"
-BOARD_HOSTNAME="Debian-Wheezy"
-BOARD_PASSWORD="cubiedebian"
-
-#BOARD_ROOT_DEV="/dev/nandb"
-BOARD_ROOT_DEV="/dev/mmcblk0p1"
-BOARD_MAC_ADDRESS="008010EDDF01"
-BOARD_CMDLINE="console=tty0 console=ttyS0,115200 hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BOARD_ROOT_DEV} rootwait panic=10"
-# If you want a swapfile, uncomment this.
-BOARD_SWAP="yes"
-# If you want a fixed size swapfile, set this.
-BOARD_SWAP_SIZE="256"
-
-BOARD_ETH0_MODE="dhcp"
-
-# If you want a static IP, use the following
-#BOARD_ETH0_MODE="static"
-#BOARD_ETH0_IP="192.168.0.100"
-#BOARD_ETH0_MASK="255.255.255.0"
-#BOARD_ETH0_GW="192.168.0.1"
-#BOARD_DNS1="8.8.8.8"
-#BOARD_DNS2="8.8.4.4"
-#BOARD_DOMAIN="localhost.com"
-
-DEB_SUITE="wheezy"
-# Not all packages can be install this way.
-DEB_EXTRAPACKAGES="nvi locales ntp ssh"
-# Not all packages can (or should be) reconfigured this way.
-DEB_RECONFIG="locales tzdata"
-
 BUILD_DATE=`date +%y%m%d`
 BUILD_ROOT=`pwd`
 BUILD_MNT="${BUILD_ROOT}/mnt"
 BUILD_SRC="${BUILD_ROOT}/src"
 BUILD_OBJ="${BUILD_ROOT}/obj"
 BUILD_LOG="${BUILD_ROOT}/log"
-BUILD_LOG_FILE="${BUILD_LOG}/${BOARD_CONFIG}-${DEB_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log"
+BUILD_LOG_FILE="${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEB_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log"
 BUILD_THREADS="16"
-
-BUILD_DEVICE="/dev/sdc"
 
 # These are defined in boards/<name>/config.sh 
 BUILD_MNT_ROOT=""
 BUILD_MNT_BOOT=""
 
 # This is in MB
-IMAGE_SIZE=1024
-IMAGE_DEVICE=""
-IMAGE_NAME=${BUILD_ROOT}/${BOARD_CONFIG}-${DEB_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.img
-IMAGE_BOOTP=""
-IMAGE_ROOTP=""
-
-# This is in MB
-BOOT_PARTITION_SIZE="16"
+BUILD_IMAGE_SIZE=1024
+BUILD_IMAGE_DEVICE=""
+BUILD_IMAGE_NAME=${BUILD_ROOT}/${BOARD_CONFIG}-${BUILD_DEB_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.img
+BUILD_IMAGE_BOOTP=""
+BUILD_IMAGE_ROOTP=""
 
 # Here we go...
+source ./config.sh
+
 for i in ./lib/*.sh; do
-  . $i
+  source $i
 done
 
 showTitle
 
-while getopts ":b:d:i:c" opt; do
+while getopts ":b:d:i:s:h:p:w:x:z:n:r:c" opt; do
   case $opt in
     b)
       BOARD_CONFIG="${OPTARG}"
@@ -73,15 +40,43 @@ while getopts ":b:d:i:c" opt; do
       BUILD_DEVICE="${OPTARG}"
       ;;
     i)
-      IMAGE_NAME="${OPTARG}"
+      BUILD_IMAGE_NAME="${OPTARG}"
       ;;
-    \?)
-      showUsage
-      exit 1
+    s)
+      BUILD_IMAGE_SIZE="${OPTARG}"
+      ;;
+    h)
+      BOARD_HOSTNAME="${OPTARG}"
+      ;;
+    p)
+      BOARD_PASSWORD="${OPTARG}"
+      ;;
+    w)
+      BOARD_SWAP="yes"
+      ;;
+    x)
+      BOARD_SWAP=""
+      ;;
+    z)
+      BOARD_SWAP_SIZE=="${OPTARG}"
+      ;;
+    n)
+      BOARD_ETH0_MODE="static"
+      ip=(${OPTARG})
+      BOARD_ETH0_IP=${ip[0]}
+      BOARD_ETH0_MASK="${ip[1]}"
+      BOARD_ETH0_GW="${ip[2]}"
+      ;;
+    r)
+      BOARD_DNS="${OPTARG}"
       ;;
     c)
       showLicence
       exit 0
+      ;;
+    \?)
+      showUsage
+      exit 1
       ;;
     :)
       printf "Option -%s requires an argument.\n\n" "${OPTARG}"
@@ -91,6 +86,10 @@ while getopts ":b:d:i:c" opt; do
   esac
 done
 
+echo "IP : ${BOARD_ETH0_IP} MASK $BOARD_ETH0_MASK GW : $BOARD_ETH0_GW"
+
+isRoot
+
 checkDirectory ${BUILD_SRC}
 checkDirectory ${BUILD_OBJ}
 checkDirectory ${BUILD_MNT}
@@ -99,21 +98,25 @@ checkDirectory ${BUILD_LOG}
 rm -f ${BUILD_LOG_FILE}
 
 printStatus "initBuild" "Reading ./boards/${BOARD_CONFIG}/config.sh"
-. ./boards/${BOARD_CONFIG}/config.sh
+source ./boards/${BOARD_CONFIG}/config.sh
 
 for i in ${BUILD_SCRIPTS}; do
   printStatus "initBuild" "Reading ./boards/${BOARD_CONFIG}/${i}"
-  . ./boards/${BOARD_CONFIG}/${i}
+  source ./boards/${BOARD_CONFIG}/${i}
 done
 
-isRoot
+
 checkStatus "Only root can run this script"
 
-init
-installPrereqs
-macAddress
+funExist init
+if [ ${?} -eq 0 ]; then
+  init
+fi
 
-echo "Mac Address : ${BOARD_MAC_ADDRESS}"
+installPrereqs
+
+echo "Mac Address : ${BUILD_MAC_ADDRESS}"
+exit 1
 
 #mkImage ${IMAGE_NAME} ${IMAGE_SIZE}
 

@@ -20,18 +20,18 @@ EOF
 # Usage setupImage <IMAGE FILE>
 
 function setupImage {
-  IMAGE_DEVICE=`losetup -f --show ${1}`
-  printStatus "setupImage" "loop device is ${IMAGE_DEVICE}"
+  BUILD_IMAGE_DEVICE=`losetup -f --show ${1}`
+  printStatus "setupImage" "loop device is ${BUILD_IMAGE_DEVICE}"
 
-  createParts ${IMAGE_DEVICE}
+  createParts ${BUILD_IMAGE_DEVICE}
 
-  losetup -d ${IMAGE_DEVICE}
+  losetup -d ${BUILD_IMAGE_DEVICE}
 
-  IMAGE_DEVICE=`kpartx -va ${1} | sed -E 's/.*(loop[0-9])p.*/\1/g' | head -1`
-  IMAGE_ROOTP="/dev/mapper/${IMAGE_DEVICE}p1"
-  IMAGE_DEVICE="/dev/${IMAGE_DEVICE}"
-  printStatus "setupImage" "Image device is ${IMAGE_DEVICE}"
-  printStatus "setupImage" "Root partition is ${IMAGE_ROOTP}"
+  BUILD_IMAGE_DEVICE=`kpartx -va ${1} | sed -E 's/.*(loop[0-9])p.*/\1/g' | head -1`
+  BUILD_IMAGE_ROOTP="/dev/mapper/${BUILD_IMAGE_DEVICE}p1"
+  BUILD_IMAGE_DEVICE="/dev/${BUILD_IMAGE_DEVICE}"
+  printStatus "setupImage" "Image device is ${BUILD_IMAGE_DEVICE}"
+  printStatus "setupImage" "Root partition is ${BUILD_IMAGE_ROOTP}"
 }
 
 # Usage setupDevice <DEVICE>
@@ -55,14 +55,14 @@ function setupDevice {
   createParts ${1}
   
   if [ ! -b ${1} ]; then
-    IMAGE_ROOTP=${1}p1
-    if [ ! -b ${IMAGE_ROOTP} ]; then
+    BUILD_IMAGE_ROOTP=${1}p1
+    if [ ! -b ${BUILD_IMAGE_ROOTP} ]; then
       printStatus "setupDevice" "Aborting, can't find root partition"
       exit 1
     fi
   else
-    IMAGE_ROOTP=${1}1
-    printStatus "setupDevice" "Root partition is ${IMAGE_ROOTP}"
+    BUILD_IMAGE_ROOTP=${1}1
+    printStatus "setupDevice" "Root partition is ${BUILD_IMAGE_ROOTP}"
   fi
 }
 
@@ -77,18 +77,18 @@ function createFS {
 }
 
 function mountAll {
-  printStatus "mountAll" "Mounting ${IMAGE_ROOTP} to ${BUILD_MNT_ROOT}"
+  printStatus "mountAll" "Mounting ${BUILD_IMAGE_ROOTP} to ${BUILD_MNT_ROOT}"
   checkDirectory ${BUILD_MNT_ROOT}
-  mount ${IMAGE_ROOTP} ${BUILD_MNT_ROOT}
-  checkStatus "Mount of ${IMAGE_ROOTP} to ${BUILD_MNT_ROOT} failed, error code ${?}"
+  mount ${BUILD_IMAGE_ROOTP} ${BUILD_MNT_ROOT}
+  checkStatus "Mount of ${BUILD_IMAGE_ROOTP} to ${BUILD_MNT_ROOT} failed, error code ${?}"
   partSync
 }
 
 
 function unmountAll {
-  printStatus "unmountAll" "Unmounting ${IMAGE_ROOTP} from ${BUILD_MNT_ROOT}"
+  printStatus "unmountAll" "Unmounting ${BUILD_IMAGE_ROOTP} from ${BUILD_MNT_ROOT}"
   umount ${BUILD_MNT_ROOT}
-  checkStatus "Unmount of ${IMAGE_ROOTP} from ${BUILD_MNT_ROOT} failed, error code ${?}"
+  checkStatus "Unmount of ${BUILD_IMAGE_ROOTP} from ${BUILD_MNT_ROOT} failed, error code ${?}"
   partSync
 }
 

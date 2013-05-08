@@ -19,7 +19,7 @@ function buildKernel {
   fi
   
   printStatus "buildRoot" "Configuring option CONFIG_CMDLINE"
-  sed 's/^CONFIG_CMDLINE=.*/CONFIG_CMDLINE="${BOARD_CMDLINE}"/' ${BUILD_SRC}/linux-sunxi/.config > ${BUILD_SRC}/linux-sunxi/.config.tmp
+  sed 's/^CONFIG_CMDLINE=.*/CONFIG_CMDLINE="${BUILD_CONFIG_CMDLINE}"/' ${BUILD_SRC}/linux-sunxi/.config > ${BUILD_SRC}/linux-sunxi/.config.tmp
   rm -f ${BUILD_SRC}/linux-sunxi/.config
   mv ${BUILD_SRC}/linux-sunxi/.config.tmp ${BUILD_SRC}/linux-sunxi/.config
   
