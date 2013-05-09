@@ -7,6 +7,11 @@
 PRG_VERSION="0.21"
 PRG_NAME=`basename ${0}`
 
+if [ "`id -u`" -ne "0" ]; then
+  printf "\nYou (%s) are not root! Try again with 'sudo %s'.\n\n" "`whoami`" "${PRG_NAME}"
+  exit 1
+fi
+
 BUILD_DATE=`date +%y%m%d_%H%M%S`
 BUILD_ROOT=`pwd`
 BUILD_THREADS="16"
@@ -207,5 +212,5 @@ installOS
 unmountAll
 
 if [ -z "${BUILD_DEVICE}" ]; then
-  freeImage ${BUILD_IMAGE_DEVICE}
+  freeImage ${BUILD_IMAGE_DEVICE} ${BUILD_IMAGE_NAME}
 fi

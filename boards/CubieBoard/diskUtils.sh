@@ -85,9 +85,12 @@ function unmountAll {
 function freeImage {
   partSync
   
-  printStatus "freeImage" "Running kpartx -d ${1}"
-  kpartx -d ${1}
+  printStatus "freeImage" "Running kpartx -d ${2}"
+  kpartx -d ${2}
 
   printStatus "freeImage" "Running losetup -d ${1}"
   losetup -d ${1}
+  
+  printStatus "freeImage" "Running kpartx -d ${1}"
+  kpartx -d ${1}
 }
