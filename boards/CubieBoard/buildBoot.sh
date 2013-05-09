@@ -29,11 +29,11 @@ END
   printStatus "Setting up" "/boot/cubieboard.fex"
   cp ${BUILD_SRC}/sunxi-boards/sys_config/a10/cubieboard.fex ${BUILD_MNT_ROOT}/boot/
 
-  if [ "${BUILD_MAC_ADDRESS}" != "" ]; then
+  if [ "${BOARD_MAC_ADDRESS}" != "" ]; then
     cat >> ${BUILD_MNT_ROOT}/boot/cubieboard.fex <<END
 
 [dynamic]
-MAC = "${BUILD_MAC_ADDRESS}"
+MAC = "${BOARD_MAC_ADDRESS}"
 END
   fi
 

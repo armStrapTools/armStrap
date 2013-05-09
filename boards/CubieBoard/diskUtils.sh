@@ -17,9 +17,11 @@ EOF
   partSync
 }
 
-# Usage setupImage <IMAGE FILE>
+# Usage setupImage <IMAGE FILE> <SIZE IN MB>
 
 function setupImage {
+  mkImage ${1} ${2}
+
   BUILD_IMAGE_DEVICE=`losetup -f --show ${1}`
   printStatus "setupImage" "loop device is ${BUILD_IMAGE_DEVICE}"
 
@@ -36,18 +38,6 @@ function setupImage {
 
 # Usage setupDevice <DEVICE>
 function setupDevice {
-  isBlockDev ${1}
-  checkStatus "${1} is not a block device"
-  isRemDevice ${1}
-  checkStatus "${1} is not a removable device"
-  
-  printf "Content of ${1} :\n"
-  
-  fdisk -l ${1}
-  
-  promptYN "The content of ${1} will be erased, continue?"
-  checkStatus "Not erasing ${1}"
-  
   printStatus "setupDevice" "Erasing ${1}"
   dd if=/dev/zero of=${1} bs=1M count=1 >> ${BUILD_LOG_FILE} 2>&1
   checkStatus "dd exit with status $?"
@@ -93,6 +83,8 @@ function unmountAll {
 }
 
 function freeImage {
+  partSync
+  
   printStatus "freeImage" "Running kpartx -d ${1}"
   kpartx -d ${1}
 

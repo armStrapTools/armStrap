@@ -15,8 +15,6 @@ BUILD_MNT_BOOT="${BUILD_MNT_ROOT}/boot"
 
 BUILD_ROOT_DEV="/dev/mmcblk0p1"
 BUILD_MAC_VENDOR=0x000246
-# If BUILD_MAC_ADDRESS is set, it will be the MAC address of the board, else a mac will be randomly generated.
-BUILD_MAC_ADDRESS="008010EDDF01"
 BUILD_CONFIG_CMDLINE="console=tty0 console=ttyS0,115200 hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BUILD_ROOT_DEV} rootwait panic=10"
 
 BUILD_DEB_SUITE="wheezy"

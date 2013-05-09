@@ -28,9 +28,12 @@ BOARD_ETH0_MODE="dhcp"
 #BOARD_ETH0_GW="192.168.0.1"
 #BOARD_DNS="8.8.8.8 8.8.4.4"
 #BOARD_DOMAIN="localhost.com"
+# Some board need a mac address, if this is not set and the board need one,
+# a pseudo random mac address will be generated.
+BOARD_MAC_ADDRESS="008010EDDF01"
 
 ##############################################################################
 # Output configuration
 #
 # If you want to install directly into your SD card, put the device here
-BUILD_DEVICE="/dev/sdc"
+#BUILD_DEVICE="/dev/sdc"

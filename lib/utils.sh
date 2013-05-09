@@ -1,9 +1,4 @@
 
-function showTitle {
- printf "\n%s version %s\n" "`basename ${0}`" "${PRG_VERSION}"
- printf "Copyright (C) 2013 Eddy Beaupre\n\n"
-}
-
 function showLicence {
   cat <<EOF
 -------------------------------------------------------------------------------
@@ -33,7 +28,7 @@ EOF
 }
 
 function showUsage {
-  printf "Usage : sudo %s [PARAMETERS]\n\n" "`basename ${0}`"
+  printf "Usage : sudo %s [PARAMETERS]\n\n" "${PRG_NAME}"
   printf "% 4s %- 20s %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
   printf "% 4s %- 20s %s\n" "-d" "<DEVICE>" "Write to <DEVICE> instead of creating an image."
   printf "% 4s %- 20s %s\n" "-i" "<FILE>" "Set image filename to <FILE>."
@@ -53,39 +48,12 @@ function showUsage {
   printf "\nYou need to be root to run this script.\n\n"
 }
 
-# Usage: logStatus <function> <message>
-
-function logStatus {
-  local TMP_TIME=`date +%y/%m/%d-%H:%M:%S`
-  
-  if [ ! -d "${BUILD_LOG}" ]; then
-    mkdir -p ${BUILD_LOG}
-  fi
-  
-  printf "[% 17s] % 15s : %s\n" "${TMP_TIME}" "${1}" "${2}" >> ${BUILD_LOG_FILE}
-}
-
-# Usage: printStatus <function> <message>
-
-function printStatus {
-  printf "** % 15s : %s\n" "${1}" "${2}"
-  logStatus "${1}" "${2}"
-}
-
 # Usage: installPrereq 
 function installPrereqs {
   for i in ${BUILD_PREREQ}; do testInstall ${i}; done
 }
 
-# Usage: isRoot
 
-function isRoot {
-  if [ "`id -u`" -ne "0" ]; then
-    logStatus "isRoot" "User `whoami` (`id -u`) is not root"
-    return 1
-  fi
-  return 0
-}
 
 # Usage : isBlockDev <DEVICE>
 
@@ -142,16 +110,6 @@ function promptYN {
   echo ""
 }
 
-# Usage: checkDirectory <path>
-
-function checkDirectory {
-  if [ ! -d "${1}" ]; then
-    printStatus "checkDirectory" "Creating ${1}"
-    mkdir -p ${1}
-    checkStatus "Creation of directory ${1} failed"
-  fi
-}
-
 # Usage: getSources <repos> <target_directory>
 
 function getSources {
@@ -173,13 +131,6 @@ function getSources {
   fi
 }
 
-function checkStatus {
-  if [ $? -ne 0 ]; then
-    printStatus "checkStatus" "Aborting (${1})"
-    exit 1
-  fi
-}
-
 # Usage: mkImage <FILE> <SIZE IN MB>
 function mkImage {
 
@@ -190,12 +141,64 @@ function mkImage {
     promptYN "${1} exist, overwrite?"
     checkStatus "Not overwriting ${1}"
   fi
-  
-  
+
   dd if=/dev/zero of=${1} bs=1M count=${2} >> ${BUILD_LOG_FILE} 2>&1
   checkStatus "dd exit with status $?"
 }
 
+# Usage macAddress <VENDOR_ID>
+function macAddress {
+  if [ -n ${1} ]; then
+    if [ -z ${BOARD_MAC_ADDRESS} ]; then
+      BOARD_MAC_ADDRESS=$( printf "%012x" $((${1} * 16777216 + $[ $RANDOM % 16777216 ])) )
+    fi
+  fi
+}
+
 function funExist {
   declare -f -F ${1} > /dev/null
+}
+
+
+function showConfig {
+  printf "\n% 20s\n" "Configuration"
+  printf "%s\n\n" "--------------------"
+  printf "% 20s : %s\n" "Board" "${BOARD_CONFIG}"
+  printf "% 20s : %s\n" "Hostname" "${BOARD_HOSTNAME}"
+  printf "% 20s : %s\n" "Root Password" "${BOARD_PASSWORD}"
+  if [ ! -z "${BOARD_SWAP}" ]; then
+    printf "% 20s : %sMB\n" "Swapfile Size" "${BOARD_SWAP_SIZE}"
+  fi
+
+  printf "% 20s : %s\n" "Log File" "${BUILD_LOG_FILE}"
+  if [ ! -z "${BOARD_MAC_ADDRESS}" ]; then
+    printf "% 20s : %s\n" "Mac Address" "${BOARD_MAC_ADDRESS}"
+  fi
+  if [ "${BOARD_ETH0_MODE}" == "dhcp" ]; then
+    printf "% 20s : %s\n" "IP Address" "${BOARD_ETH0_MODE}"
+  else
+    printf "% 20s : %s\n" "IP Address" "${BOARD_ETH0_IP}"
+    printf "% 20s : %s\n" "Mask" "${BOARD_ETH0_MASK}"
+    printf "% 20s : %s\n" "Gateway" "${BOARD_ETH0_GW}"
+    printf "% 20s : %s\n" "Search Domain" "${BOARD_DOMAIN}"
+    printf "% 20s : %s\n" "DNS" "${BOARD_DNS}"
+  fi
+    if [ -z "${BUILD_DEVICE}" ]; then
+    printf "% 20s : %sMB\n" "Image Size" "${BUILD_IMAGE_SIZE}"
+    printf "% 20s : %s\n" "Image File" "${BUILD_IMAGE_NAME}"
+    if [ -e "${BUILD_IMAGE_NAME}" ]; then
+      printf "\n% 20s : %s\n" "!!! Warning !!!" "Image file exists, will be overwritten"
+    fi
+  else
+    printf "% 20s : %s\n" "Content of" "${BUILD_DEVICE}"
+    isBlockDev ${BUILD_DEVICE}
+    checkStatus "${BUILD_DEVICE} is not a block device"
+    isRemDevice ${BUILD_DEVICE}
+    checkStatus "${BUILD_DEVICE} is not a removable device"
+    fdisk -l ${BUILD_DEVICE}
+  fi
+  
+  promptYN "OK to proceed?"
+  checkStatus "Not ok to proceed."    
+    
 }
