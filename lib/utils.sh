@@ -151,25 +151,34 @@ function promptYN {
   echo ""
 }
 
-# Usage: getSources <repos> <target_directory>
+# Usage: gitSources <repos> <target_directory>
 
-function getSources {
-  printStatus "getSources" "Checking Sources for ${2}"
+function gitSources {
+  printStatus "gitSources" "Checking Sources for ${2}"
   if [ -d "${2}" ]; then
     local TMP_WORKDIR=`pwd`
     cd ${2}
-    printStatus "getSources" "Updating sources for ${2}"
+    printStatus "gitSources" "Updating sources for ${2}"
     git pull --quiet >> ${BUILD_LOG_FILE} 2>&1
     cd ${TMP_WORKDIR}
   else
-    printStatus "getSources" "Cloning $2 from $1"
+    printStatus "gitSources" "Cloning $2 from $1"
     git clone --quiet $1 $3 $4 $2 >> ${BUILD_LOG_FILE} 2>&1
   fi
   
   if [ ! -d "${2}" ]; then
-    printStatus "getSources" "Aborting, Cannot find ${2}"
+    printStatus "gitSources" "Aborting, Cannot find ${2}"
     exit 1
   fi
+}
+
+function gitExport {
+  local TMP_DIR=`basename ${1}`
+  printStatus "gitExport" "Exporting ${TMP_DIR} to ${2}"
+  cd "${1}"
+  checkDirectory "${2}/${TMP_DIR}"
+  git archive --format tar HEAD | tar -x -C "${2}/${TMP_DIR}"
+  cd "${BUILD_ROOT}"
 }
 
 # Usage: mkImage <FILE> <SIZE IN MB>
@@ -200,6 +209,14 @@ function funExist {
   declare -f -F ${1} > /dev/null
 }
 
+# usage <TARGET_LINK> <TARGET_DIRECTORY> <SOURCE>
+function fixSymLink {
+  printStatus "fixSymLink" "Fixing symlink for ${1}"
+  cd ${2}
+  rm -f ${1}
+  ln -s ${3} ${1}
+  cd ${BUILD_ROOT}
+}
 
 function showConfig {
   printf "\n% 20s\n" "Configuration"

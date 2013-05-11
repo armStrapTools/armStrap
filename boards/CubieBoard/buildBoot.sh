@@ -3,9 +3,9 @@
 function buildBoot {
   printStatus "buildBoot" "Starting"
   
-  getSources ${BUILD_UBOOT_GIT} ${BUILD_UBOOT_DIR}
-  getSources ${BUILD_SUNXI_BOARD_GIT} ${BUILD_SUNXI_BOARD_DIR}
-  getSources ${BUILD_SUNXI_TOOLS_GIT} ${BUILD_SUNXI_TOOLS_DIR}
+  gitSources ${BUILD_UBOOT_GIT} ${BUILD_UBOOT_DIR}
+  gitSources ${BUILD_SUNXI_BOARD_GIT} ${BUILD_SUNXI_BOARD_DIR}
+  gitSources ${BUILD_SUNXI_TOOLS_GIT} ${BUILD_SUNXI_TOOLS_DIR}
 
   sunxiMkTools ${BUILD_SUNXI_TOOLS_DIR}
   

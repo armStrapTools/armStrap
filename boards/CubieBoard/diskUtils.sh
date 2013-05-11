@@ -76,10 +76,10 @@ function mountAll {
 
 
 function unmountAll {
+  partSync
   printStatus "unmountAll" "Unmounting ${BUILD_IMAGE_ROOTP} from ${BUILD_MNT_ROOT}"
   umount ${BUILD_MNT_ROOT}
   checkStatus "Unmount of ${BUILD_IMAGE_ROOTP} from ${BUILD_MNT_ROOT} failed, error code ${?}"
-  partSync
 }
 
 function freeImage {

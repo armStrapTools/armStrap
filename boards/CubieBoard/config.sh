@@ -48,6 +48,8 @@ BUILD_KERNEL_DIR="${BUILD_SRC}/linux-sunxi"
 BUILD_KERNEL_CNF="${BUILD_KERNEL_DIR}/.config"
 BUILD_KERNEL_NAME="uImage"
 BUILD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
+BUILD_KERNEL_VERSION=""
+BUILD_KERNEL_SRCDST="${BUILD_MNT_ROOT}/usr/src"
 
 BUILD_UBOOT_GIT="https://github.com/linux-sunxi/u-boot-sunxi.git"
 BUILD_UBOOT_DIR="${BUILD_SRC}/u-boot-sunxi"

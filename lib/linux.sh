@@ -55,3 +55,9 @@ function installKernel {
   checkDirectory ${3}
   cp ${1}/arch/${BUILD_ARCH}/boot/${2} ${3}/
 }
+
+# usage kernelVersion
+function kernelVersion {
+  BUILD_KERNEL_VERSION=`make --quiet -C ${1} ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} kernelrelease`
+  printStatus "kernelVersion" "Linux Kernel version is ${BUILD_KERNEL_VERSION}"
+}
