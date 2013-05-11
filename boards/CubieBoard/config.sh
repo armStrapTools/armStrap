@@ -6,11 +6,13 @@ BUILD_ARCH_PREFIX="${BUILD_ARCH_COMPILER}-"
 BUILD_ARCH_GCC_VERSION="4.7"
 BUILD_ARCH_GCC_PACKAGE="gcc-${BUILD_ARCH_GCC_VERSION}-${BUILD_ARCH_COMPILER}"
 
+BUILD_LC="C"
+
 BUILD_BOARD_CPU="a10"
 BUILD_BOARD="cubieboard"
 BUILD_BOARD_KERNEL="sun4i_defconfig"
 
-BUILD_MNT_ROOT="${BOARD_ROOT}/mnt"
+BUILD_MNT_ROOT="${ARMSTRAP_ROOT}/mnt"
 BUILD_MNT_BOOT="${BUILD_MNT_ROOT}/boot"
 
 BUILD_SERIALCON_ID="T0"
@@ -42,22 +44,22 @@ BUILD_DEBIAN_RECONFIG="locales tzdata"
 
 BUILD_KERNEL_GIT="https://github.com/linux-sunxi/linux-sunxi.git"
 BUILD_KERNEL_GIT_PARAM="-b sunxi-3.4"
-BUILD_KERNEL_DIR="${BOARD_SRC}/linux-sunxi"
+BUILD_KERNEL_DIR="${ARMSTRAP_SRC}/linux-sunxi"
 BUILD_KERNEL_CNF="${BUILD_KERNEL_DIR}/.config"
 BUILD_KERNEL_NAME="uImage"
 BUILD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
 BUILD_KERNEL_SRCDST="${BUILD_MNT_ROOT}/usr/src"
 
 BUILD_UBOOT_GIT="https://github.com/linux-sunxi/u-boot-sunxi.git"
-BUILD_UBOOT_DIR="${BOARD_SRC}/u-boot-sunxi"
+BUILD_UBOOT_DIR="${ARMSTRAP_SRC}/u-boot-sunxi"
 BUILD_UBOOT_SRCDST="${BUILD_MNT_ROOT}/usr/src"
 
 BUILD_SUNXI_BOARD_GIT="https://github.com/linux-sunxi/sunxi-boards.git"
-BUILD_SUNXI_BOARD_DIR="${BOARD_SRC}/sunxi-boards"
+BUILD_SUNXI_BOARD_DIR="${ARMSTRAP_SRC}/sunxi-boards"
 BUILD_SUNXI_BOARD_SRCDST="${BUILD_MNT_ROOT}/usr/src"
 
 BUILD_SUNXI_TOOLS_GIT="https://github.com/linux-sunxi/sunxi-tools.git"
-BUILD_SUNXI_TOOLS_DIR="${BOARD_SRC}/sunxi-tools"
+BUILD_SUNXI_TOOLS_DIR="${ARMSTRAP_SRC}/sunxi-tools"
 BUILD_SUNXI_TOOLS_SRCDST="${BUILD_MNT_ROOT}/usr/src"
 
 BUILD_BOOT_CMD="${BUILD_MNT_ROOT}/boot/boot.cmd"

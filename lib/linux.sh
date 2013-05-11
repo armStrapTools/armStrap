@@ -10,7 +10,7 @@ function editConfig {
 
   printStatus "editConfig" "Configuring parameter ${TMP_PRM} to ${@}"
   printf "s#^${TMP_PRM}=.*#${TMP_PRM}=\"%s\"#\n" "${@}" > ${TMP_SED}
-  sed -f ${TMP_SED} ${BOARD_SRC}/linux-sunxi/.config > ${TMP_CNF_MOD}
+  sed -f ${TMP_SED} ${ARMSTRAP_SRC}/linux-sunxi/.config > ${TMP_CNF_MOD}
   rm -f ${TMP_SED}
   rm -f ${TMP_CNF}
   mv ${TMP_CNF_MOD} ${TMP_CNF}
@@ -18,21 +18,21 @@ function editConfig {
 
 # usage patchKernel <KERNEL_DIRECTORY>
 function patchKernel {
-  if [ -d "${BOARD_ROOT}/boards/${BOARD_CONFIG}/patches" ]; then
+  if [ -d "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/patches" ]; then
     cd ${1}
-    for i in ${BOARD_ROOT}/boards/${BOARD_CONFIG}/patches/kernel_*.patch; do
+    for i in ${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/patches/kernel_*.patch; do
       printStatus "patchKernel" "Applying patch ${i}"
-      patch -p0 < ${i} >> ${BOARD_LOG_FILE} 2>&1
+      patch -p0 < ${i} >> ${ARMSTRAP_LOG_FILE} 2>&1
     done
-    cd ${BOARD_ROOT}
+    cd ${ARMSTRAP_ROOT}
   fi
 }
 
 # usage configKernel <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY> <BOARD_DEFCONFIG>
 function configKernel {
   printStatus "configKernel" "Configuring ${1} for ${2}"
-  make -C ${3} ARCH=${1} CROSS_COMPILE=${2} distclean >> ${BOARD_LOG_FILE} 2>&1
-  make -C ${3} ARCH=${1} CROSS_COMPILE=${2} ${4} >> ${BOARD_LOG_FILE} 2>&1
+  make -C ${3} ARCH=${1} CROSS_COMPILE=${2} distclean >> ${ARMSTRAP_LOG_FILE} 2>&1
+  make -C ${3} ARCH=${1} CROSS_COMPILE=${2} ${4} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # usage menuConfig <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY>
@@ -51,7 +51,7 @@ function makeKernel {
   shift
   
   printStatus "makeKernel" "Running make ${@}"
-  make -C ${TMP_DIR} ARCH=${TMP_ARCH} CROSS_COMPILE=${TMP_PRFX} -j${BOARD_THREADS} ${@} >> ${BOARD_LOG_FILE} 2>&1
+  make -C ${TMP_DIR} ARCH=${TMP_ARCH} CROSS_COMPILE=${TMP_PRFX} -j${ARMSTRAP_THREADS} ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # usage installKernel <ARCH> <KERNEL_DIRECTORY> <KERNEL_FILE> <TARGET_DIRECTORY
@@ -63,6 +63,6 @@ function installKernel {
 
 # usage kernelVersion <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY>
 function kernelVersion {
-  BOARD_KERNEL_VERSION=`make --quiet -C ${3} ARCH=${1} CROSS_COMPILE=${2} kernelrelease`
-  printStatus "kernelVersion" "Linux Kernel version is ${BOARD_KERNEL_VERSION}"
+  ARMSTRAP_KERNEL_VERSION=`make --quiet -C ${3} ARCH=${1} CROSS_COMPILE=${2} kernelrelease`
+  printStatus "kernelVersion" "Linux Kernel version is ${ARMSTRAP_KERNEL_VERSION}"
 }

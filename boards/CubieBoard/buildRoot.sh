@@ -4,7 +4,7 @@ function buildRoot {
 
   bootStrap ${BUILD_MNT_ROOT} ${BUILD_ARCH} ${BUILD_ARCH_EABI} ${BUILD_DEBIAN_SUITE}
 
-  setHostName ${BUILD_MNT_ROOT} ${BOARD_HOSTNAME}
+  setHostName ${BUILD_MNT_ROOT} ${ARMSTRAP_HOSTNAME}
   
   clearSourcesList
   addSource ${BUILD_MNT_ROOT} ${BUILD_DEBIAN_SOURCE} "${BUILD_DEBIAN_SUITE}" ${BUILD_DEBIAN_SOURCE_COMPONENTS}
@@ -13,9 +13,9 @@ function buildRoot {
   initSources
   
   if [ -n "${BUILD_DEBIAN_EXTRAPACKAGES}" ]; then
-    if [ -n "${BOARD_SWAP}" ]; then
+    if [ -n "${ARMSTRAP_SWAP}" ]; then
       installPackages ${BUILD_MNT_ROOT} "${BUILD_DEBIAN_EXTRAPACKAGES} dphys-swapfile"
-      printf "CONF_SWAPSIZE=%s" ${BOARD_SWAP_SIZE} > ${BUILD_MNT_ROOT}/etc/dphys-swapfile
+      printf "CONF_SWAPSIZE=%s" ${ARMSTRAP_SWAP_SIZE} > ${BUILD_MNT_ROOT}/etc/dphys-swapfile
     else
       installPackages ${BUILD_MNT_ROOT} "${BUILD_DEBIAN_EXTRAPACKAGES}"
     fi
@@ -23,7 +23,7 @@ function buildRoot {
 
   configPackages ${BUILD_MNT_ROOT} ${BUILD_DEBIAN_RECONFIG}
 
-  setRootPassword ${BUILD_MNT_ROOT} ${BOARD_PASSWORD}
+  setRootPassword ${BUILD_MNT_ROOT} ${ARMSTRAP_PASSWORD}
   
   addInitTab ${BUILD_MNT_ROOT} "${BUILD_SERIALCON_ID}" "${BUILD_SERIALCON_RUNLEVEL}" "${BUILD_SERIALCON_TERM}" "${BUILD_SERIALCON_SPEED}" "${BUILD_SERIALCON_TYPE}"
 
@@ -34,12 +34,12 @@ function buildRoot {
     addKernelModule ${BUILD_MNT_ROOT} ${i}
   done
 
-  addIface ${BUILD_MNT_ROOT} "eth0" "${BOARD_ETH0_MODE}" "${BOARD_ETH0_IP}" "${BOARD_ETH0_MASK}" "${BOARD_ETH0_GW}"
+  addIface ${BUILD_MNT_ROOT} "eth0" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}"
   
-  if [ "${BOARD_ETH0_MODE}" != "dhcp" ]; then
+  if [ "${ARMSTRAP_ETH0_MODE}" != "dhcp" ]; then
     initResolvConf ${BUILD_MNT_ROOT} 
-    addSearchDomain ${BUILD_MNT_ROOT} "${BOARD_DOMAIN}"
-    addNameServer ${BUILD_MNT_ROOT} "${BOARD_DNS}"
+    addSearchDomain ${BUILD_MNT_ROOT} "${ARMSTRAP_ETH0_DOMAIN}"
+    addNameServer ${BUILD_MNT_ROOT} "${ARMSTRAP_ETH0_DNS}"
   fi
   
   bootClean ${BUILD_MNT_ROOT} ${BUILD_ARCH}

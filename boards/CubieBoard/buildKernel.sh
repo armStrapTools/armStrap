@@ -23,8 +23,8 @@ function buildKernel {
   
   gitExport "${BUILD_KERNEL_DIR}" "${BUILD_KERNEL_SRCDST}"
   
-  fixSymLink "build" "${BUILD_MNT_ROOT}/lib/modules/${BOARD_KERNEL_VERSION}/" "../../../usr/src/linux-sunxi/"
-  fixSymLink "source" "${BUILD_MNT_ROOT}/lib/modules/${BOARD_KERNEL_VERSION}/" "../../../usr/src/linux-sunxi/"
+  fixSymLink "build" "${BUILD_MNT_ROOT}/lib/modules/${ARMSTRAP_KERNEL_VERSION}/" "../../../usr/src/linux-sunxi/"
+  fixSymLink "source" "${BUILD_MNT
   
   printStatus "buildKernel" "Done"
 }

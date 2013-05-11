@@ -4,50 +4,44 @@
 # Variables that should never be changed
 #
 
-PRG_VERSION="0.21"
-PRG_NAME=`basename ${0}`
+ARMSTRAP_VERSION="0.21"
+ARMSTRAP_NAME=`basename ${0}`
 
-printf "\n%s version %s\n" "${PRG_NAME}" "${PRG_VERSION}"
+printf "\n%s version %s\n" "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 printf "Copyright (C) 2013 Eddy Beaupre\n\n"
 
 if [ "`id -u`" -ne "0" ]; then
   . ./lib/utils.sh
   showUsage
-  printf "\nYou (%s) are not root! Try again with 'sudo %s'.\n\n" "`whoami`" "${PRG_NAME}"
+  printf "\nYou (%s) are not root! Try again with 'sudo %s'.\n\n" "`whoami`" "${ARMSTRAP_NAME}"
   exit 1
 fi
 
-BOARD_LANG="C"
+ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
+ARMSTRAP_ROOT=`pwd`
+ARMSTRAP_THREADS="16"
 
-BUILD_DATE=`date +%y%m%d_%H%M%S`
-BUILD_ROOT=`pwd`
-BUILD_THREADS="16"
+ARMSTRAP_MNT="${ARMSTRAP_ROOT}/mnt"
+ARMSTRAP_SRC="${ARMSTRAP_ROOT}/src"
+ARMSTRAP_LOG="${ARMSTRAP_ROOT}/log"
+ARMSTRAP_IMG="${ARMSTRAP_ROOT}/img"
 
-BUILD_MNT="${BUILD_ROOT}/mnt"
-BUILD_SRC="${BUILD_ROOT}/src"
-BUILD_LOG="${BUILD_ROOT}/log"
-BUILD_IMG="${BUILD_ROOT}/img"
-
-mkdir -p ${BUILD_LOG}
+mkdir -p ${ARMSTRAP_LOG}
 
 # The logfile will be renamed to the real log file later
-BOARD_LOG_FILE=`mktemp ${BUILD_LOG}/armStrap.XXXXXXXX`
-
-# These are defined in boards/<name>/config.sh 
-BOARD_MNT_ROOT=""
-BUILD_MNT_BOOT=""
+ARMSTRAP_LOG_FILE=`mktemp ${ARMSTRAP_LOG}/armStrap.XXXXXXXX`
 
 # The image name is defined later.
-BUILD_IMAGE_NAME=""
+ARMSTRAP_IMAGE_NAME=""
 
-# BUILD_IMAGE_SIZE is in MB
-BUILD_IMAGE_SIZE="1024"
-BUILD_IMAGE_DEVICE=""
-BUILD_IMAGE_BOOTP=""
-BUILD_IMAGE_ROOTP=""
+# ARMSTRAP_IMAGE_SIZE is in MB
+ARMSTRAP_IMAGE_SIZE="1024"
+ARMSTRAP_IMAGE_DEVICE=""
+ARMSTRAP_IMAGE_ROOTP=""
+ARMSTRAP_IMAGE_BOOTP=""
 
 # The version of the kernel that has been build
-BOARD_KERNEL_VERSION=""
+ARMSTRAP_KERNEL_VERSION=""
 
 #
 # Here we go...
@@ -62,47 +56,47 @@ done
 while getopts ":b:d:i:s:h:p:z:n:r:cwWN" opt; do
   case $opt in
     b)
-      BOARD_CONFIG="${OPTARG}"
+      ARMSTRAP_CONFIG="${OPTARG}"
       ;;
     d)
-      BUILD_DEVICE="${OPTARG}"
+      ARMSTRAP_DEVICE="${OPTARG}"
       ;;
     i)
-      BUILD_IMAGE_NAME="${OPTARG}"
+      ARMSTRAP_IMAGE_NAME="${OPTARG}"
       ;;
     s)
-      BUILD_IMAGE_SIZE="${OPTARG}"
+      ARMSTRAP_IMAGE_SIZE="${OPTARG}"
       ;;
     h)
-      BOARD_HOSTNAME="${OPTARG}"
+      ARMSTRAP_HOSTNAME="${OPTARG}"
       ;;
     p)
-      BOARD_PASSWORD="${OPTARG}"
+      ARMSTRAP_PASSWORD="${OPTARG}"
       ;;
     w)
-      BOARD_SWAP="yes"
+      ARMSTRAP_SWAP="yes"
       ;;
     W)
-      BOARD_SWAP=""
+      ARMSTRAP_SWAP=""
       ;;
     z)
-      BOARD_SWAP_SIZE=="${OPTARG}"
+      ARMSTRAP_SWAP_SIZE=="${OPTARG}"
       ;;
     n)
-      BOARD_ETH0_MODE="static"
+      ARMSTRAP_ETH0_MODE="static"
       ip=(${OPTARG})
-      BOARD_ETH0_IP=${ip[0]}
-      BOARD_ETH0_MASK="${ip[1]}"
-      BOARD_ETH0_GW="${ip[2]}"
+      ARMSTRAP_ETH0_IP=${ip[0]}
+      ARMSTRAP_ETH0_MASK="${ip[1]}"
+      ARMSTRAP_ETH0_GW="${ip[2]}"
       ;;
     N)
-      BOARD_ETH0_MODE="dhcp"
+      ARMSTRAP_ETH0_MODE="dhcp"
       ;;
     r)
-      BOARD_DNS="${OPTARG}"
+      ARMSTRAP_ETH0_DNS="${OPTARG}"
       ;;
     e)
-      BOARD_DOMAIN="${OPTARG}"
+      ARMSTRAP_ETH0_DOMAIN="${OPTARG}"
       ;;
     c)
       showLicence
@@ -120,24 +114,24 @@ while getopts ":b:d:i:s:h:p:z:n:r:cwWN" opt; do
   esac
 done
 
-checkDirectory ${BUILD_SRC}
-checkDirectory ${BUILD_MNT}
-checkDirectory ${BUILD_IMG}
+checkDirectory ${ARMSTRAP_SRC}
+checkDirectory ${ARMSTRAP_MNT}
+checkDirectory ${ARMSTRAP_IMG}
 
-printStatus "initBuild" "Reading ./boards/${BOARD_CONFIG}/config.sh"
-source ./boards/${BOARD_CONFIG}/config.sh
+printStatus "initBuild" "Reading ./boards/${ARMSTRAP_CONFIG}/config.sh"
+source ./boards/${ARMSTRAP_CONFIG}/config.sh
 
-rm -f ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
-mv ${BOARD_LOG_FILE} ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
-BOARD_LOG_FILE="${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log"
+rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
+mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
+ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log"
 
-if [ -z ${BUILD_IMAGE_NAME} ]; then
-  BUILD_IMAGE_NAME=${BUILD_IMG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.img
+if [ -z ${ARMSTRAP_IMAGE_NAME} ]; then
+  ARMSTRAP_IMAGE_NAME=${ARMSTRAP_IMG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.img
 fi
 
 for i in ${BUILD_SCRIPTS}; do
-  printStatus "initBuild" "Reading ./boards/${BOARD_CONFIG}/${i}"
-  source ./boards/${BOARD_CONFIG}/${i}
+  printStatus "initBuild" "Reading ./boards/${ARMSTRAP_CONFIG}/${i}"
+  source ./boards/${ARMSTRAP_CONFIG}/${i}
 done
 
 showConfig
@@ -147,13 +141,13 @@ if [ ${?} -eq 0 ]; then
   init
 fi
 
-if [ -z "${BUILD_DEVICE}" ]; then
-  setupImage ${BUILD_IMAGE_NAME} ${BUILD_IMAGE_SIZE}
+if [ -z "${ARMSTRAP_DEVICE}" ]; then
+  setupImage ${ARMSTRAP_IMAGE_NAME} ${ARMSTRAP_IMAGE_SIZE}
 else
-  setupDevice ${BUILD_DEVICE}
+  setupDevice ${ARMSTRAP_DEVICE}
 fi
 
-createFS ${BUILD_IMAGE_ROOTP}
+createFS ${ARMSTRAP_IMAGE_ROOTP}
 
 mountAll
 
@@ -161,6 +155,6 @@ installOS
 
 unmountAll
 
-if [ -z "${BUILD_DEVICE}" ]; then
-  freeImage ${BUILD_IMAGE_DEVICE} ${BUILD_IMAGE_NAME}
+if [ -z "${ARMSTRAP_DEVICE}" ]; then
+  freeImage ${ARMSTRAP_IMAGE_DEVICE} ${ARMSTRAP_IMAGE_NAME}
 fi

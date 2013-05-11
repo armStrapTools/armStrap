@@ -28,7 +28,7 @@ EOF
 }
 
 function showUsage {
-  printf "Usage : sudo %s [PARAMETERS]\n\n" "${PRG_NAME}"
+  printf "Usage : sudo %s [PARAMETERS]\n\n" "${ARMSTRAP_NAME}"
   printf "% 4s %- 20s %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
   printf "% 4s %- 20s %s\n" "-d" "<DEVICE>" "Write to <DEVICE> instead of creating an image."
   printf "% 4s %- 20s %s\n" "-i" "<FILE>" "Set image filename to <FILE>."
@@ -57,8 +57,8 @@ function logStatus {
   local TMP_NAME=${1}
   shift
   
-  printf "[% 17s] % 15s : " "${TMP_TIME}" "${TMP_NAME}" >> ${BOARD_LOG_FILE}
-  echo "${@}" >> ${BOARD_LOG_FILE}
+  printf "[% 17s] % 15s : " "${TMP_TIME}" "${TMP_NAME}" >> ${ARMSTRAP_LOG_FILE}
+  echo "${@}" >> ${ARMSTRAP_LOG_FILE}
 }
 
 # Usage: printStatus <function> <message>
@@ -133,7 +133,7 @@ function testInstall {
   local IN=(`dpkg-query -W -f='${Status} ${Version}\n' ${1} 2> /dev/null`)
   if [ "${IN[0]}" != "install" ]; then
     printStatus "testInstall" "Installing ${1}"
-    apt-get --quiet -y install ${1} >> ${BOARD_LOG_FILE} 2>&1
+    apt-get --quiet -y install ${1} >> ${ARMSTRAP_LOG_FILE} 2>&1
   fi
 }
 
@@ -169,11 +169,11 @@ function gitSources {
     local TMP_WORKDIR=`pwd`
     cd ${2}
     printStatus "gitSources" "Updating sources for ${2}"
-    git pull --quiet >> ${BOARD_LOG_FILE} 2>&1
+    git pull --quiet >> ${ARMSTRAP_LOG_FILE} 2>&1
     cd ${TMP_WORKDIR}
   else
     printStatus "gitSources" "Cloning $2 from $1"
-    git clone --quiet $1 $3 $4 $2 >> ${BOARD_LOG_FILE} 2>&1
+    git clone --quiet $1 $3 $4 $2 >> ${ARMSTRAP_LOG_FILE} 2>&1
   fi
   
   if [ ! -d "${2}" ]; then
@@ -188,7 +188,7 @@ function gitExport {
   cd "${1}"
   checkDirectory "${2}/${TMP_DIR}"
   git archive --format tar HEAD | tar -x -C "${2}/${TMP_DIR}"
-  cd "${BOARD_ROOT}"
+  cd "${ARMSTRAP_ROOT}"
 }
 
 # Usage: mkImage <FILE> <SIZE IN MB>
@@ -202,7 +202,7 @@ function mkImage {
     checkStatus "Not overwriting ${1}"
   fi
 
-  dd if=/dev/zero of=${1} bs=1M count=${2} >> ${BOARD_LOG_FILE} 2>&1
+  dd if=/dev/zero of=${1} bs=1M count=${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "dd exit with status $?"
 }
 
@@ -225,45 +225,45 @@ function fixSymLink {
   cd ${2}
   rm -f ${1}
   ln -s ${3} ${1}
-  cd ${BOARD_ROOT}
+  cd ${ARMSTRAP_ROOT}
 }
 
 function showConfig {
   printf "\n% 20s\n" "Configuration"
   printf "%s\n\n" "--------------------"
-  printf "% 20s : %s\n" "Board" "${BOARD_CONFIG}"
-  printf "% 20s : %s\n" "Hostname" "${BOARD_HOSTNAME}"
-  printf "% 20s : %s\n" "Root Password" "${BOARD_PASSWORD}"
-  if [ ! -z "${BOARD_SWAP}" ]; then
-    printf "% 20s : %sMB\n" "Swapfile Size" "${BOARD_SWAP_SIZE}"
+  printf "% 20s : %s\n" "Board" "${ARMSTRAP_CONFIG}"
+  printf "% 20s : %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
+  printf "% 20s : %s\n" "Root Password" "${ARMSTRAP_PASSWORD}"
+  if [ ! -z "${ARMSTRAP_SWAP}" ]; then
+    printf "% 20s : %sMB\n" "Swapfile Size" "${ARMSTRAP_SWAP_SIZE}"
   fi
 
-  printf "% 20s : %s\n" "Log File" "${BOARD_LOG_FILE}"
+  printf "% 20s : %s\n" "Log File" "${ARMSTRAP_LOG_FILE}"
   if [ ! -z "${BOARD_MAC_ADDRESS}" ]; then
     printf "% 20s : %s\n" "Mac Address" "${BOARD_MAC_ADDRESS}"
   fi
-  if [ "${BOARD_ETH0_MODE}" == "dhcp" ]; then
-    printf "% 20s : %s\n" "IP Address" "${BOARD_ETH0_MODE}"
+  if [ "${ARMSTRAP_ETH0_MODE}" == "dhcp" ]; then
+    printf "% 20s : %s\n" "IP Address" "${ARMSTRAP_ETH0_MODE}"
   else
-    printf "% 20s : %s\n" "IP Address" "${BOARD_ETH0_IP}"
-    printf "% 20s : %s\n" "Mask" "${BOARD_ETH0_MASK}"
-    printf "% 20s : %s\n" "Gateway" "${BOARD_ETH0_GW}"
-    printf "% 20s : %s\n" "Search Domain" "${BOARD_DOMAIN}"
-    printf "% 20s : %s\n" "DNS" "${BOARD_DNS}"
+    printf "% 20s : %s\n" "IP Address" "${ARMSTRAP_ETH0_IP}"
+    printf "% 20s : %s\n" "Mask" "${ARMSTRAP_ETH0_MASK}"
+    printf "% 20s : %s\n" "Gateway" "${ARMSTRAP_ETH0_GW}"
+    printf "% 20s : %s\n" "Search Domain" "${ARMSTRAP_ETH0_DOMAIN}"
+    printf "% 20s : %s\n" "DNS" "${ARMSTRAP_ETH0_DNS}"
   fi
-    if [ -z "${BOARD_DEVICE}" ]; then
-    printf "% 20s : %sMB\n" "Image Size" "${BOARD_IMAGE_SIZE}"
-    printf "% 20s : %s\n" "Image File" "${BOARD_IMAGE_NAME}"
-    if [ -e "${BOARD_IMAGE_NAME}" ]; then
+    if [ -z "${ARMSTRAP_DEVICE}" ]; then
+    printf "% 20s : %sMB\n" "Image Size" "${ARMSTRAP_IMAGE_SIZE}"
+    printf "% 20s : %s\n" "Image File" "${ARMSTRAP_IMAGE_NAME}"
+    if [ -e "${ARMSTRAP_IMAGE_NAME}" ]; then
       printf "\n% 20s : %s\n" "!!! Warning !!!" "Image file exists, will be overwritten"
     fi
   else
-    printf "% 20s : %s\n" "Content of" "${BOARD_DEVICE}"
-    isBlockDev ${BOARD_DEVICE}
-    checkStatus "${BOARD_DEVICE} is not a block device"
-    isRemDevice ${BOARD_DEVICE}
-    checkStatus "${BOARD_DEVICE} is not a removable device"
-    fdisk -l ${BOARD_DEVICE}
+    printf "% 20s : %s\n" "Content of" "${ARMSTRAP_DEVICE}"
+    isBlockDev ${ARMSTRAP_DEVICE}
+    checkStatus "${ARMSTRAP_DEVICE} is not a block device"
+    isRemDevice ${ARMSTRAP_DEVICE}
+    checkStatus "${ARMSTRAP_DEVICE} is not a removable device"
+    fdisk -l ${ARMSTRAP_DEVICE}
   fi
   
   promptYN "OK to proceed?"
