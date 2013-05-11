@@ -1,13 +1,13 @@
 
 # Usage sunxiMkTools <SUNXI_TOOLS_DIR>
-function makeSunxiTools {
+function sunxiMkTools {
   printStatus "makeSunxiTools" "Building ${1}"
   make -C ${1} clean >> ${BUILD_LOG_FILE} 2>&1
   make -C ${1} >> ${BUILD_LOG_FILE} 2>&1
 }
 
 # usage sunxiMkUBoot <SUNXI_UBOOT_DIR>
-function makeSunxiUBoot {
+function sunxiMkUBoot {
   printStatus "makeSunxiUBoot" "Building ${1}"
   make -C ${1} ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} distclean >> ${BUILD_LOG_FILE} 2>&1
   make -C ${1} ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} cubieboard >> ${BUILD_LOG_FILE} 2>&1
