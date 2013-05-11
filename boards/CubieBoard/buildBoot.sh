@@ -3,50 +3,35 @@
 function buildBoot {
   printStatus "buildBoot" "Starting"
   
-  getSources https://github.com/linux-sunxi/u-boot-sunxi.git ${BUILD_SRC}/u-boot-sunxi
-  getSources https://github.com/linux-sunxi/sunxi-boards.git ${BUILD_SRC}/sunxi-boards
-  getSources https://github.com/linux-sunxi/sunxi-tools.git ${BUILD_SRC}/sunxi-tools
+  getSources ${BUILD_UBOOT_GIT} ${BUILD_UBOOT_DIR}
+  getSources ${BUILD_SUNXI_BOARD_GIT} ${BUILD_SUNXI_BOARD_DIR}
+  getSources ${BUILD_SUNXI_TOOLS_GIT} ${BUILD_SUNXI_TOOLS_DIR}
 
-  printStatus "Building" "${BUILD_SRC}/sunxi-tools"
-  make -C ${BUILD_SRC}/sunxi-tools/ clean >> ${BUILD_LOG_FILE} 2>&1
-  make -C ${BUILD_SRC}/sunxi-tools/ >> ${BUILD_LOG_FILE} 2>&1
+  sunxiMkTools ${BUILD_SUNXI_TOOLS_DIR}
   
-  printStatus "Building" "${BUILD_SRC}/u-boot-sunxi"
-  make -C ${BUILD_SRC}/u-boot-sunxi/ distclean ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} >> ${BUILD_LOG_FILE} 2>&1
-  make -C ${BUILD_SRC}/u-boot-sunxi/ cubieboard ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} >> ${BUILD_LOG_FILE} 2>&1
+  sunxiMkUBoot ${BUILD_UBOOT_DIR}
 
-  printStatus "Setting up" "/boot/boot.cmd"
-  cat > ${BUILD_MNT_ROOT}/boot/boot.cmd <<END
-setenv bootargs console=tty0 console=ttyS0,115200 hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BUILD_ROOT_DEV} rootwait panic=10 ${extra}
-ext2load mmc 0 0x43000000 boot/script.bin
-ext2load mmc 0 0x48000000 boot/uImage
-bootm 0x48000000
-END
+  ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
+  ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_BIN_LOAD}"
+  ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_LOAD}"
+  ubootBootM "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_ADDR}"
 
-  printStatus "Setting up" "/boot/boot.scr"
-  mkimage -C none -A ${BUILD_ARCH} -T script -d ${BUILD_MNT_ROOT}/boot/boot.cmd ${BUILD_MNT_ROOT}/boot/boot.scr >> ${BUILD_LOG_FILE} 2>&1
+  sunxiMkImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
   
-  printStatus "Setting up" "/boot/cubieboard.fex"
-  cp ${BUILD_SRC}/sunxi-boards/sys_config/a10/cubieboard.fex ${BUILD_MNT_ROOT}/boot/
-
+  sunxiSetFex "${BUILD_BOARD_CPU}" "${BUILD_BOARD}"
+  
   if [ "${BOARD_MAC_ADDRESS}" != "" ]; then
-    cat >> ${BUILD_MNT_ROOT}/boot/cubieboard.fex <<END
-
-[dynamic]
-MAC = "${BOARD_MAC_ADDRESS}"
-END
+    sunxiSetMac "${BUILD_BOOT_FEX}" "${BOARD_MAC_ADDRESS}"
   fi
 
-  printStatus "Setting up" "/boot/script.bin"
-  ${BUILD_SRC}/sunxi-tools/fex2bin ${BUILD_MNT_ROOT}/boot/cubieboard.fex ${BUILD_MNT_ROOT}/boot/script.bin
+  sunxiFex2Bin ${BUILD_BOOT_FEX} ${BUILD_BOOT_BIN}
   
-  printStatus "Setting up" "Bootloader"
   if [ -z ${BUILD_DEVICE} ]; then
-    dd if=${BUILD_SRC}/u-boot-sunxi/spl/sunxi-spl.bin of=${BUILD_IMAGE_DEVICE} bs=1024 seek=8 >> ${BUILD_LOG_FILE} 2>&1
-    dd if=${BUILD_SRC}/u-boot-sunxi/u-boot.bin of=${BUILD_IMAGE_DEVICE} bs=1024 seek=32 >> ${BUILD_LOG_FILE} 2>&1
+    ubootDDLoader "${BUILD_BOOT_SPL}" "${BUILD_IMAGE_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"
+    ubootDDLoader "${BUILD_BOOT_UBOOT}" "${BUILD_IMAGE_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"
   else
-    dd if=${BUILD_SRC}/u-boot-sunxi/spl/sunxi-spl.bin of=${BUILD_DEVICE} bs=1024 seek=8 >> ${BUILD_LOG_FILE} 2>&1
-    dd if=${BUILD_SRC}/u-boot-sunxi/u-boot.bin of=${BUILD_DEVICE} bs=1024 seek=32 >> ${BUILD_LOG_FILE} 2>&1
+    ubootDDLoader "${BUILD_BOOT_SPL}" "${BUILD_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"
+    ubootDDLoader "${BUILD_BOOT_UBOOT}" "${BUILD_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"
   fi
   
   printStatus "buildBoot" "Done"

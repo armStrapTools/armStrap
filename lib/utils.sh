@@ -34,7 +34,6 @@ function showUsage {
   printf "% 4s %- 20s %s\n" "-i" "<FILE>" "Set image filename to <FILE>."
   printf "% 4s %- 20s %s\n" "-s" "<SIZE>" "Set image size to <SIZE>MB."
   printf "% 4s %- 20s %s\n" "-h" "<HOSTNAME>" "Set hostname"
-  printf "% 4s %- 20s %s\n" "-h" "<HOSTNAME>" "Set hostname"
   printf "% 4s %- 20s %s\n" "-p" "<PASSWORD>" "Set root password"
   printf "% 4s %- 20s %s\n" "-w" "" "Enable swapfile"
   printf "% 4s %- 20s %s\n" "-W" "" "Disable swapfile"
@@ -44,16 +43,58 @@ function showUsage {
   printf "% 4s %- 20s %s\n" "-r" "\"<NS1> [NS2] [NS3]\"" "Set nameservers"
   printf "% 4s %- 20s %s\n" "-e" "<DOMAIN>" "Set search domain"
   printf "% 4s %- 20s %s\n\n" "-c" "" "Show licence."
-  printf "With no parameter, create an image using values found in config.sh.\n"
-  printf "\nYou need to be root to run this script.\n\n"
+  printf "\nSupported boards :"
+  for i in boards/*; do 
+    printf " %s" `basename ${i}`
+  done
+  printf "\n\nWith no parameter, create an image using values found in config.sh.\n"
+}
+
+# Usage: logStatus <function> <message>
+
+function logStatus {
+  local TMP_TIME=`date +%y/%m/%d-%H:%M:%S`
+  printf "[% 17s] % 15s : %s\n" "${TMP_TIME}" "${1}" "${2}" >> ${BUILD_LOG_FILE}
+}
+
+# Usage: printStatus <function> <message>
+
+function printStatus {
+  printf "** % 15s : %s\n" "${1}" "${2}"
+  logStatus "${1}" "${2}"
+}
+
+function checkStatus {
+  if [ $? -ne 0 ]; then
+    echo ""
+    printStatus "checkStatus" "Aborting (${1})"
+    exit 1
+  fi
+}
+
+# Usage: checkDirectory <path>
+
+function checkDirectory {
+  if [ ! -d "${1}" ]; then
+    mkdir -p ${1}
+    checkStatus "Creation of directory ${1} failed"
+    printStatus "checkDirectory" "Creating ${1}"
+  fi
+}
+
+# Usage: isRoot
+function isRoot {
+  if [ "`id -u`" -ne "0" ]; then
+    logStatus "isRoot" "User `whoami` (`id -u`) is not root"
+    return 1
+  fi
+  return 0
 }
 
 # Usage: installPrereq 
 function installPrereqs {
   for i in ${BUILD_PREREQ}; do testInstall ${i}; done
 }
-
-
 
 # Usage : isBlockDev <DEVICE>
 

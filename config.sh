@@ -36,4 +36,4 @@ BOARD_MAC_ADDRESS="008010EDDF01"
 # Output configuration
 #
 # If you want to install directly into your SD card, put the device here
-#BUILD_DEVICE="/dev/sdc"
+BUILD_DEVICE="/dev/sdb"

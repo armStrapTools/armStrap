@@ -7,7 +7,12 @@
 PRG_VERSION="0.21"
 PRG_NAME=`basename ${0}`
 
+printf "\n%s version %s\n" "${PRG_NAME}" "${PRG_VERSION}"
+printf "Copyright (C) 2013 Eddy Beaupre\n\n"
+
 if [ "`id -u`" -ne "0" ]; then
+  . ./lib/utils.sh
+  showUsage
   printf "\nYou (%s) are not root! Try again with 'sudo %s'.\n\n" "`whoami`" "${PRG_NAME}"
   exit 1
 fi
@@ -40,72 +45,12 @@ BUILD_IMAGE_BOOTP=""
 BUILD_IMAGE_ROOTP=""
 
 #
-# Functions that can't be included because they are too soon
-#
-
-# Usage: logStatus <function> <message>
-
-function logStatus {
-  local TMP_TIME=`date +%y/%m/%d-%H:%M:%S`
-  printf "[% 17s] % 15s : %s\n" "${TMP_TIME}" "${1}" "${2}" >> ${BUILD_LOG_FILE}
-}
-
-# Usage: printStatus <function> <message>
-
-function printStatus {
-  printf "** % 15s : %s\n" "${1}" "${2}"
-  logStatus "${1}" "${2}"
-}
-
-function checkStatus {
-  if [ $? -ne 0 ]; then
-    echo ""
-    printStatus "checkStatus" "Aborting (${1})"
-    exit 1
-  fi
-}
-
-# Usage: checkDirectory <path>
-
-function checkDirectory {
-  if [ ! -d "${1}" ]; then
-    mkdir -p ${1}
-    checkStatus "Creation of directory ${1} failed"
-    printStatus "checkDirectory" "Creating ${1}"
-  fi
-}
-
-# Usage: isRoot
-function isRoot {
-  if [ "`id -u`" -ne "0" ]; then
-    logStatus "isRoot" "User `whoami` (`id -u`) is not root"
-    return 1
-  fi
-  return 0
-}
-
-function showTitle {
- printf "\n%s version %s\n" "${PRG_NAME}" "${PRG_VERSION}"
- printf "Copyright (C) 2013 Eddy Beaupre\n\n"
-}
-
-#
 # Here we go...
 #
 
-showTitle
-isRoot
-checkStatus "Only root can run this script"
-
-checkDirectory ${BUILD_SRC}
-checkDirectory ${BUILD_MNT}
-checkDirectory ${BUILD_IMG}
-
-printStatus "${PRG_NAME}" "Reading ./config.sh"
 source ./config.sh
 
 for i in ./lib/*.sh; do
-  printStatus "${PRG_NAME}" "Reading ${i}"
   source ${i}
 done
 
@@ -170,17 +115,19 @@ while getopts ":b:d:i:s:h:p:z:n:r:cwWN" opt; do
   esac
 done
 
-rm -f ${BUILD_LOG_FILE}
+checkDirectory ${BUILD_SRC}
+checkDirectory ${BUILD_MNT}
+checkDirectory ${BUILD_IMG}
 
 printStatus "initBuild" "Reading ./boards/${BOARD_CONFIG}/config.sh"
 source ./boards/${BOARD_CONFIG}/config.sh
 
-rm -f ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEB_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
-mv ${BUILD_LOG_FILE} ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEB_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
-BUILD_LOG_FILE="${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEB_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log"
+rm -f ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
+mv ${BUILD_LOG_FILE} ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
+BUILD_LOG_FILE="${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log"
 
 if [ -z ${BUILD_IMAGE_NAME} ]; then
-  BUILD_IMAGE_NAME=${BUILD_IMG}/${BOARD_CONFIG}-${BUILD_DEB_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.img
+  BUILD_IMAGE_NAME=${BUILD_IMG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.img
 fi
 
 for i in ${BUILD_SCRIPTS}; do
