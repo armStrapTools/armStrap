@@ -29,11 +29,18 @@ BOARD_ETH0_MODE="dhcp"
 #BOARD_DNS="8.8.8.8 8.8.4.4"
 #BOARD_DOMAIN="localhost.com"
 # Some board need a mac address, if this is not set and the board need one,
-# a pseudo random mac address will be generated.
+# a pseudo random mac address will be generated. The vendor mac prefix used
+# to generate the mac address is define in the board configuration.
 BOARD_MAC_ADDRESS="008010EDDF01"
 
 ##############################################################################
 # Output configuration
 #
-# If you want to install directly into your SD card, put the device here
+# If you want to install directly into your SD card, put the device here. If
+# it's not defined, an image will be generated.
 BUILD_DEVICE="/dev/sdb"
+# Specify the size of the image to be build in MB
+#BUILD_IMAGE_SIZE="1024"
+#
+# If you want to name your image something else than the generated name
+#BUILD_IMAGE_NAME="wathever_name_you_want.ig"

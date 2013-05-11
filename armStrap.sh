@@ -29,10 +29,10 @@ BUILD_IMG="${BUILD_ROOT}/img"
 mkdir -p ${BUILD_LOG}
 
 # The logfile will be renamed to the real log file later
-BUILD_LOG_FILE=`mktemp ${BUILD_LOG}/armStrap.XXXXXXXX`
+BOARD_LOG_FILE=`mktemp ${BUILD_LOG}/armStrap.XXXXXXXX`
 
 # These are defined in boards/<name>/config.sh 
-BUILD_MNT_ROOT=""
+BOARD_MNT_ROOT=""
 BUILD_MNT_BOOT=""
 
 # The image name is defined later.
@@ -91,7 +91,7 @@ while getopts ":b:d:i:s:h:p:z:n:r:cwWN" opt; do
       BOARD_ETH0_GW="${ip[2]}"
       ;;
     N)
-      BOARD_ETH0_MODE="static"
+      BOARD_ETH0_MODE="dhcp"
       ;;
     r)
       BOARD_DNS="${OPTARG}"
@@ -123,8 +123,8 @@ printStatus "initBuild" "Reading ./boards/${BOARD_CONFIG}/config.sh"
 source ./boards/${BOARD_CONFIG}/config.sh
 
 rm -f ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
-mv ${BUILD_LOG_FILE} ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
-BUILD_LOG_FILE="${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log"
+mv ${BOARD_LOG_FILE} ${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log
+BOARD_LOG_FILE="${BUILD_LOG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.log"
 
 if [ -z ${BUILD_IMAGE_NAME} ]; then
   BUILD_IMAGE_NAME=${BUILD_IMG}/${BOARD_CONFIG}-${BUILD_DEBIAN_SUITE}_${BOARD_HOSTNAME}-${BUILD_DATE}.img

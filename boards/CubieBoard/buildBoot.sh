@@ -34,5 +34,9 @@ function buildBoot {
     ubootDDLoader "${BUILD_BOOT_UBOOT}" "${BUILD_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"
   fi
   
+  gitExport ${BUILD_UBOOT_DIR} ${BUILD_UBOOT_SRCDST}
+  gitExport ${BUILD_SUNXI_BOARD_DIR} ${BUILD_SUNXI_BOARD_SRCDST}
+  gitExport ${BUILD_SUNXI_TOOLS_DIR} ${BUILD_SUNXI_TOOLS_SRCDST}
+  
   printStatus "buildBoot" "Done"
 }

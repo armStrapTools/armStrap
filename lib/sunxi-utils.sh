@@ -1,28 +1,28 @@
 
 # Usage sunxiMkTools <SUNXI_TOOLS_DIR>
 function sunxiMkTools {
-  printStatus "makeSunxiTools" "Building ${1}"
-  make -C ${1} clean >> ${BUILD_LOG_FILE} 2>&1
-  make -C ${1} >> ${BUILD_LOG_FILE} 2>&1
+  printStatus "sunxiMkTools" "Building ${1}"
+  make -C ${1} clean >> ${BOARD_LOG_FILE} 2>&1
+  make -C ${1} >> ${BOARD_LOG_FILE} 2>&1
 }
 
 # usage sunxiMkUBoot <SUNXI_UBOOT_DIR>
 function sunxiMkUBoot {
-  printStatus "makeSunxiUBoot" "Building ${1}"
-  make -C ${1} ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} distclean >> ${BUILD_LOG_FILE} 2>&1
-  make -C ${1} ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} cubieboard >> ${BUILD_LOG_FILE} 2>&1
+  printStatus "sunxiMkUBoot" "Building ${1}"
+  make -C ${1} ARCH=${BOARD_ARCH} CROSS_COMPILE=${BOARD_ARCH_PREFIX} distclean >> ${BOARD_LOG_FILE} 2>&1
+  make -C ${1} ARCH=${BOARD_ARCH} CROSS_COMPILE=${BOARD_ARCH_PREFIX} cubieboard >> ${BOARD_LOG_FILE} 2>&1
 }
 
 # Usage sunxiMkImage <SRC> <DST>
 function sunxiMkImage {
-  printStatus "ubootMkImage" "Generating ${2} from ${1}"
-  mkimage -C none -A ${BUILD_ARCH} -T script -d ${1} ${2} >> ${BUILD_LOG_FILE} 2>&1
+  printStatus "sunxiMkImage" "Generating ${2} from ${1}"
+  mkimage -C none -A ${BOARD_ARCH} -T script -d ${1} ${2} >> ${BOARD_LOG_FILE} 2>&1
 }
 
 # Usage sunxiSetFex <CPUTYPE> <BOARDTYPE>
 function sunxiSetFex {
   printStatus "sunxiSetFex" "Configuring for ${2} (${1} CPU)"
-  cp ${BUILD_SUNXI_BOARD_DIR}/sys_config/${1}/${2}.fex ${BUILD_MNT_ROOT}/boot/
+  cp ${BOARD_SUNXI_BOARD_DIR}/sys_config/${1}/${2}.fex ${BOARD_MNT_ROOT}/boot/
 }
 
 # Usage suxiSetMac <TARGET_FILE> <MAC_ADDRESS>
@@ -34,5 +34,5 @@ function sunxiSetMac {
 # Usage sunxiFex2Bin <SRC> <DST>
 function sunxiFex2Bin {
   printStatus "sunxiFex2Bin" "Generating ${2} from ${1}"
-  ${BUILD_SUNXI_TOOLS_DIR}/fex2bin ${1} ${2}
+  ${BOARD_SUNXI_TOOLS_DIR}/fex2bin ${1} ${2}
 }

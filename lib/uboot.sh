@@ -29,5 +29,5 @@ function ubootBootM {
 # Usage ubootDDLoader <FILE> <DEVICE> <BS> <SEEK>
 function ubootDDLoader {
   printStatus "ubootDDLoader" "Installing ${1} to ${2}, block size ${3}, seek ${4}"
-  dd if=${1} of=${2} bs=${3} seek=${4} >> ${BUILD_LOG_FILE} 2>&1
+  dd if=${1} of=${2} bs=${3} seek=${4} >> ${BOARD_LOG_FILE} 2>&1
 }
