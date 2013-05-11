@@ -99,9 +99,11 @@ function isRoot {
   return 0
 }
 
-# Usage: installPrereq 
+# Usage: installPrereq <PREREQ1> [<PREREQ2> ... ]
 function installPrereqs {
-  for i in ${BOARD_PREREQ}; do testInstall ${i}; done
+  for i in ${@}; do 
+    testInstall ${i}; 
+  done
 }
 
 # Usage : isBlockDev <DEVICE>

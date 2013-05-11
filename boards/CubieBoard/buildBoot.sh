@@ -18,13 +18,13 @@ function buildBoot {
 
   sunxiMkImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
   
-  sunxiSetFex "${BUILD_BOARD_CPU}" "${BUILD_BOARD}"
+  sunxiSetFex ${BUILD_SUNXI_BOARD_DIR} "${BUILD_BOARD_CPU}" "${BUILD_BOARD}" "${BUILD_MNT_ROOT}/boot/"
   
   if [ "${BOARD_MAC_ADDRESS}" != "" ]; then
     sunxiSetMac "${BUILD_BOOT_FEX}" "${BOARD_MAC_ADDRESS}"
   fi
 
-  sunxiFex2Bin ${BUILD_BOOT_FEX} ${BUILD_BOOT_BIN}
+  sunxiFex2Bin ${BUILD_SUNXI_TOOLS_DIR} ${BUILD_BOOT_FEX} ${BUILD_BOOT_BIN}
   
   if [ -z ${BUILD_DEVICE} ]; then
     ubootDDLoader "${BUILD_BOOT_SPL}" "${BUILD_IMAGE_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"

@@ -19,10 +19,10 @@ function sunxiMkImage {
   mkimage -C none -A ${BOARD_ARCH} -T script -d ${1} ${2} >> ${BOARD_LOG_FILE} 2>&1
 }
 
-# Usage sunxiSetFex <CPUTYPE> <BOARDTYPE>
+# Usage sunxiSetFex <SRC> <CPUTYPE> <BOARDTYPE> <DST>
 function sunxiSetFex {
-  printStatus "sunxiSetFex" "Configuring for ${2} (${1} CPU)"
-  cp ${BOARD_SUNXI_BOARD_DIR}/sys_config/${1}/${2}.fex ${BOARD_MNT_ROOT}/boot/
+  printStatus "sunxiSetFex" "Configuring for ${3} (${2} CPU)"
+  cp ${1}/sys_config/${2}/${3}.fex ${4}
 }
 
 # Usage suxiSetMac <TARGET_FILE> <MAC_ADDRESS>
@@ -31,8 +31,8 @@ function sunxiSetMac {
   printf "\n[dynamic]\nMAC = \"%s\"\n" "${2}" >> ${1}
 }
 
-# Usage sunxiFex2Bin <SRC> <DST>
+# Usage sunxiFex2Bin <SUNXI_TOOLS_DIR> <SRC> <DST>
 function sunxiFex2Bin {
-  printStatus "sunxiFex2Bin" "Generating ${2} from ${1}"
-  ${BOARD_SUNXI_TOOLS_DIR}/fex2bin ${1} ${2}
+  printStatus "sunxiFex2Bin" "Generating ${3} from ${2}"
+  ${1}/fex2bin ${2} ${3}
 }

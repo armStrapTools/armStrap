@@ -17,6 +17,8 @@ if [ "`id -u`" -ne "0" ]; then
   exit 1
 fi
 
+BOARD_LANG="C"
+
 BUILD_DATE=`date +%y%m%d_%H%M%S`
 BUILD_ROOT=`pwd`
 BUILD_THREADS="16"
@@ -43,6 +45,9 @@ BUILD_IMAGE_SIZE="1024"
 BUILD_IMAGE_DEVICE=""
 BUILD_IMAGE_BOOTP=""
 BUILD_IMAGE_ROOTP=""
+
+# The version of the kernel that has been build
+BOARD_KERNEL_VERSION=""
 
 #
 # Here we go...
@@ -141,8 +146,6 @@ funExist init
 if [ ${?} -eq 0 ]; then
   init
 fi
-
-installPrereqs
 
 if [ -z "${BUILD_DEVICE}" ]; then
   setupImage ${BUILD_IMAGE_NAME} ${BUILD_IMAGE_SIZE}

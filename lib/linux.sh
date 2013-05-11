@@ -28,36 +28,41 @@ function patchKernel {
   fi
 }
 
-# usage configKernel <KERNEL_DIRECTORY> <BOARD_DEFCONFIG>
+# usage configKernel <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY> <BOARD_DEFCONFIG>
 function configKernel {
   printStatus "configKernel" "Configuring ${1} for ${2}"
-  make -C ${1} ARCH=${BOARD_ARCH} CROSS_COMPILE=${BOARD_ARCH_PREFIX} distclean >> ${BOARD_LOG_FILE} 2>&1
-  make -C ${1} ARCH=${BOARD_ARCH} CROSS_COMPILE=${BOARD_ARCH_PREFIX} ${2} >> ${BOARD_LOG_FILE} 2>&1
+  make -C ${3} ARCH=${1} CROSS_COMPILE=${2} distclean >> ${BOARD_LOG_FILE} 2>&1
+  make -C ${3} ARCH=${1} CROSS_COMPILE=${2} ${4} >> ${BOARD_LOG_FILE} 2>&1
 }
 
-# usage menuConfig <KERNEL_DIRECTORY>
+# usage menuConfig <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY>
 function menuConfig {
   printStatus "menuConfig" "Running make menuconfig"
-  make --quiet -C ${1} ARCH=${BOARD_ARCH} CROSS_COMPILE=${BOARD_ARCH_PREFIX} menuconfig
+  make --quiet -C ${3} ARCH=${1} CROSS_COMPILE=${2} menuconfig
 }
 
-# usage makeKernel <KERNEL_DIRECTORY> <MODULE1> [<MODULE2> ... ]
+# usage makeKernel <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY> <MODULE1> [<MODULE2> ... ]
 function makeKernel {
-  local TMP_DIR="${1}"
+  local TMP_ARCH=${1}
+  local TMP_PRFX=${2}
+  local TMP_DIR="${3}"
   shift
+  shift
+  shift
+  
   printStatus "makeKernel" "Running make ${@}"
-  make -C ${TMP_DIR} ARCH=${BOARD_ARCH} CROSS_COMPILE=${BOARD_ARCH_PREFIX} -j${BOARD_THREADS} ${@} >> ${BOARD_LOG_FILE} 2>&1
+  make -C ${TMP_DIR} ARCH=${TMP_ARCH} CROSS_COMPILE=${TMP_PRFX} -j${BOARD_THREADS} ${@} >> ${BOARD_LOG_FILE} 2>&1
 }
 
-# usage installKernel <KERNEL_DIRECTORY> <KERNEL_FILE> <TARGET_DIRECTORY
+# usage installKernel <ARCH> <KERNEL_DIRECTORY> <KERNEL_FILE> <TARGET_DIRECTORY
 function installKernel {
-  printStatus "installKernel" "Installing ${2} to ${3}"
-  checkDirectory ${3}
-  cp ${1}/arch/${BOARD_ARCH}/boot/${2} ${3}/
+  printStatus "installKernel" "Installing ${3} to ${4}"
+  checkDirectory ${4}
+  cp ${2}/arch/${1}/boot/${3} ${4}/
 }
 
-# usage kernelVersion
+# usage kernelVersion <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY>
 function kernelVersion {
-  BOARD_KERNEL_VERSION=`make --quiet -C ${1} ARCH=${BOARD_ARCH} CROSS_COMPILE=${BOARD_ARCH_PREFIX} kernelrelease`
+  BOARD_KERNEL_VERSION=`make --quiet -C ${3} ARCH=${1} CROSS_COMPILE=${2} kernelrelease`
   printStatus "kernelVersion" "Linux Kernel version is ${BOARD_KERNEL_VERSION}"
 }

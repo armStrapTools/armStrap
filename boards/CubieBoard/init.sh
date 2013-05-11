@@ -17,6 +17,8 @@ function installGCC {
 
 # init is called right after checking for root uid
 function init {
+  installPrereqs ${BUILD_PREREQ}
+
   local IN=(`dpkg-query -W -f='${Status} ${Version}\n' ${BUILD_ARCH_GCC_PACKAGE} 2> /dev/null`)
   if [ "${IN[0]}" != "install" ]; then
     installGCC
