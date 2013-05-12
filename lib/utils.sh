@@ -209,8 +209,8 @@ function mkImage {
 # Usage macAddress <VENDOR_ID>
 function macAddress {
   if [ -n ${1} ]; then
-    if [ -z ${BOARD_MAC_ADDRESS} ]; then
-      BOARD_MAC_ADDRESS=$( printf "%012x" $((${1} * 16777216 + $[ $RANDOM % 16777216 ])) )
+    if [ -z ${ARMSTRAP_MAC_ADDRESS} ]; then
+      ARMSTRAP_MAC_ADDRESS=$( printf "%012x" $((${1} * 16777216 + $[ $RANDOM % 16777216 ])) )
     fi
   fi
 }
@@ -239,8 +239,8 @@ function showConfig {
   fi
 
   printf "% 20s : %s\n" "Log File" "${ARMSTRAP_LOG_FILE}"
-  if [ ! -z "${BOARD_MAC_ADDRESS}" ]; then
-    printf "% 20s : %s\n" "Mac Address" "${BOARD_MAC_ADDRESS}"
+  if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
+    printf "% 20s : %s\n" "Mac Address" "${ARMSTRAP_MAC_ADDRESS}"
   fi
   if [ "${ARMSTRAP_ETH0_MODE}" == "dhcp" ]; then
     printf "% 20s : %s\n" "IP Address" "${ARMSTRAP_ETH0_MODE}"

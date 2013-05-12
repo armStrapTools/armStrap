@@ -1,39 +1,36 @@
 # Usage installQEMU <ARMSTRAP_ROOT> <ARCH>
 function installQEMU {
-  printStatus installQEMU "Installing QEMU User Emulator (${2}) to ${1}"  
+  printStatus installQEMU "Installing QEMU User Emulator (${2})"  
   cp /usr/bin/qemu-${2}-static ${1}/usr/bin
 }
 
 # Usage removeQEMU <ARMSTRAP_ROOT> <ARCH>
 function removeQEMU {
-  printStatus removeQEMU "Removing QEMU User Emulator (${2}) from ${1}"  
-  rm -f ${2}/usr/bin/qemu-${1}-static
+  printStatus removeQEMU "Removing QEMU User Emulator (${2})"  
+  rm -f ${1}/usr/bin/qemu-${2}-static
 }
 
 # Usage : disableServices <ARMSTRAP_ROOT>
 function disableServices {
-  printStatus "disableServices" "Disabling services startup in ${1}"
-  cat > ${1}/usr/sbin/policy-rc.d <<EOF
-#!/bin/sh
-exit 101 
-EOF
+  printStatus "disableServices" "Disabling services startup"
+  printf "#!/bin/sh\nexit 101\n" > ${1}/usr/sbin/policy-rc.d
   chmod +x ${1}/usr/sbin/policy-rc.d
 }
 
 # Usage : enableServices <ARMSTRAP_ROOT>
 function enableServices {
-  printStatus "disableServices" "Enabling services startup in ${1}"
+  printStatus "disableServices" "Enabling services startup"
   rm -f ${1}/usr/sbin/policy-rc.d
 }
 
 # usage bootStrap <ARMSTRAP_ROOT> <ARCH> <EABI> <SUITE> [<MIRROR>]
 function bootStrap {
   if [ $# -eq 4 ]; then
-    printStatus "bootStrap" "Running debootstrap --foreign --arch ${2}${3} ${4}, target is ${1}"
+    printStatus "bootStrap" "Running debootstrap --foreign --arch ${2}${3} ${4}"
     debootstrap --foreign --arch ${2}${3} ${4} ${1}/ >> ${ARMSTRAP_LOG_FILE} 2>&1
     checkStatus "debootstrap failed with status ${?}"
   elif [ $# -eq 5 ]; then
-    printStatus "bootStrap" "Running debootstrap --foreign --arch ${2}${3} ${4} using mirror ${5}, target is ${1}"
+    printStatus "bootStrap" "Running debootstrap --foreign --arch ${2}${3} ${4} using mirror ${5}"
     debootstrap --foreign --arch ${2}${3} ${4} ${1}/ ${5} >> ${ARMSTRAP_LOG_FILE} 2>&1
     checkStatus "debootstrap failed with status ${?}"
   else
@@ -55,9 +52,7 @@ function bootStrap {
 # Usage : setHostName <ARMSTRAP_ROOT> <HOSTNAME>
 function setHostName {
   printStatus "buildRoot" "Configuring /etc/hostname"
-  cat > ${1}/etc/hostname <<EOF
-${1}
-EOF
+  echo "${2}" > ${1}/etc/hostname
 }
 
 # Usage : clearSources <ARMSTRAP_ROOT>
@@ -69,7 +64,7 @@ function clearSourcesList {
 
 # Usage : addSource <ARMSTRAP_ROOT> <URI> <DIST> <COMPONENT1> [<COMPONENT2> ...]
 function addSource {
-  TMP_ROOT="${1}"
+  local TMP_ROOT="${1}"
   shift
   
   printStatus "addSource" "Adding ${@} to the sources list"
@@ -81,29 +76,35 @@ function addSource {
 # Usage : initSources <ARMSTRAP_ROOT>
 function initSources {
   printStatus "initSources" "Updating sources list"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get --quiet -y update >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get -y update >> ${ARMSTRAP_LOG_FILE} 2>&1
   printStatus "initSources" "Updating Packages"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get --quiet -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : installPackages <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
 function installPackages {
+  local TMP_ROOT=${1}
+  shift
+  
   printStatus "installPackages" "Installing ${@}"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get --quiet -y install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ apt-get -y install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : configPackages <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
 function configPackages {
+  local TMP_ROOT=${1}
+  shift
+
   printStatus "configPackages" "Configuring ${@}"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ dpkg-reconfigure ${@}
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ dpkg-reconfigure ${@}
 }
 
 # Usage : setRootPassword <ARMSTRAP_ROOT> <PASSWORD>
 function setRootPassword {
   printStatus "setRootPassword" "Configuring root password"
   chroot ${1}/ passwd root <<EOF > /dev/null 2>&1
-${1}
-${1}
+${2}
+${2}
 
 EOF
 }
@@ -116,7 +117,7 @@ function addInitTab {
 
 # Usage : initFSTab <ARMSTRAP_ROOT>
 function initFSTab {
-  printStatus "initFSTab" "Initializing ${1}/etc/fstab"
+  printStatus "initFSTab" "Initializing fstab"
   printf "%- 20s% -15s%- 10s%- 15s%- 8s%- 8s\n" "#<file system>" "<mount point>" "<type>" "<options>" "<dump>" "<pass>" > ${1}/etc/fstab
 }
 
@@ -144,7 +145,7 @@ function addKernelModule {
 
 # Usage : addIface <ARMSTRAP_ROOT> <INTERFACE> <dhcp|static> [<address> <netmask> <gateway>]
 function addIface {
-  TMP_ROOT="${1}"
+  local TMP_ROOT="${1}"
   shift
   
   printStatus "addIface" "Configuring interface ${1}"
@@ -164,7 +165,7 @@ function addIface {
 
 # Usage : initResolvConf <ARMSTRAP_ROOT>
 function initResolvConf {
-  printStatus "initResolvConf" "Initializing ${1}/etc/resolv.conf"
+  printStatus "initResolvConf" "Initializing resolv.conf"
   rm -f ${1}/etc/resolv.conf
   touch ${1}/etc/resolv.conf
 }
@@ -177,7 +178,7 @@ function addSearchDomain {
 
 # Usage : addNameServer <ARMSTRAP_ROOT> <NS1> [<NS2> ... ]
 function addNameServer {
-  TMP_ROOT=${1}
+  local TMP_ROOT=${1}
   shift
   
   for i in ${@}; do
@@ -190,13 +191,13 @@ function addNameServer {
 # Usage : bootClean <ARMSTRAP_ROOT> <ARCH>
 function bootClean {
   printStatus "bootClean" "Running aptitude update"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ aptitude --quiet -y update >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ aptitude -y update >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   printStatus "bootClean" "Running aptitude clean"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ aptitude --quiet -y clean  >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ aptitude -y clean  >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   printStatus "bootClean" "Running apt-get clean"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get --quiet clean >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get clean >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   removeQEMU ${1} ${2}
   enableServices ${1}

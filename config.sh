@@ -28,7 +28,7 @@ ARMSTRAP_ETH0_MODE="dhcp"
 # Some board need a mac address, if this is not set and the board need one,
 # a pseudo random mac address will be generated. The vendor mac prefix used
 # to generate the mac address is define in the board configuration.
-BOARD_MAC_ADDRESS="008010EDDF01"
+ARMSTRAP_MAC_ADDRESS="008010EDDF01"
 
 ##############################################################################
 # Output configuration

@@ -20,8 +20,8 @@ function buildBoot {
   
   sunxiSetFex ${BUILD_SUNXI_BOARD_DIR} "${BUILD_BOARD_CPU}" "${BUILD_BOARD}" "${BUILD_MNT_BOOT}/"
   
-  if [ "${BOARD_MAC_ADDRESS}" != "" ]; then
-    sunxiSetMac "${BUILD_BOOT_FEX}" "${BOARD_MAC_ADDRESS}"
+  if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
+    sunxiSetMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
   fi
 
   sunxiFex2Bin ${BUILD_SUNXI_TOOLS_DIR} ${BUILD_BOOT_FEX} ${BUILD_BOOT_BIN}
