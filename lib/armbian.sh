@@ -90,6 +90,19 @@ function installPackages {
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ apt-get -y install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
+# Usage : installDPKG <ARMSTRAP_ROOT> <PACKAGE_FILE>
+function installDPKG {
+  local TMP_ROOT="${1}"
+  local TMP_DIR=`mktemp -d ${TMP_ROOT}/DPKG.XXXXXX`
+  local TMP_CHR=`basename ${TMP_DIR}`
+  local TMP_DEB=`basename ${2}`
+
+  printStatus "installDPKG" "Installing ${TMP_DEB} (${TMP_ROOT} : $TMP_DIR : $TMP_CHR $TMP_DEB)"
+  cp ${2} ${TMP_DIR}/${TMP_DEB}
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  rm -rf ${TMP_DIR}
+}
+
 # Usage : configPackages <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
 function configPackages {
   local TMP_ROOT=${1}

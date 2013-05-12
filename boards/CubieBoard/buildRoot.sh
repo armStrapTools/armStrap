@@ -23,6 +23,12 @@ function buildRoot {
   fi
 
   configPackages "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_RECONFIG}"
+  
+  if [ -d "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg" ]; then
+    for i in "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg/*.deb"; do
+      installDPKG "${BUILD_MNT_ROOT}" ${1}
+    done
+  fi
 
   setRootPassword "${BUILD_MNT_ROOT}" "${ARMSTRAP_PASSWORD}"
   
