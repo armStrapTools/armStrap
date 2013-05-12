@@ -26,7 +26,7 @@ function buildRoot {
   
   if [ -d "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg" ]; then
     for i in "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg/*.deb"; do
-      installDPKG "${BUILD_MNT_ROOT}" ${1}
+      installDPKG "${BUILD_MNT_ROOT}" ${i}
     done
   fi
 

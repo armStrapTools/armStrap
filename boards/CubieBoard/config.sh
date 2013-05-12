@@ -38,7 +38,7 @@ BUILD_DEBIAN_SOURCE_SECURITY="http://security.debian.org"
 BUILD_DEBIAN_SOURCE_SECURITY_COMPONENTS="main contrib non-free"
 BUILD_DEBIAN_SUITE="wheezy"
 # Not all packages can be install this way.
-BUILD_DEBIAN_EXTRAPACKAGES="nvi locales ntp ssh"
+BUILD_DEBIAN_EXTRAPACKAGES="nvi locales ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev"
 # Not all packages can (or should be) reconfigured this way.
 BUILD_DEBIAN_RECONFIG="locales tzdata"
 
