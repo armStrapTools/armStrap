@@ -17,6 +17,15 @@ ARMSTRAP_SWAP="yes"
 ARMSTRAP_SWAP_SIZE="256"
 
 ##############################################################################
+# Packages Sections
+#
+# If you want to install packages to the base distribution, add them here
+#ARMSTRAP_DEBIAN_EXTRAPACKAGES=""
+#
+# If you want to reconfigure packages, add them here
+#ARMSTRA__DEBIAN_RECONFIG=""
+
+##############################################################################
 # Network configuration
 #
 # If you want to use DHCP, use the following
