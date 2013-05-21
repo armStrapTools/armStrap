@@ -191,21 +191,6 @@ function gitExport {
   cd "${ARMSTRAP_ROOT}"
 }
 
-# Usage: mkImage <FILE> <SIZE IN MB>
-function mkImage {
-
-  printStatus "mkImage" "Creating image ${1}, size ${2}MB"
-  
-  if [ -e "${1}" ]; then
-    logStatus "mkImage" "${1} exist"
-    promptYN "${1} exist, overwrite?"
-    checkStatus "Not overwriting ${1}"
-  fi
-
-  dd if=/dev/zero of=${1} bs=1M count=${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  checkStatus "dd exit with status $?"
-}
-
 # Usage macAddress <VENDOR_ID>
 function macAddress {
   if [ -n ${1} ]; then

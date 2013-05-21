@@ -1,7 +1,17 @@
 
-# Usage createImg <FILE> <SIZE>
-function createImg {
-  dd if=/dev/zero of=${1} bs=1M count=${2}
+# Usage: mkImage <FILE> <SIZE IN MB>
+function mkImage {
+
+  printStatus "mkImage" "Creating image ${1}, size ${2}MB"
+  
+  if [ -e "${1}" ]; then
+    logStatus "mkImage" "${1} exist"
+    promptYN "${1} exist, overwrite?"
+    checkStatus "Not overwriting ${1}"
+  fi
+
+  dd if=/dev/zero of=${1} bs=1M count=${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  checkStatus "dd exit with status $?"
 }
 
 # Usage partDevice <DEVICE> <SIZE:FS> [<SIZE:FS> ...]
@@ -9,48 +19,68 @@ function partDevice {
   local TMP_DEV="${1}"
   local TMP_OFF=1
   shift
-  parted ${TMP_DEV} --script -- mklabel msdos
+  printStatus "partDevice" "Creating new MSDOS label on ${TMP_DEV}"
+  parted ${TMP_DEV} --script -- mklabel msdos >> ${ARMSTRAP_LOG_FILE} 2>&1
+  checkStatus "parted exit with status $?"
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
     if [ "${TMP_ARR[0]}" -gt "0" ]; then
       local TMP_SIZE=$(($TMP_OFF + ${TMP_ARR[0]}))
-      parted ${TMP_DEV} --script -- mkpart primary ${TMP_ARR[1]} ${TMP_OFF} ${TMP_SIZE}
+      printStatus "partDevice" "Creating a ${TMP_SIZE}Mb partition (${TMP_ARR[1]})" 
+      parted ${TMP_DEV} --script -- mkpart primary ${TMP_ARR[1]} ${TMP_OFF} ${TMP_SIZE} >> ${ARMSTRAP_LOG_FILE} 2>&1
+      checkStatus "parted exit with status $?"
       TMP_OFF=$(($TMP_SIZE + 1))
     else
-      parted ${TMP_DEV} --script -- mkpart primary ${TMP_ARR[1]} ${TMP_OFF} -1
+      printStatus "partDevice" "Creating a partition using remaining free space (${TMP_ARR[1]})"
+      parted ${TMP_DEV} --script -- mkpart primary ${TMP_ARR[1]} ${TMP_OFF} -1 >> ${ARMSTRAP_LOG_FILE} 2>&1
+      checkStatus "parted exit with status $?"
     fi
   done
 }
 
 # Usage loopImg <FILE>
 function loopImg {
-  losetup -f --show ${1}
+  printStatus "loopImg" "Attaching ${1} to loop device"
+  ARMSTRAP_DEVICE_LOOP=($(losetup -f --show "${1}"))
+  checkStatus "losetup exit with status $?"
 }
 
-# Usage uloopImg <DEVICE>
+# Usage uloopImg
 function uloopImg {
-  losetup -d ${1}
+  printStatus "uloopImg" "Detaching ${ARMSTRAP_DEVICE_LOOP} from loop device"
+  losetup -d ${ARMSTRAP_DEVICE_LOOP} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  checkStatus "losetup exit with status $?"
 }
 
 # Usage mapImg <FILE>
+# XXX NEED TO SET A VARIABLE TO WORK!!!
 function mapImg {
+  printStatus "mapImg" "Mapping ${1} to loop device"
   while read i; do
     x=($i)
-    printf "%s " "/dev/mapper/${x[2]}"
+    if [ -z "${ARMSTRAP_DEVICE_MAPS}" ]; then
+      ARMSTRAP_DEVICE_MAPS="/dev/mapper/${x[2]}"
+    else
+      ARMSTRAP_DEVICE_MAPS="${ARMSTRAP_DEVICE_MAPS} /dev/mapper/${x[2]}"
+    fi
   done <<< "`kpartx -avs ${1}`"
+  checkStatus "kpartx exit with status $?"
 }
 
 # Usage umapImg <FILE>
 function umapImg {
-  kpartx -d ${1}
+  printStatus "umapImg" "UnMapping ${1} from loop device"
+  kpartx -d ${1} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  checkStatus "kpartx exit with status $?"
 }
 
 # Usage formatPartitions <DEVICE:FS> [<DEVICE:FS> ...]
 function formatPartitions {
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
-    mkfs.${TMP_ARR[1]} ${TMP_ARR[0]}
-    echo ""
+    printStatus "fmtParts" "Formatting ${0} (${TMP_ARR[1]})"
+    mkfs.${TMP_ARR[1]} ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    checkStatus "mkfs.${TMP_ARR[1]} exit with status $?"
   done
 }
 
@@ -58,17 +88,15 @@ function formatPartitions {
 function mountPartitions {
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
-    if [ ! -d "${TMP_ARR[1]}" ]; then
-      mkdir -p ${TMP_ARR[1]}
-    fi
-    mount ${TMP_ARR[0]} ${TMP_ARR[1]}
+    checkDirectory "${TMP_ARR[1]}"
+    mount ${TMP_ARR[0]} ${TMP_ARR[1]} >> ${ARMSTRAP_LOG_FILE} 2>&1
   done
 }
 
 # Usage umountPartitions <MOUNTPOINT> [<MOUNTPOINT> ...]
 function umountPartitions {
   for i in "$@"; do
-    umount ${i}
+    umount ${i} >> ${ARMSTRAP_LOG_FILE} 2>&1
   done
 }
 
