@@ -44,9 +44,9 @@ ARMSTRAP_MAC_ADDRESS="008010EDDF01"
 #
 # If you want to install directly into your SD card, put the device here. If
 # it's not defined, an image will be generated.
-ARMSTRAP_DEVICE="/dev/sdb"
+#ARMSTRAP_DEVICE="/dev/sdb"
 # Specify the size of the image to be build in MB
-#ARMSTRAP_IMAGE_SIZE="1024"
+#ARMSTRAP_IMAGE_SIZE="2048"
 #
 # If you want to name your image something else than the generated name
 #ARMSTRAP_IMAGE_NAME="wathever_name_you_want.ig"

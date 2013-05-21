@@ -1,17 +1,19 @@
 function installGCC {
-  if [ ! -e "/etc/apt/sources.list.d/emdebian.list" ]; then
+  local IN=(`dpkg-query -W -f='${Status} ${Version}\n' emdebian-archive-keyring 2> /dev/null`)
+  if [ "${IN[0]}" != "install" ]; then
+    printStatus "installGCC" "Configuring emdebian repository"
     echo "deb http://www.emdebian.org/debian/ wheezy main" > /etc/apt/sources.list.d/emdebian.list
     echo "deb http://www.emdebian.org/debian/ sid main" >> /etc/apt/sources.list.d/emdebian.list
-    apt-get install emdebian-archive-keyring
-    apt-get update
+    apt-get install emdebian-archive-keyring >> ${ARMSTRAP_LOG_FILE} 2>&1
+    apt-get update >> ${ARMSTRAP_LOG_FILE} 2>&1
   fi
   
-  apt-get install emdebian-archive-keyring
-  apt-get update
+  printStatus "installGCC" "Installing ${BUILD_ARCH_GCC_PACKAGE}"
+  apt-get install -y ${BUILD_ARCH_GCC_PACKAGE} >> ${ARMSTRAP_LOG_FILE} 2>&1
   
-  apt-get install -y ${BUILD_ARCH_GCC_PACKAGE}
   for i in /usr/bin/${BUILD_ARCH_COMPILER}*-${BUILD_ARCH_GCC_VERSION} ; do 
-    ln -f -s $i ${i%%-${BUILD_ARCH_GCC_VERSION}} ; 
+    printStatus "installGCC" "Creating symlink ${i%%-${BUILD_ARCH_GCC_VERSION}} for ${i}"
+    ln -f -s $i ${i%%-${BUILD_ARCH_GCC_VERSION}}
   done
 }
 
