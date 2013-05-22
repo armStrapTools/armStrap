@@ -122,6 +122,7 @@ function setupImg {
   local TMP_FST=""
   local TMP_FS=""
   local TMP_MNT=""
+  local TMP_MT=""
   local TMP_SORT=("")
   shift
   shift
@@ -146,12 +147,6 @@ function setupImg {
   TMP_FST=(${TMP_FST})
   TMP_MNT=(${TMP_MNT})
   
-  readarray -t TMP_SORT < <(printf '%s\0' "${TMP_MNT[@]}" | sort -z | xargs -0n1)
-  
-  TMP_MNT=(${TMP_SORT[@]})
-  
-  echo "Sorted Mount : ${TMP_MNT[@]}"
- 
   partDevice "${ARMSTRAP_DEVICE_LOOP}" ${TMP_PARTS}
   
   uloopImg
@@ -169,9 +164,33 @@ function setupImg {
   
   formatPartitions ${TMP_FS}
   
-  # Usage mountPartitions <DEVICE:MOUNTPOINT> [<DEVICE:MOUNTPOINT> ...]
+  TMP_COUNT=0
+  for i in "${TMP_MNT[@]}"; do
+    local TMP_ARR=(${i//:/ })
+    if [ -z "${TMP_MT}" ]; then
+      TMP_MT="${TMP_ARR[0]}:${ARMSTRAP_DEVICE_MAPS[$TMP_COUNT]}:${ARMSTRAP_MNT}${TMP_ARR[1]}"
+    else
+      TMP_MT="${TMP_MT} ${TMP_ARR[0]}:${ARMSTRAP_DEVICE_MAPS[$TMP_COUNT]}:${ARMSTRAP_MNT}${TMP_ARR[1]}"
+    fi
+    (( TMP_COUNT++ ))
+  done
   
-  umapImg "${TMP_IMAGE}"     
+  TMP_MT=(${TMP_MT})
+  readarray -t TMP_SORT < <(printf '%s\0' "${TMP_MT[@]}" | sort -z | xargs -0n1)
+  TMP_MT=(${TMP_SORT[@]})
   
-  #formatPartitions <DEVICE:FS> [<DEVICE:FS> ...]
+  for i in "${TMP_MT[@]}"; do
+    local TMP_ARR=(${i//:/ })
+    if [ -z "${ARMSTRAP_MOUNT_MAP}" ]; then
+      ARMSTRAP_MOUNT_MAP="${TMP_ARR[1]}:${TMP_ARR[2]}"
+    else
+      ARMSTRAP_MOUNT_MAP="${ARMSTRAP_MOUNT_MAP} ${TMP_ARR[1]}:${TMP_ARR[2]}"
+    fi
+  done
+  
+  ARMSTRAP_MOUNT_MAP=(${ARMSTRAP_MOUNT_MAP})
+  
+  mountPartitions ${ARMSTRAP_MOUNT_MAP[@]}
+
+  partSync
 }
