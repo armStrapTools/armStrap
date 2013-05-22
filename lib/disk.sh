@@ -86,7 +86,11 @@ function formatPartitions {
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
     printStatus "fmtParts" "Formatting ${1} (${TMP_ARR[1]})"
-    mkfs.${TMP_ARR[1]} ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    if [[ ${TMP_ARR[1]} = fat* ]]; then
+      mkfs.vfat ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    else
+      mkfs.${TMP_ARR[1]} ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    fi
     checkStatus "mkfs.${TMP_ARR[1]} exit with status $?"
   done
   partSync
@@ -108,4 +112,66 @@ function umountPartitions {
     umount ${i} >> ${ARMSTRAP_LOG_FILE} 2>&1
   done
   partSync
+}
+
+# Usage setupImg <FILE> <SIZE> <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
+function setupImg {
+  local TMP_IMAGE="${1}"
+  local TMP_SIZE="${2}"
+  local TMP_PARTS=""
+  local TMP_FST=""
+  local TMP_FS=""
+  local TMP_MNT=""
+  local TMP_SORT=("")
+  shift
+  shift
+  local TMP_CNT=0
+  
+  makeImg "${TMP_IMAGE}" "${TMP_SIZE}"
+  
+  loopImg "${TMP_IMAGE}"
+  
+  for i in "$@"; do
+    local TMP_ARR=(${i//:/ })
+    if [ -z "${TMP_PARTS}" ]; then
+      TMP_PARTS="${TMP_ARR[3]}:${TMP_ARR[2]}"
+      TMP_FST="${TMP_ARR[2]}"
+      TMP_MNT="${TMP_ARR[0]}:${TMP_ARR[1]}"
+    else
+      TMP_PARTS="${TMP_PARTS} ${TMP_ARR[3]}:${TMP_ARR[2]}"
+      TMP_FST="${TMP_FST} ${TMP_ARR[2]}"
+      TMP_MNT="${TMP_MNT} ${TMP_ARR[0]}:${TMP_ARR[1]}"
+    fi
+  done
+  TMP_FST=(${TMP_FST})
+  TMP_MNT=(${TMP_MNT})
+  
+  readarray -t TMP_SORT < <(printf '%s\0' "${TMP_MNT[@]}" | sort -z | xargs -0n1)
+  
+  TMP_MNT=(${TMP_SORT[@]})
+  
+  echo "Sorted Mount : ${TMP_MNT[@]}"
+ 
+  partDevice "${ARMSTRAP_DEVICE_LOOP}" ${TMP_PARTS}
+  
+  uloopImg
+  
+  mapImg "${TMP_IMAGE}"
+
+  for i in "${ARMSTRAP_DEVICE_MAPS[@]}"; do
+    if [ -z "${TMP_FS}" ]; then
+      TMP_FS="${i}:${TMP_FST[$TMP_COUNT]}"
+    else
+      TMP_FS="${TMP_FS} ${i}:${TMP_FST[$TMP_COUNT]}"
+    fi
+    (( TMP_COUNT++ ))
+  done
+  
+  formatPartitions ${TMP_FS}
+  
+  # Usage mountPartitions <DEVICE:MOUNTPOINT> [<DEVICE:MOUNTPOINT> ...]
+  
+  umapImg "${TMP_IMAGE}"     
+  
+  #formatPartitions <DEVICE:FS> [<DEVICE:FS> ...]
 }
