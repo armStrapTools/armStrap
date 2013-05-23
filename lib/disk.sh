@@ -43,15 +43,15 @@ function partDevice {
 # Usage loopImg <FILE>
 function loopImg {
   printStatus "loopImg" "Attaching ${1} to loop device"
-  ARMSTRAP_DEVICE_LOOP=($(losetup -f --show "${1}"))
+  ARMSTRAP_DEVICE=($(losetup -f --show "${1}"))
   checkStatus "losetup exit with status $?"
   partSync
 }
 
 # Usage uloopImg
 function uloopImg {
-  printStatus "uloopImg" "Detaching ${ARMSTRAP_DEVICE_LOOP} from loop device"
-  losetup -d ${ARMSTRAP_DEVICE_LOOP} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  printStatus "uloopImg" "Detaching ${ARMSTRAP_DEVICE} from loop device"
+  losetup -d ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "losetup exit with status $?"
   partSync
 }
@@ -85,7 +85,7 @@ function umapImg {
 function formatParts {
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
-    printStatus "fmtParts" "Formatting ${1} (${TMP_ARR[1]})"
+    printStatus "fmtParts" "Formatting ${TMP_ARR[0]} (${TMP_ARR[1]})"
     if [[ ${TMP_ARR[1]} = fat* ]]; then
       mkfs.vfat ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
     else
@@ -118,6 +118,13 @@ function umountParts {
   partSync
 }
 
+# Usage : cleanDev <DEVICE>
+function cleanDev {
+  printStatus "cleanDev" "Erasing ${1}"
+  dd if=/dev/zero of=/dev/${1} bs=1M count=4
+  checkStatus "dd exit with status $?"
+}
+
 # Usage setupImg <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
 function setupImg {
   local TMP_PARTS=""
@@ -147,7 +154,7 @@ function setupImg {
   TMP_FST=(${TMP_FST})
   TMP_MNT=(${TMP_MNT})
   
-  partDevice "${ARMSTRAP_DEVICE_LOOP}" ${TMP_PARTS}
+  partDevice "${ARMSTRAP_DEVICE}" ${TMP_PARTS}
   
   uloopImg
   
@@ -212,4 +219,106 @@ function finishImg {
   umountParts ${TMP_RMAP[@]}
   
   umapImg "${ARMSTRAP_IMAGE_NAME}"
+}
+
+# Usage setupSD <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
+function setupSD {
+  local TMP_PARTS=""
+  local TMP_FST=""
+  local TMP_FS=""
+  local TMP_MNT=""
+  local TMP_MT=""
+  local TMP_SORT=("")
+  local TMP_CNT=0
+  
+  cleanDevice ${ARMSTRAP_DEVICE}
+  
+  for i in "$@"; do
+    local TMP_ARR=(${i//:/ })
+    if [ -z "${TMP_PARTS}" ]; then
+      TMP_PARTS="${TMP_ARR[3]}:${TMP_ARR[2]}"
+      TMP_FST="${TMP_ARR[2]}"
+      TMP_MNT="${TMP_ARR[0]}:${TMP_ARR[1]}"
+    else
+      TMP_PARTS="${TMP_PARTS} ${TMP_ARR[3]}:${TMP_ARR[2]}"
+      TMP_FST="${TMP_FST} ${TMP_ARR[2]}"
+      TMP_MNT="${TMP_MNT} ${TMP_ARR[0]}:${TMP_ARR[1]}"
+    fi
+  done
+  TMP_FST=(${TMP_FST})
+  TMP_MNT=(${TMP_MNT})
+  
+  partDevice "${ARMSTRAP_DEVICE}" ${TMP_PARTS}
+
+  ARMSTRAP_DEVICE_MAPS=""
+  for i in `ls ${ARMSTRAP_DEVICE}*`; do
+    if [ "${i}" != "${ARMSTRAP_DEVICE}" ]; then
+      if [ -z "${ARMSTRAP_DEVICE_MAPS}" ]; then
+        ARMSTRAP_DEVICE_MAPS="${i}"
+      else
+        ARMSTRAP_DEVICE_MAPS="${ARMSTRAP_DEVICE_MAPS} ${i}"
+      fi
+    fi
+  done
+
+  ARMSTRAP_DEVICE_MAPS=(${ARMSTRAP_DEVICE_MAPS})
+ 
+  for i in "${ARMSTRAP_DEVICE_MAPS[@]}"; do
+    if [ -z "${TMP_FS}" ]; then
+      TMP_FS="${i}:${TMP_FST[$TMP_COUNT]}"
+    else
+      TMP_FS="${TMP_FS} ${i}:${TMP_FST[$TMP_COUNT]}"
+    fi
+    (( TMP_COUNT++ ))
+  done
+  
+  formatParts ${TMP_FS}
+  
+  TMP_COUNT=0
+  for i in "${TMP_MNT[@]}"; do
+    local TMP_ARR=(${i//:/ })
+    if [ -z "${TMP_MT}" ]; then
+      TMP_MT="${TMP_ARR[0]}:${ARMSTRAP_DEVICE_MAPS[$TMP_COUNT]}:${ARMSTRAP_MNT}${TMP_ARR[1]}"
+    else
+      TMP_MT="${TMP_MT} ${TMP_ARR[0]}:${ARMSTRAP_DEVICE_MAPS[$TMP_COUNT]}:${ARMSTRAP_MNT}${TMP_ARR[1]}"
+    fi
+    (( TMP_COUNT++ ))
+  done
+  
+  TMP_MT=(${TMP_MT})
+  readarray -t TMP_SORT < <(printf '%s\0' "${TMP_MT[@]}" | sort -z | xargs -0n1)
+  TMP_MT=(${TMP_SORT[@]})
+  
+  for i in "${TMP_MT[@]}"; do
+    local TMP_ARR=(${i//:/ })
+    if [ -z "${ARMSTRAP_MOUNT_MAP}" ]; then
+      ARMSTRAP_MOUNT_MAP="${TMP_ARR[1]}:${TMP_ARR[2]}"
+    else
+      ARMSTRAP_MOUNT_MAP="${ARMSTRAP_MOUNT_MAP} ${TMP_ARR[1]}:${TMP_ARR[2]}"
+    fi
+  done
+  
+  ARMSTRAP_MOUNT_MAP=(${ARMSTRAP_MOUNT_MAP})
+  
+  mountParts ${ARMSTRAP_MOUNT_MAP[@]}
+}
+
+function finishSD {
+  local TMP_RMAP=""
+  
+  partSync
+
+  for i in ${ARMSTRAP_MOUNT_MAP[@]}; do
+    local TMP_ARR=(${i//:/ })
+    if [ -z "${TMP_RMAP}" ]; then
+      TMP_RMAP="${TMP_ARR[1]}"
+    else
+      TMP_RMAP="${TMP_ARR[1]} ${TMP_RMAP}"
+    fi
+  done
+  
+  TMP_RMAP=(${TMP_RMAP})
+  
+  umountParts ${TMP_RMAP[@]}
+  
 }

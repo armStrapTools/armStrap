@@ -110,7 +110,7 @@ function installPrereqs {
 
 function isBlockDev {
   if ! [ -b ${1} ]; then
-    logStatus "isBlockDev" "Device ${1} is not a block device"
+    printStatus "isBlockDev" "Device ${1} is not a block device"
     return 1
   fi  
   return 0
@@ -121,7 +121,7 @@ function isBlockDev {
 function isRemDevice {
   local TMP_DEVICE=`basename ${1}`
   if [ `cat /sys/block/${TMP_DEVICE}/removable` != "1" ]; then
-    logStatus "isRemDevice" "Device ${1} is not a removeable device"
+    printStatus "isRemDevice" "Device ${1} is not a removeable device"
     return 1
   fi
   return 0
@@ -140,10 +140,16 @@ function testInstall {
 # Usage: partSync
 
 function partSync {
-  logStatus "partSync" "Flush file system buffers"
+  local TMP_DEV=""
+  printStatus "partSync" "Flush file system buffers"
   sync
-  logStatus "partSync" "Inform the OS of partition table changes"  
-  partprobe
+  if [ ! -z "${ARMSTRAP_DEVICE}" ]; then
+    TMP_DEV="${ARMSTRAP_DEVICE}"
+  else
+    TMP_DEV="${ARMSTRAP_DEVICE_LOOP}"
+  fi
+  printStatus "partSync" "Inform the OS of partition table changes on ${TMP_DEV}"  
+  partprobe ${TMP_DEV}
 }
 
 # Usage: promptYN "<question>"
@@ -236,7 +242,7 @@ function showConfig {
     printf "% 20s : %s\n" "Search Domain" "${ARMSTRAP_ETH0_DOMAIN}"
     printf "% 20s : %s\n" "DNS" "${ARMSTRAP_ETH0_DNS}"
   fi
-    if [ -z "${ARMSTRAP_DEVICE}" ]; then
+  if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
     printf "% 20s : %sMB\n" "Image Size" "${ARMSTRAP_IMAGE_SIZE}"
     printf "% 20s : %s\n" "Image File" "${ARMSTRAP_IMAGE_NAME}"
     if [ -e "${ARMSTRAP_IMAGE_NAME}" ]; then
