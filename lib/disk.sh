@@ -81,8 +81,8 @@ function umapImg {
   partSync
 }
 
-# Usage formatPartitions <DEVICE:FS> [<DEVICE:FS> ...]
-function formatPartitions {
+# Usage formatParts <DEVICE:FS> [<DEVICE:FS> ...]
+function formatParts {
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
     printStatus "fmtParts" "Formatting ${1} (${TMP_ARR[1]})"
@@ -96,41 +96,41 @@ function formatPartitions {
   partSync
 }
 
-# Usage mountPartitions <DEVICE:MOUNTPOINT> [<DEVICE:MOUNTPOINT> ...]
-function mountPartitions {
+# Usage mountParts <DEVICE:MOUNTPOINT> [<DEVICE:MOUNTPOINT> ...]
+function mountParts {
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
     checkDirectory "${TMP_ARR[1]}"
+    printStatus "mountParts" "Mounting ${TMP_ARR[0]} on ${TMP_ARR[1]}"
     mount ${TMP_ARR[0]} ${TMP_ARR[1]} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    checkStatus "mount exit with status $?"
   done
   partSync
 }
 
-# Usage umountPartitions <MOUNTPOINT> [<MOUNTPOINT> ...]
-function umountPartitions {
+# Usage umountParts <MOUNTPOINT> [<MOUNTPOINT> ...]
+function umountParts {
   for i in "$@"; do
+    printStatus "umountParts" "Unmounting ${i}"
     umount ${i} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    checkStatus "umount exit with status $?"
   done
   partSync
 }
 
-# Usage setupImg <FILE> <SIZE> <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
+# Usage setupImg <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
 function setupImg {
-  local TMP_IMAGE="${1}"
-  local TMP_SIZE="${2}"
   local TMP_PARTS=""
   local TMP_FST=""
   local TMP_FS=""
   local TMP_MNT=""
   local TMP_MT=""
   local TMP_SORT=("")
-  shift
-  shift
   local TMP_CNT=0
   
-  makeImg "${TMP_IMAGE}" "${TMP_SIZE}"
+  makeImg "${ARMSTRAP_IMAGE_NAME}" "${ARMSTRAP_IMAGE_SIZE}"
   
-  loopImg "${TMP_IMAGE}"
+  loopImg "${ARMSTRAP_IMAGE_NAME}"
   
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
@@ -151,7 +151,7 @@ function setupImg {
   
   uloopImg
   
-  mapImg "${TMP_IMAGE}"
+  mapImg "${ARMSTRAP_IMAGE_NAME}"
 
   for i in "${ARMSTRAP_DEVICE_MAPS[@]}"; do
     if [ -z "${TMP_FS}" ]; then
@@ -162,7 +162,7 @@ function setupImg {
     (( TMP_COUNT++ ))
   done
   
-  formatPartitions ${TMP_FS}
+  formatParts ${TMP_FS}
   
   TMP_COUNT=0
   for i in "${TMP_MNT[@]}"; do
@@ -190,7 +190,26 @@ function setupImg {
   
   ARMSTRAP_MOUNT_MAP=(${ARMSTRAP_MOUNT_MAP})
   
-  mountPartitions ${ARMSTRAP_MOUNT_MAP[@]}
+  mountParts ${ARMSTRAP_MOUNT_MAP[@]}
+}
 
+function finishImg {
+  local TMP_RMAP=""
+  
   partSync
+
+  for i in ${ARMSTRAP_MOUNT_MAP[@]}; do
+    local TMP_ARR=(${i//:/ })
+    if [ -z "${TMP_RMAP}" ]; then
+      TMP_RMAP="${TMP_ARR[1]}"
+    else
+      TMP_RMAP="${TMP_ARR[1]} ${TMP_RMAP}"
+    fi
+  done
+  
+  TMP_RMAP=(${TMP_RMAP})
+  
+  umountParts ${TMP_RMAP[@]}
+  
+  umapImg "${ARMSTRAP_IMAGE_NAME}"
 }
