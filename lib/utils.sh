@@ -142,14 +142,9 @@ function testInstall {
 function partSync {
   local TMP_DEV=""
   printStatus "partSync" "Flush file system buffers"
-  sync
-  if [ ! -z "${ARMSTRAP_DEVICE}" ]; then
-    TMP_DEV="${ARMSTRAP_DEVICE}"
-  else
-    TMP_DEV="${ARMSTRAP_DEVICE_LOOP}"
-  fi
-  printStatus "partSync" "Inform the OS of partition table changes on ${TMP_DEV}"  
-  partprobe ${TMP_DEV}
+  sync > /dev/null 2>&1
+  printStatus "partSync" "Inform the OS of partition table changes on ${ARMSTRAP_DEVICE}"  
+  partprobe ${ARMSTRAP_DEVICE} > /dev/null 2>&1
 }
 
 # Usage: promptYN "<question>"

@@ -4,7 +4,7 @@
 # Variables that should never be changed
 #
 
-ARMSTRAP_VERSION="0.31"
+ARMSTRAP_VERSION="0.38"
 ARMSTRAP_NAME=`basename ${0}`
 
 printf "\n%s version %s\n" "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
