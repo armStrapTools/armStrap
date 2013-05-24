@@ -231,7 +231,7 @@ function setupSD {
   local TMP_SORT=("")
   local TMP_CNT=0
   
-  cleanDevice ${ARMSTRAP_DEVICE}
+  cleanDev ${ARMSTRAP_DEVICE}
   
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
