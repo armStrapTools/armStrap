@@ -81,13 +81,22 @@ function initSources {
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
+# Usage : installTasks <ARMSTRAP_ROOT> <TASK1> [<TASK2> ...]
+function installTasks {
+  local TMP_ROOT=${1}
+  shift
+  
+  printStatus "installTasks" "Installing tasks ${@}"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ tasksel --new-install install ${@}
+}
+
 # Usage : installPackages <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
 function installPackages {
   local TMP_ROOT=${1}
   shift
   
   printStatus "installPackages" "Installing ${@}"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ apt-get -y install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ debconf-apt-progress -- apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@}
 }
 
 # Usage : installDPKG <ARMSTRAP_ROOT> <PACKAGE_FILE>

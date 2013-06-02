@@ -37,14 +37,14 @@ ARMSTRAP_ETH0_MODE="dhcp"
 # Some board need a mac address, if this is not set and the board need one,
 # a pseudo random mac address will be generated. The vendor mac prefix used
 # to generate the mac address is define in the board configuration.
-#ARMSTRAP_MAC_ADDRESS="008010EDDF01"
+ARMSTRAP_MAC_ADDRESS="008010EDDF01"
 
 ##############################################################################
 # Output configuration
 #
 # If you want to install directly into your SD card, put the device here. If
 # it's not defined, an image will be generated.
-#ARMSTRAP_DEVICE="/dev/sdb"
+ARMSTRAP_DEVICE="/dev/sdb"
 # If you want to name your image something else than the generated name
 #ARMSTRAP_IMAGE_NAME="wathever_name_you_want.img"
 # Specify the size of the image to be build in MB

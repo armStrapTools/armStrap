@@ -13,6 +13,8 @@ function buildRoot {
 
   initSources "${BUILD_MNT_ROOT}"
   
+  installTasks "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_TASKS}"
+  
   if [ -n "${BUILD_DEBIAN_EXTRAPACKAGES}" ]; then
     if [ -n "${ARMSTRAP_SWAP}" ]; then
       installPackages "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_EXTRAPACKAGES} dphys-swapfile"
