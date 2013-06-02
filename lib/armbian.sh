@@ -76,9 +76,9 @@ function addSource {
 # Usage : initSources <ARMSTRAP_ROOT>
 function initSources {
   printStatus "initSources" "Updating sources list"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get -y update >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ debconf-apt-progress -- apt-get -q -y update
   printStatus "initSources" "Updating Packages"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ debconf-apt-progress -- apt-get -q -y upgrade
 }
 
 # Usage : installTasks <ARMSTRAP_ROOT> <TASK1> [<TASK2> ...]
