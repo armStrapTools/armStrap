@@ -186,6 +186,16 @@ function addInitTab {
   printf "%s:%s:respawn:/sbin/getty -L %s %s %s\n" ${2} ${3} ${4} ${5} ${6} >> ${1}/etc/inittab
 }
 
+# Usage addTT <ARMSTRAP_ROOT> <RUNLEVELS> <DEVICE> <SPEED> <TYPE>
+function addTTY {
+  printStatus "addTTY" "Configuring terminal ${3} for runlevels ${2} at ${4} (${5})"
+  printf "# %s - getty\n" "${3}" > ${1}/${3}.conf
+  printf "# This service maintains a getty on ttyS0 from the point the system is started until it is shut down again.\n\n" >> ${1}/${3}.conf
+  printf "start on stopped rc or RUNLEVEL=[%s]\n" "${2}" >> ${1}/etc/init/${3}.conf
+  printf "stop on runlevel [!2345]\n\n" "${2}" >> ${1}/${3}.conf
+  printf "respawn\nexec /sbin/getty -L %s %s %s\n" "${4}" "${3}" "${5}" >> ${1}/${3}.conf
+}
+
 # Usage : initFSTab <ARMSTRAP_ROOT>
 function initFSTab {
   printStatus "initFSTab" "Initializing fstab"
