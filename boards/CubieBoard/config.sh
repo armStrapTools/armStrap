@@ -40,8 +40,13 @@ BUILD_DEBIAN_SOURCE_SECURITY="http://security.debian.org"
 BUILD_DEBIAN_SOURCE_SECURITY_COMPONENTS="main contrib non-free"
 BUILD_DEBIAN_SUITE="wheezy"
 BUILD_DEBIAN_TASKS="ssh-server standard"
+
+BUILD_UBUNTU_VERSION="13.04"
+BUILD_UBUNTU_TASKS="server openssh-server"
+BUILD_UBUNTU_LOCALES="${LANG} en_US.UTF-8 en_US"
+
 # Not all packages can be install this way.
-BUILD_DEBIAN_EXTRAPACKAGES="nvi ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev ${ARMSTRAP_DEBIAN_EXTRAPACKAGES}"
+BUILD_DEBIAN_EXTRAPACKAGES="nvi ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0 libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev ${ARMSTRAP_DEBIAN_EXTRAPACKAGES}"
 # Not all packages can (or should be) reconfigured this way.
 BUILD_DEBIAN_RECONFIG="locales tzdata ${ARMSTRAP_DEBIAN_RECONFIG}"
 
@@ -82,5 +87,5 @@ BUILD_BOOT_UBOOT="${BUILD_UBOOT_DIR}/u-boot.bin"
 BUILD_BOOT_UBOOT_SIZE="1024"
 BUILD_BOOT_UBOOT_SEEK="32"
 
-BUILD_SCRIPTS="init.sh buildBoot.sh  buildKernel.sh  buildRoot.sh  build.sh"
+BUILD_SCRIPTS="init.sh buildBoot.sh buildKernel.sh buildDebian.sh buildUbuntu.sh build.sh"
 BUILD_PREREQ="build-essential u-boot-tools qemu qemu-user-static debootstrap parted kpartx lvm2 git binfmt-support libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev"

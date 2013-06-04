@@ -23,6 +23,47 @@ function enableServices {
   rm -f ${1}/usr/sbin/policy-rc.d
 }
 
+# usage ubuntuStrap <ARMSTRAP_ROOT> <ARCH> <EABI> <VERSION>
+function ubuntuStrap {
+  printStatus "ubuntuStrap" "Fetching and extracting ubuntu-core-${4}-core-${2}${3}.tar.gz"
+  wget -q -O - http://cdimage.ubuntu.com/ubuntu-core/releases/${4}/release/ubuntu-core-${4}-core-${2}${3}.tar.gz | tar -xz -C ${1}/
+  
+  installQEMU ${1} ${2}
+  disableServices ${1}
+}
+
+# Usage : insResolver <ARMSTRAP_ROOT>
+function insResolver {
+  printStatus "insResolver" "Setting up temporary resolver"
+  mv ${1}/etc/resolv.conf ${1}/etc/resolv.conf.orig
+  cp /etc/resolv.conf ${1}/etc/resolv.conf
+}
+
+# Usage : insDialog <ARMSTRAP_ROOT>
+function insDialog {
+  printStatus "insDialog" "Installing Dialog frontend"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install dialog>> ${ARMSTRAP_LOG_FILE} 2>&1
+}
+
+# Usage : ubuntuLocales <ARMSTRAP_ROOT> <LOCALE1> [<LOCALE2> ...]
+# The first locale will be the default one.
+function ubuntuLocales {
+  local TMP_ROOT=${1}
+  shift
+  
+  printStatus "ubuntuLocales" "Configuring locales ${@}"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ locale-gen ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  printStatus "ubuntuLocales" "Setting default locale to ${1}"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ update-locale LANG=${1} LC_MESSAGES=POSIX >> ${ARMSTRAP_LOG_FILE} 2>&1
+}
+
+# Usage : clnResolver <ARMSTRAP_ROOT>
+function clnResolver {
+  printStatus "clnResolver" "Restoring original resolver"
+  rm -f ${1}/etc/resolv.conf
+  mv ${1}/etc/resolv.conf.orig ${1}/etc/resolv.conf
+}
+
 # usage bootStrap <ARMSTRAP_ROOT> <ARCH> <EABI> <SUITE> [<MIRROR>]
 function bootStrap {
   if [ $# -eq 4 ]; then
@@ -45,7 +86,7 @@ function bootStrap {
   checkStatus "debootstrap --second-stage failed with status ${?}"
 
   printStatus "bootStrap" "Running dpkg --configure -a"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ dpkg --configure -a >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/dpkg --configure -a >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "dpkg --configure failed with status ${?}"
 }
 
@@ -76,9 +117,9 @@ function addSource {
 # Usage : initSources <ARMSTRAP_ROOT>
 function initSources {
   printStatus "initSources" "Updating sources list"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ debconf-apt-progress -- apt-get -q -y update
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y update >> ${ARMSTRAP_LOG_FILE} 2>&1
   printStatus "initSources" "Updating Packages"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ debconf-apt-progress -- apt-get -q -y upgrade
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : installTasks <ARMSTRAP_ROOT> <TASK1> [<TASK2> ...]
@@ -87,7 +128,9 @@ function installTasks {
   shift
   
   printStatus "installTasks" "Installing tasks ${@}"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ tasksel --new-install install ${@}
+  for i in ${@}; do
+    LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/tasksel --new-install install ${i}
+  done
 }
 
 # Usage : installPackages <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
@@ -96,7 +139,7 @@ function installPackages {
   shift
   
   printStatus "installPackages" "Installing ${@}"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ debconf-apt-progress -- apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@}
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/debconf-apt-progress -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@}
 }
 
 # Usage : installDPKG <ARMSTRAP_ROOT> <PACKAGE_FILE>
@@ -108,7 +151,7 @@ function installDPKG {
 
   printStatus "installDPKG" "Installing ${TMP_DEB} (${TMP_ROOT} : $TMP_DIR : $TMP_CHR $TMP_DEB)"
   cp ${2} ${TMP_DIR}/${TMP_DEB}
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
   rm -rf ${TMP_DIR}
 }
 
@@ -118,13 +161,13 @@ function configPackages {
   shift
 
   printStatus "configPackages" "Configuring ${@}"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ dpkg-reconfigure ${@}
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/sbin/dpkg-reconfigure ${@}
 }
 
 # Usage : setRootPassword <ARMSTRAP_ROOT> <PASSWORD>
 function setRootPassword {
   printStatus "setRootPassword" "Configuring root password"
-  chroot ${1}/ passwd root <<EOF > /dev/null 2>&1
+  chroot ${1}/ /usr/bin/passwd root <<EOF > /dev/null 2>&1
 ${2}
 ${2}
 
@@ -213,13 +256,13 @@ function addNameServer {
 # Usage : bootClean <ARMSTRAP_ROOT> <ARCH>
 function bootClean {
   printStatus "bootClean" "Running aptitude update"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ aptitude -y update >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/aptitude -y update >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   printStatus "bootClean" "Running aptitude clean"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ aptitude -y clean  >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/aptitude -y clean  >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   printStatus "bootClean" "Running apt-get clean"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ apt-get clean >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get clean >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   removeQEMU ${1} ${2}
   enableServices ${1}

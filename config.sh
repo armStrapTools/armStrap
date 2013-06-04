@@ -17,6 +17,12 @@ ARMSTRAP_SWAP="yes"
 ARMSTRAP_SWAP_SIZE="256"
 
 ##############################################################################
+# OS Sections
+#
+# Currently we support ubuntu and debian. Default choice is debian
+ARMSTRAP_OS="ubuntu"
+
+##############################################################################
 # Packages Sections
 #
 # If you want to install packages to the base distribution, add them here

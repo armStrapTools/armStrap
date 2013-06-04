@@ -1,6 +1,6 @@
 # Usage: buildRoot
-function buildRoot {
-  printStatus "buildRoot" "Starting"
+function buildDebian {
+  printStatus "buildDebian" "Starting"
 
   bootStrap "${BUILD_MNT_ROOT}" "${BUILD_ARCH}" "${BUILD_ARCH_EABI}" "${BUILD_DEBIAN_SUITE}"
 
@@ -53,6 +53,6 @@ function buildRoot {
   
   bootClean "${BUILD_MNT_ROOT}" "${BUILD_ARCH}"
   
-  printStatus "buildRoot" "Done"
+  printStatus "buildDebian" "Done"
 
 }

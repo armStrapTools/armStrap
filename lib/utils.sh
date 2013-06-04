@@ -256,3 +256,16 @@ function showConfig {
   checkStatus "Not ok to proceed."    
     
 }
+
+# usage unComment <FILE> <SEARCH VALUE>
+function unComment {
+  local TMP_SED=`mktemp sedscript.XXXXXX`
+  local TMP_CNF_MOD=`mktemp .config.XXXXXX`
+  
+  printStatus "unComment" "Uncommenting line starting with # ${2} in ${1}"
+  printf "s/^# ${2}/${2}/g\n" > ${TMP_SED}
+  sed -f ${TMP_SED} ${1} > ${TMP_CNF_MOD}
+  rm -f ${TMP_SED}
+  rm -f ${1}
+  mv ${TMP_CNF_MOD} ${1}
+}
