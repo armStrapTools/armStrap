@@ -129,6 +129,12 @@ function installTasks {
   
   printStatus "installTasks" "Installing tasks ${@}"
   for i in ${@}; do
+    printStatus "installTask" "Running dpkg --configure -a"
+    LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/dpkg --configure -a >> ${ARMSTRAP_LOG_FILE} 2>&1
+    
+    printStatus "installTask" "Updating Packages"
+    LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
+
     LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/tasksel --new-install install ${i}
   done
 }

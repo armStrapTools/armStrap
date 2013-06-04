@@ -14,22 +14,18 @@ function buildUbuntu {
   
   insDialog "${BUILD_MNT_ROOT}"
   
-  installPackages "${BUILD_MNT_ROOT}" "tasksel"
+  ubuntuLocales "${BUILD_MNT_ROOT}" ${BUILD_UBUNTU_LOCALES}
   
-  installTasks "${BUILD_MNT_ROOT}" "${BUILD_UBUNTU_TASKS}"
-  
-  ubuntuLocales "${BUILD_MNT_ROOT}" "${BUILD_UBUNTU_LOCALES}"
-  
-  if [ -n "${BUILD_DEBIAN_EXTRAPACKAGES}" ]; then
+  if [ -n "${BUILD_DPKG_EXTRAPACKAGES}" ]; then
     if [ -n "${ARMSTRAP_SWAP}" ]; then
-      installPackages "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_EXTRAPACKAGES} dphys-swapfile"
+      installPackages "${BUILD_MNT_ROOT}" "tasksel ${BUILD_UBUNTU_TASKS} ${BUILD_DPKG_EXTRAPACKAGES} dphys-swapfile"
       printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
     else
-      installPackages "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_EXTRAPACKAGES}"
+      installPackages "${BUILD_MNT_ROOT}" "tasksel ${BUILD_UBUNTU_TASKS} ${BUILD_DPKG_EXTRAPACKAGES}"
     fi
   fi
 
-  configPackages "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_RECONFIG}"
+  configPackages "${BUILD_MNT_ROOT}" "${BUILD_UBUNTU_RECONFIG}"
   
   if [ -d "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg" ]; then
     for i in "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg/*.deb"; do

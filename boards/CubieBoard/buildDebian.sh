@@ -15,12 +15,12 @@ function buildDebian {
   
   installTasks "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_TASKS}"
   
-  if [ -n "${BUILD_DEBIAN_EXTRAPACKAGES}" ]; then
+  if [ -n "${BUILD_DPKG_EXTRAPACKAGES}" ]; then
     if [ -n "${ARMSTRAP_SWAP}" ]; then
-      installPackages "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_EXTRAPACKAGES} dphys-swapfile"
+      installPackages "${BUILD_MNT_ROOT}" "${BUILD_DPKG_EXTRAPACKAGES} dphys-swapfile"
       printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
     else
-      installPackages "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_EXTRAPACKAGES}"
+      installPackages "${BUILD_MNT_ROOT}" "${BUILD_DPKG_EXTRAPACKAGES}"
     fi
   fi
 

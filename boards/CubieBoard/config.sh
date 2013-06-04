@@ -40,15 +40,17 @@ BUILD_DEBIAN_SOURCE_SECURITY="http://security.debian.org"
 BUILD_DEBIAN_SOURCE_SECURITY_COMPONENTS="main contrib non-free"
 BUILD_DEBIAN_SUITE="wheezy"
 BUILD_DEBIAN_TASKS="ssh-server standard"
+# Not all packages can be configured this way.
+BUILD_DEBIAN_RECONFIG="locales tzdata ${ARMSTRAP_DPKG_RECONFIG}"
 
 BUILD_UBUNTU_VERSION="13.04"
-BUILD_UBUNTU_TASKS="server openssh-server"
+BUILD_UBUNTU_TASKS="minimal^ openssh-server^ server^ standard^"
 BUILD_UBUNTU_LOCALES="${LANG} en_US.UTF-8 en_US"
+# Not all packages can be configured this way.
+BUILD_UBUNTU_RECONFIG="tzdata ${ARMSTRAP_DPKG_RECONFIG}"
 
 # Not all packages can be install this way.
-BUILD_DEBIAN_EXTRAPACKAGES="nvi ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0 libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev ${ARMSTRAP_DEBIAN_EXTRAPACKAGES}"
-# Not all packages can (or should be) reconfigured this way.
-BUILD_DEBIAN_RECONFIG="locales tzdata ${ARMSTRAP_DEBIAN_RECONFIG}"
+BUILD_DPKG_EXTRAPACKAGES=="nvi ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0 libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev ${ARMSTRAP_DEBIAN_EXTRAPACKAGES}"
 
 BUILD_KERNEL_GIT="https://github.com/linux-sunxi/linux-sunxi.git"
 BUILD_KERNEL_GIT_PARAM="-b sunxi-3.4"

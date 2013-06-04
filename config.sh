@@ -26,10 +26,10 @@ ARMSTRAP_OS="ubuntu"
 # Packages Sections
 #
 # If you want to install packages to the base distribution, add them here
-#ARMSTRAP_DEBIAN_EXTRAPACKAGES=""
+#ARMSTRAP_DPKG_EXTRAPACKAGES=""
 #
 # If you want to reconfigure packages, add them here
-#ARMSTRA__DEBIAN_RECONFIG=""
+#ARMSTRA__DPKG_RECONFIG=""
 
 ##############################################################################
 # Network configuration
