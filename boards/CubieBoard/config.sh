@@ -11,6 +11,7 @@ BUILD_LC="C"
 BUILD_BOARD_CPU="a10"
 BUILD_BOARD="cubieboard"
 BUILD_BOARD_KERNEL="sun4i_defconfig"
+#BUILD_BOARD_KERNEL="sun4i-desktop_defconfig"
 
 BUILD_DISK_LAYOUT=("1:/:ext4:-1")
 
