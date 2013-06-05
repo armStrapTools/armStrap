@@ -13,6 +13,6 @@ function installOS {
       buildDebian
       ;;
   esac
-  buildKernel
+  buildKernel "${BUILD_MNT_ROOT}"
   buildBoot
 }

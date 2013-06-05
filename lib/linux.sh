@@ -30,7 +30,7 @@ function patchKernel {
 
 # usage configKernel <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY> <BOARD_DEFCONFIG>
 function configKernel {
-  printStatus "configKernel" "Configuring ${1} for ${2}"
+  printStatus "configKernel" "Configuring ${3} for ${4}"
   make -C ${3} ARCH=${1} CROSS_COMPILE=${2} distclean >> ${ARMSTRAP_LOG_FILE} 2>&1
   make -C ${3} ARCH=${1} CROSS_COMPILE=${2} ${4} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }

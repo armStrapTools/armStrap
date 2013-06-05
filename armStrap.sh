@@ -25,6 +25,7 @@ ARMSTRAP_MNT="${ARMSTRAP_ROOT}/mnt"
 ARMSTRAP_SRC="${ARMSTRAP_ROOT}/src"
 ARMSTRAP_LOG="${ARMSTRAP_ROOT}/log"
 ARMSTRAP_IMG="${ARMSTRAP_ROOT}/img"
+ARMSTRAP_WRK="${ARMSTRAP_ROOT}/wrk"
 
 mkdir -p ${ARMSTRAP_LOG}
 
@@ -43,6 +44,9 @@ ARMSTRAP_DEVICE_MAPS=("")
 # The version of the kernel that has been build
 ARMSTRAP_KERNEL_VERSION=""
 
+# If we only want to create a kernel
+ARMSTRAP_KERNEL_BUILDER=""
+
 #
 # Here we go...
 #
@@ -53,7 +57,7 @@ for i in ./lib/*.sh; do
   source ${i}
 done
 
-while getopts ":b:d:i:s:h:p:z:n:r:cwWN" opt; do
+while getopts ":b:d:i:s:h:p:z:n:r:cwWNk" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -98,6 +102,9 @@ while getopts ":b:d:i:s:h:p:z:n:r:cwWN" opt; do
     e)
       ARMSTRAP_ETH0_DOMAIN="${OPTARG}"
       ;;
+    k)
+      ARMSTRAP_KERNEL_BUILDER="YES"
+      ;;
     c)
       showLicence
       exit 0
@@ -117,6 +124,7 @@ done
 checkDirectory ${ARMSTRAP_SRC}
 checkDirectory ${ARMSTRAP_MNT}
 checkDirectory ${ARMSTRAP_IMG}
+checkDirectory ${ARMSTRAP_WRK}
 
 printStatus "initBuild" "Reading ./boards/${ARMSTRAP_CONFIG}/config.sh"
 source ./boards/${ARMSTRAP_CONFIG}/config.sh
@@ -125,9 +133,11 @@ rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNA
 mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
 ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log"
 
-if [ -z "${ARMSTRAP_DEVICE}" ]; then
-  if [ -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-    ARMSTRAP_IMAGE_NAME=${ARMSTRAP_IMG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.img
+if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
+  if [ -z "${ARMSTRAP_DEVICE}" ]; then
+    if [ -z "${ARMSTRAP_IMAGE_NAME}" ]; then
+      ARMSTRAP_IMAGE_NAME=${ARMSTRAP_IMG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.img
+    fi
   fi
 fi
 
@@ -136,23 +146,30 @@ for i in ${BUILD_SCRIPTS}; do
   source ./boards/${ARMSTRAP_CONFIG}/${i}
 done
 
-showConfig
+if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
+  showConfig
+fi
 
 funExist init
 if [ ${?} -eq 0 ]; then
   init
 fi
 
-if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-  setupImg ${BUILD_DISK_LAYOUT[@]}
+if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
+  if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
+    setupImg ${BUILD_DISK_LAYOUT[@]}
+  else
+    setupSD ${BUILD_DISK_LAYOUT[@]}
+  fi
+
+  installOS
+
+  if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
+    finishImg ${BUILD_DISK_LAYOUT[@]}
+  else
+    finishSD ${BUILD_DISK_LAYOUT[@]}
+  fi
 else
-  setupSD ${BUILD_DISK_LAYOUT[@]}
+  buildKernel ${ARMSTRAP_WRK}
 fi
 
-installOS
-
-if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-  finishImg ${BUILD_DISK_LAYOUT[@]}
-else
-  finishSD ${BUILD_DISK_LAYOUT[@]}
-fi

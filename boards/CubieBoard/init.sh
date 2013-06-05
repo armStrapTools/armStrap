@@ -21,6 +21,8 @@ function installGCC {
 function init {
   installPrereqs ${BUILD_PREREQ}
 
+
+  printStatus "init" "Cubieboard Builder initializing"
   local IN=(`dpkg-query -W -f='${Status} ${Version}\n' ${BUILD_ARCH_GCC_PACKAGE} 2> /dev/null`)
   if [ "${IN[0]}" != "install" ]; then
     installGCC

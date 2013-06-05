@@ -50,7 +50,7 @@ BUILD_UBUNTU_LOCALES="${LANG} en_US.UTF-8 en_US"
 BUILD_UBUNTU_RECONFIG="tzdata ${ARMSTRAP_DPKG_RECONFIG}"
 
 # Not all packages can be install this way.
-BUILD_DPKG_EXTRAPACKAGES=="nvi ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0 libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev ${ARMSTRAP_DEBIAN_EXTRAPACKAGES}"
+BUILD_DPKG_EXTRAPACKAGES="nvi ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0 libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev ${ARMSTRAP_DEBIAN_EXTRAPACKAGES}"
 
 BUILD_KERNEL_GIT="https://github.com/linux-sunxi/linux-sunxi.git"
 BUILD_KERNEL_GIT_PARAM="-b sunxi-3.4"

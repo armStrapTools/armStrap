@@ -41,8 +41,8 @@ function insResolver {
 
 # Usage : insDialog <ARMSTRAP_ROOT>
 function insDialog {
-  printStatus "insDialog" "Installing Dialog frontend"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install dialog>> ${ARMSTRAP_LOG_FILE} 2>&1
+  printStatus "insDialog" "Installing apt-utils and Dialog frontend"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install apt-utils dialog>> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : ubuntuLocales <ARMSTRAP_ROOT> <LOCALE1> [<LOCALE2> ...]
@@ -145,7 +145,7 @@ function installPackages {
   shift
   
   printStatus "installPackages" "Installing ${@}"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/debconf-apt-progress -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@}
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@} 2>> ${ARMSTRAP_LOG_FILE}
 }
 
 # Usage : installDPKG <ARMSTRAP_ROOT> <PACKAGE_FILE>
@@ -188,12 +188,13 @@ function addInitTab {
 
 # Usage addTT <ARMSTRAP_ROOT> <RUNLEVELS> <DEVICE> <SPEED> <TYPE>
 function addTTY {
+  local TMP_FILE="${1}/etc/init/${3}.conf"
   printStatus "addTTY" "Configuring terminal ${3} for runlevels ${2} at ${4} (${5})"
-  printf "# %s - getty\n" "${3}" > ${1}/${3}.conf
-  printf "# This service maintains a getty on ttyS0 from the point the system is started until it is shut down again.\n\n" >> ${1}/${3}.conf
-  printf "start on stopped rc or RUNLEVEL=[%s]\n" "${2}" >> ${1}/etc/init/${3}.conf
-  printf "stop on runlevel [!2345]\n\n" "${2}" >> ${1}/${3}.conf
-  printf "respawn\nexec /sbin/getty -L %s %s %s\n" "${4}" "${3}" "${5}" >> ${1}/${3}.conf
+  printf "# %s - getty\n" "${3}" > ${TMP_FILE}
+  printf "# This service maintains a getty on ttyS0 from the point the system is started until it is shut down again.\n\n" >> ${TMP_FILE} 
+  printf "start on stopped rc or RUNLEVEL=[%s]\n" "${2}" >> ${TMP_FILE} 
+  printf "stop on runlevel [!2345]\n\n" "${2}" >> ${TMP_FILE} 
+  printf "respawn\nexec /sbin/getty -L %s %s %s\n" "${4}" "${3}" "${5}" >> ${TMP_FILE} 
 }
 
 # Usage : initFSTab <ARMSTRAP_ROOT>

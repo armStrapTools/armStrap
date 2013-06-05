@@ -18,10 +18,10 @@ function buildUbuntu {
   
   if [ -n "${BUILD_DPKG_EXTRAPACKAGES}" ]; then
     if [ -n "${ARMSTRAP_SWAP}" ]; then
-      installPackages "${BUILD_MNT_ROOT}" "tasksel ${BUILD_UBUNTU_TASKS} ${BUILD_DPKG_EXTRAPACKAGES} dphys-swapfile"
+      installPackages "${BUILD_MNT_ROOT}" tasksel ${BUILD_UBUNTU_TASKS} ${BUILD_DPKG_EXTRAPACKAGES} dphys-swapfile
       printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
     else
-      installPackages "${BUILD_MNT_ROOT}" "tasksel ${BUILD_UBUNTU_TASKS} ${BUILD_DPKG_EXTRAPACKAGES}"
+      installPackages "${BUILD_MNT_ROOT}" tasksel ${BUILD_UBUNTU_TASKS} ${BUILD_DPKG_EXTRAPACKAGES}
     fi
   fi
 
