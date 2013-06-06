@@ -16,16 +16,12 @@ function editConfig {
   mv ${TMP_CNF_MOD} ${TMP_CNF}
 }
 
-# usage patchKernel <KERNEL_DIRECTORY>
+# usage patchKernel <KERNEL_DIRECTORY> <PATCH>
 function patchKernel {
-  if [ -d "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/patches" ]; then
-    cd ${1}
-    for i in ${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/patches/kernel_*.patch; do
-      printStatus "patchKernel" "Applying patch ${i}"
-      patch -p0 < ${i} >> ${ARMSTRAP_LOG_FILE} 2>&1
-    done
-    cd ${ARMSTRAP_ROOT}
-  fi
+  cd ${1}
+  printStatus "patchKernel" "Applying patch ${2}"
+  patch -p1 < ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  cd ${ARMSTRAP_ROOT}
 }
 
 # usage configKernel <ARCH> <COMP_PREFIX> <KERNEL_DIRECTORY> <BOARD_DEFCONFIG>

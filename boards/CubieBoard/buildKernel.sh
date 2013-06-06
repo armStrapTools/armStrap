@@ -7,7 +7,9 @@ function buildKernel {
 
   configKernel "${BUILD_ARCH}" "${BUILD_ARCH_PREFIX}" "${BUILD_KERNEL_DIR}" "${BUILD_BOARD_KERNEL}"
   
-  patchKernel "${BUILD_KERNEL_DIR}"
+  if [ ! -z "${BUILD_KERNEL_PATCH}"
+    patchKernel "${BUILD_KERNEL_DIR}" "${ARMSTRAP_ROOT}/board/${ARMSTRAP_CONFIG}/${BUILD_KERNEL_PATCH}"
+  fi
 
   editConfig "${BUILD_KERNEL_CNF}" "CONFIG_CMDLINE" "${BUILD_CONFIG_CMDLINE}"
 
@@ -52,7 +54,7 @@ function exportKrnlImg {
   
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
   
-  if [ ! -z "${2}" ]; then
+  if [ "${2}" == "Yes" ]; then
     BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
   fi
 }
@@ -84,7 +86,7 @@ function exportKrnlHdr {
   
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
   
-  if [ ! -z "${2}" ]; then
+  if [ "${2}" == "Yes" ]; then
     BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
   fi
 }
@@ -127,7 +129,7 @@ function exportKrnlSrc {
   
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
   
-  if [ ! -z "${2}" ]; then
+  if [ "${2}" == "Yes" ]; then
     BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
   fi
 }
