@@ -117,12 +117,12 @@ function exportKrnlSrc {
   printf "Description: Linux kernel sources for %s.\n" "${ARMSTRAP_CONFIG}" >> ${1}/DEBIAN/control
   
   printf "#!/bin/bash\n\n" > ${1}/DEBIAN/postinst
-  printf "ln -f -s /usr/src/linux-sunxi /lib/modules/%s/build" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postinst
-  printf "ln -f -s /usr/src/linux-sunxi /lib/modules/%s/source" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postinst
+  printf "ln -fs /usr/src/linux-sunxi /lib/modules/%s/build\n" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postinst
+  printf "ln -fs /usr/src/linux-sunxi /lib/modules/%s/source\n" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postinst
   
   printf "#!/bin/bash\n\n" > ${1}/DEBIAN/postrm
-  printf "rm -f /lib/modules/%s/build" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postrm
-  printf "rm -f /lib/modules/%s/source" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postrm
+  printf "rm -f /lib/modules/%s/build\n" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postrm
+  printf "rm -f /lib/modules/%s/source\n" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postrm
   
   chmod 755 ${1}/DEBIAN/postinst
   chmod 755 ${1}/DEBIAN/postrm
