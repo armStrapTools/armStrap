@@ -19,7 +19,7 @@ function buildKernel {
 
 }
 
-# Usage : instalKernel <TARGET DIRECTORY>
+# Usage : instalKernel <TARGET DIRECTORY> <INSTALL PACKAGE FLAG>
 
 function exportKrnlImg {
   printStatus "exportKrnlImg" "Exporting kernel image and modules to ${1}"
@@ -51,10 +51,13 @@ function exportKrnlImg {
   printf "Description: Linux kernel for %s.\n" "${ARMSTRAP_CONFIG}" >> ${1}/DEBIAN/control
   
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
-  BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
+  
+  if [ ! -z "${2}" ]; then
+    BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
+  fi
 }
 
-# Usage : exportKrnlHdr <TARGET DIRECTORY>
+# Usage : exportKrnlHdr <TARGET DIRECTORY> <INSTALL PACKAGE FLAG>
 function exportKrnlHdr {
   printStatus "exportKrnlHdr" "Exporting kernel headers to ${1}"
   
@@ -80,10 +83,13 @@ function exportKrnlHdr {
   printf "Description: Linux kernel headers for %s.\n" "${ARMSTRAP_CONFIG}" >> ${1}/DEBIAN/control
   
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
-  BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
+  
+  if [ ! -z "${2}" ]; then
+    BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
+  fi
 }
 
-# Usage : exportKrnlSrc <TARGET DIRECTORY>
+# Usage : exportKrnlSrc <TARGET DIRECTORY> <INSTALL PACKAGE FLAG>
 function exportKrnlSrc {
   printStatus "exportKrnlSrc" "Exporting kernel sources to ${1}"
   
@@ -120,5 +126,8 @@ function exportKrnlSrc {
   chmod 755 ${1}/DEBIAN/postrm
   
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
-  BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
+  
+  if [ ! -z "${2}" ]; then
+    BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
+  fi
 }

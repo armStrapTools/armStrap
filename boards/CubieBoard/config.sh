@@ -63,6 +63,12 @@ BUILD_KERNEL_CNF="${BUILD_KERNEL_DIR}/.config"
 BUILD_KERNEL_NAME="uImage"
 BUILD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
 BUILD_KERNEL_SRCDST="${BUILD_MNT_ROOT}/usr/src"
+# Set to not empty if you want to install tke kernel image and modules
+BUILD_KERNEL_INSTIMG="Yes"
+# Set to not empty if you want to install tke kernel sources
+BUILD_KERNEL_INSTSRC="Yes"
+# Set to not empty if you want to install tke kernel headers, it kinda conflict with things already installed in Ubuntu...
+BUILD_KERNEL_INSTHDR=""
 
 BUILD_UBOOT_GIT="https://github.com/linux-sunxi/u-boot-sunxi.git"
 BUILD_UBOOT_DIR="${ARMSTRAP_SRC}/u-boot-sunxi"
