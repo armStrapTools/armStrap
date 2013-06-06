@@ -7,15 +7,15 @@ function buildKernel {
 
   configKernel "${BUILD_ARCH}" "${BUILD_ARCH_PREFIX}" "${BUILD_KERNEL_DIR}" "${BUILD_BOARD_KERNEL}"
   
-  if [ ! -z "${BUILD_KERNEL_PATCH}"
-    patchKernel "${BUILD_KERNEL_DIR}" "${ARMSTRAP_ROOT}/board/${ARMSTRAP_CONFIG}/${BUILD_KERNEL_PATCH}"
+    kernelVersion "${BUILD_ARCH}" "${BUILD_ARCH_PREFIX}" "${BUILD_KERNEL_DIR}"
+  
+  if [ ! -z "${BUILD_KERNEL_PATCH}" ]; then
+    patchKernel "${BUILD_KERNEL_DIR}" "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel/${BUILD_KERNEL_PATCH}"
   fi
 
   editConfig "${BUILD_KERNEL_CNF}" "CONFIG_CMDLINE" "${BUILD_CONFIG_CMDLINE}"
 
   menuConfig "${BUILD_ARCH}" "${BUILD_ARCH_PREFIX}" "${BUILD_KERNEL_DIR}"
-  
-  kernelVersion "${BUILD_ARCH}" "${BUILD_ARCH_PREFIX}" "${BUILD_KERNEL_DIR}"
 
   makeKernel "${BUILD_ARCH}" "${BUILD_ARCH_PREFIX}" "${BUILD_KERNEL_DIR}" "${BUILD_KERNEL_NAME} modules"
 

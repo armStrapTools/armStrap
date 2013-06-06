@@ -155,7 +155,7 @@ function installDPKG {
   local TMP_CHR=`basename ${TMP_DIR}`
   local TMP_DEB=`basename ${2}`
 
-  printStatus "installDPKG" "Installing ${TMP_DEB} (${TMP_ROOT} : $TMP_DIR : $TMP_CHR $TMP_DEB)"
+  printStatus "installDPKG" "Installing ${TMP_DEB}"
   cp ${2} ${TMP_DIR}/${TMP_DEB}
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
   rm -rf ${TMP_DIR}

@@ -28,6 +28,8 @@ ARMSTRAP_IMG="${ARMSTRAP_ROOT}/img"
 ARMSTRAP_WRK="${ARMSTRAP_ROOT}/wrk"
 ARMSTRAP_DEB="${ARMSTRAP_ROOT}/deb"
 
+ARMSTRAP_BOARDS="${ARMSTRAP_ROOT}/boards"
+
 mkdir -p ${ARMSTRAP_LOG}
 
 # The logfile will be renamed to the real log file later
@@ -57,8 +59,8 @@ source ./config.sh
 for i in ./lib/*.sh; do
   source ${i}
 done
-
-while getopts ":b:d:i:s:h:p:z:n:r:cwWNk" opt; do
+ARMSTRAP_EXIT=""
+while getopts ":b:d:i:s:h:p:z:n:r:cCSIwWNk" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -108,11 +110,30 @@ while getopts ":b:d:i:s:h:p:z:n:r:cwWNk" opt; do
       ;;
     c)
       showLicence
-      exit 0
+      ARMSTRAP_EXIT="Yes"
+      ;;
+    C)
+      printStatus "armStrap" "Cleaning ${ARMSTRAP_LOG} directory"
+      rm -rf ${ARMSTRAP_LOG}/*
+      printStatus "armStrap" "Cleaning ${ARMSTRAP_WRK} directory"
+      rm -rf ${ARMSTRAP_WRK}/*
+      printStatus "armStrap" "Cleaning ${ARMSTRAP_DEB} directory"
+      rm -rf ${ARMSTRAP_DEB}/*
+      ARMSTRAP_EXIT="Yes"
+      ;;
+    S)
+      printStatus "armStrap" "Cleaning ${ARMSTRAP_SRC} directory"
+      rm -rf ${ARMSTRAP_SRC}/*
+      ARMSTRAP_EXIT="Yes"
+      ;;
+    I)
+      printStatus "armStrap" "Cleaning ${ARMSTRAP_IMG} directory"
+      rm -rf ${ARMSTRAP_IMG}/*
+      ARMSTRAP_EXIT="Yes"
       ;;
     \?)
       showUsage
-      exit 1
+      ARMSTRAP_EXIT="Yes"
       ;;
     :)
       printf "Option -%s requires an argument.\n\n" "${OPTARG}"
@@ -122,14 +143,18 @@ while getopts ":b:d:i:s:h:p:z:n:r:cwWNk" opt; do
   esac
 done
 
+if [ ! -z "${ARMSTRAP_EXIT}" ]; then
+  exit 0
+fi
+
 checkDirectory ${ARMSTRAP_SRC}
 checkDirectory ${ARMSTRAP_MNT}
 checkDirectory ${ARMSTRAP_IMG}
 checkDirectory ${ARMSTRAP_WRK}
 checkDirectory ${ARMSTRAP_DEB}
 
-printStatus "initBuild" "Reading ./boards/${ARMSTRAP_CONFIG}/config.sh"
-source ./boards/${ARMSTRAP_CONFIG}/config.sh
+printStatus "initBuild" "Reading ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh"
+source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
 
 rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
 mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_DEBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
@@ -144,7 +169,7 @@ if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
 fi
 
 for i in ${BUILD_SCRIPTS}; do
-  printStatus "initBuild" "Reading ./boards/${ARMSTRAP_CONFIG}/${i}"
+  printStatus "initBuild" "Reading ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/${i}"
   source ./boards/${ARMSTRAP_CONFIG}/${i}
 done
 
@@ -163,15 +188,15 @@ if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
   else
     setupSD ${BUILD_DISK_LAYOUT[@]}
   fi
+fi
 
   installOS
 
+if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
   if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
     finishImg ${BUILD_DISK_LAYOUT[@]}
   else
     finishSD ${BUILD_DISK_LAYOUT[@]}
   fi
-else
-  kernelPackager
 fi
 
