@@ -8,3 +8,5 @@ mnt/
 obj/
 src/
 tmp/
+wrk/
+deb/

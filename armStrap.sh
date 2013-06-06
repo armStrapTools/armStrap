@@ -26,6 +26,7 @@ ARMSTRAP_SRC="${ARMSTRAP_ROOT}/src"
 ARMSTRAP_LOG="${ARMSTRAP_ROOT}/log"
 ARMSTRAP_IMG="${ARMSTRAP_ROOT}/img"
 ARMSTRAP_WRK="${ARMSTRAP_ROOT}/wrk"
+ARMSTRAP_DEB="${ARMSTRAP_ROOT}/deb"
 
 mkdir -p ${ARMSTRAP_LOG}
 
@@ -125,6 +126,7 @@ checkDirectory ${ARMSTRAP_SRC}
 checkDirectory ${ARMSTRAP_MNT}
 checkDirectory ${ARMSTRAP_IMG}
 checkDirectory ${ARMSTRAP_WRK}
+checkDirectory ${ARMSTRAP_DEB}
 
 printStatus "initBuild" "Reading ./boards/${ARMSTRAP_CONFIG}/config.sh"
 source ./boards/${ARMSTRAP_CONFIG}/config.sh
@@ -170,6 +172,6 @@ if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
     finishSD ${BUILD_DISK_LAYOUT[@]}
   fi
 else
-  buildKernel ${ARMSTRAP_WRK}
+  kernelPackager
 fi
 

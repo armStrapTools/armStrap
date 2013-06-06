@@ -66,3 +66,4 @@ function kernelVersion {
   ARMSTRAP_KERNEL_VERSION=`make --quiet -C ${3} ARCH=${1} CROSS_COMPILE=${2} kernelrelease`
   printStatus "kernelVersion" "Linux Kernel version is ${ARMSTRAP_KERNEL_VERSION}"
 }
+

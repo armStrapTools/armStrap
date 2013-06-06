@@ -27,8 +27,8 @@ function buildUbuntu {
 
   configPackages "${BUILD_MNT_ROOT}" "${BUILD_UBUNTU_RECONFIG}"
   
-  if [ -d "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg" ]; then
-    for i in "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg/*.deb"; do
+  if [ ! -z "${BUILD_DPKG_LOCALPACKAGES}" ]; then
+    for i in ${BUILD_DPKG_LOCALPACKAGES}; do
       installDPKG "${BUILD_MNT_ROOT}" ${i}
     done
   fi

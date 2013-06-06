@@ -269,3 +269,10 @@ function unComment {
   rm -f ${1}
   mv ${TMP_CNF_MOD} ${1}
 }
+
+# usage makeDeb <PACKAGE CONTENT> <PACKAGE NAME>
+function makeDeb {
+  printStatus "makeDeb" "Creating package ${2}.deb"
+  
+  dpkg-deb --build "${1}" "${2}.deb" >> ${ARMSTRAP_LOG_FILE} 2>&1
+}
