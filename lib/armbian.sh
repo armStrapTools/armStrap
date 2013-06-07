@@ -285,59 +285,16 @@ function bootClean {
   enableServices ${1}
 }
 
-# Usage : ubuntuBoot <ARMSTRAP_ROOT>
-function ubuntuBoot {
-  printStatus "ubuntuBoot" "Creating first boot script."
-  cat <<EOF > ${1}/etc/init.d/armStrap.sh
-#! /bin/sh
-### BEGIN INIT INFO
-# Provides:          
-# Required-Start:    $remote_fs $syslog $all
-# Required-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:
-# Short-Description: First run tasks for armStrap builds, will be deleted once done.
-### END INIT INFO
+# Usage : installInit <ARMSTRAP_ROOT>
+function installInit {
 
-
-PATH=/sbin:/usr/sbin:/bin:/usr/bin
-
-. /lib/init/vars.sh
-. /lib/lsb/init-functions
-
-do_start() {
-  [ "$VERBOSE" != no ] && log_begin_msg "Running First run tasks for armStrap builds"
-  # Some things will not be completly setup in the chrooted environment
-  # so we clean things up a bit
-  /usr/bin/apt-get -f install
-  ES=$?
-  [ "$VERBOSE" != no ] && log_end_msg $ES
-  for i in 2 3 4 5; do
-    rm -f /etc/rc${i}.d/S99armStrap
-  done
-  rm -f /etc/init.d/armStrap.sh
-  return $ES
-}
-
-case "$1" in
-  start)
-    do_start
-    ;;
-  restart|reload|force-reload|stop)
-    echo "Error: argument '$1' not supported" >&2
-    exit 3
-    ;;
-  *)
-    echo "Usage: $0 start" >&2
-    exit 3
-    ;;
-esac
-
-EOF
-
-  chmod 755 ${1}/etc/init.d/armStrap.sh
-
-  for i in 2 3 4 5; do
-    LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ ln -fs ../armStrap.sh /etc/rc${i}.d/S99armStrap.sh
-  done
+  if [ ! -d "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/init.d" ]; then
+    for i in ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/init.d/*; do
+      local TMP_FNAME="`basename ${i}`"
+      printStatus "installInit" "Installing init script ${TMP_FNAME}"
+      cp ${i} ${1}/etc/init.d/
+      chmod 755 ${1}/etc/init.d/${TMP_FNAME}
+      LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/sbin/update-rc.d ${TMP_FNAME} defaults
+    done
+  fi
 }

@@ -59,8 +59,7 @@ function buildUbuntu {
     addSearchDomain "${BUILD_MNT_ROOT}" "${ARMSTRAP_ETH0_DOMAIN}"
     addNameServer "${BUILD_MNT_ROOT}" "${ARMSTRAP_ETH0_DNS}"
   fi
-  
-  ubuntuBoot "${BUILD_MNT_ROOT}"
-  
+
+  installInit "${BUILD_MNT_ROOT}"  
   printStatus "buildUbuntu" "Done"
 }
