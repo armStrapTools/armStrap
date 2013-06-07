@@ -51,7 +51,8 @@ function exportKrnlImg {
   printf "Maintainer: Eddy Beaupre <eddy@beaupre.biz>\n" >> ${1}/DEBIAN/control
   printf "Architecture: armhf\n" >> ${1}/DEBIAN/control
   printf "Description: Linux kernel for %s.\n" "${ARMSTRAP_CONFIG}" >> ${1}/DEBIAN/control
-  
+
+  rm -f ${ARMSTRAP_DEB}/`basename ${1}`
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
   
   if [ "${2}" == "Yes" ]; then
