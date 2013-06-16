@@ -30,6 +30,7 @@ function ubuntuStrap {
   
   installQEMU ${1} ${2}
   disableServices ${1}
+  mountPFS ${1}
 }
 
 # Usage : insResolver <ARMSTRAP_ROOT>
@@ -80,6 +81,7 @@ function bootStrap {
   
   installQEMU ${1} ${2}
   disableServices ${1}
+  mountPFS ${1}
 
   printStatus "bootStrap" "Running debootstrap --second-stage"
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /debootstrap/debootstrap --second-stage >> ${ARMSTRAP_LOG_FILE} 2>&1
@@ -122,6 +124,26 @@ function initSources {
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
+# Usage : mountProcs <ARMSTRAP_ROOT>
+function mountPFS {
+  printStatus "mountPFS" "Mounting procfs"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ mount -t proc proc /proc
+  printStatus "mountPFS" "Mounting sysfs"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ mount -t sysfs sysfs /sys
+  printStatus "mountPFS" "Binding /dev/pts"
+  mount --bind /dev/pts ${1}/dev/pts
+}
+
+# Usage : umountProcs <ARMSTRAP_ROOT>
+function umountPFS {
+  printStatus "umountPFS" "Unmounting procfs"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ umount /proc
+  printStatus "umountPFS" "Unounting sysfs"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ umount /sys
+  printStatus "umountPFS" "Unbinding /dev/pts"
+  umount ${1}/dev/pts
+}
+
 # Usage : installTasks <ARMSTRAP_ROOT> <TASK1> [<TASK2> ...]
 function installTasks {
   local TMP_ROOT=${1}
@@ -130,10 +152,10 @@ function installTasks {
   printStatus "installTasks" "Installing tasks ${@}"
   for i in ${@}; do
     printStatus "installTask" "Running dpkg --configure -a"
-    LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/dpkg --configure -a >> ${ARMSTRAP_LOG_FILE} 2>&1
+    LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/dpkg --configure -a >> ${ARMSTRAP_LOG_FILE} 2>&1
     
     printStatus "installTask" "Updating Packages"
-    LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
+    LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/apt-get -q -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
 
     LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/tasksel --new-install install ${i}
   done
@@ -281,6 +303,7 @@ function bootClean {
   printStatus "bootClean" "Running apt-get clean"
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get clean >> ${ARMSTRAP_LOG_FILE} 2>&1
   
+  umountPFS ${1}
   removeQEMU ${1} ${2}
   enableServices ${1}
 }
@@ -288,8 +311,8 @@ function bootClean {
 # Usage : installInit <ARMSTRAP_ROOT>
 function installInit {
 
-  if [ ! -d "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/init.d" ]; then
-    for i in ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/init.d/*; do
+  if [ -d "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/init.d" ]; then
+    for i in ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/init.d/*.sh; do
       local TMP_FNAME="`basename ${i}`"
       printStatus "installInit" "Installing init script ${TMP_FNAME}"
       cp ${i} ${1}/etc/init.d/

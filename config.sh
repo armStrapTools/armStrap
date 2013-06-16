@@ -20,7 +20,7 @@ ARMSTRAP_SWAP_SIZE="256"
 # OS Sections
 #
 # Currently we support ubuntu and debian. Default choice is debian
-ARMSTRAP_OS="ubuntu"
+ARMSTRAP_OS="debian"
 
 ##############################################################################
 # Packages Sections

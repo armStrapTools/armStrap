@@ -3,7 +3,7 @@ function buildDebian {
   printStatus "buildDebian" "Starting"
 
   bootStrap "${BUILD_MNT_ROOT}" "${BUILD_ARCH}" "${BUILD_ARCH_EABI}" "${BUILD_DEBIAN_SUITE}"
-
+  
   setHostName "${BUILD_MNT_ROOT}" "${ARMSTRAP_HOSTNAME}"
   
   clearSourcesList "${BUILD_MNT_ROOT}"
@@ -26,8 +26,10 @@ function buildDebian {
 
   configPackages "${BUILD_MNT_ROOT}" "${BUILD_DEBIAN_RECONFIG}"
   
-  if [ -d "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg" ]; then
-    for i in "${ARMSTRAP_ROOT}/boards/${ARMSTRAP_CONFIG}/dpkg/*.deb"; do
+  BUILD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BUILD_DPKG_LOCALPACKAGES}"
+
+  if [ ! -z "${BUILD_DPKG_LOCALPACKAGES}" ]; then
+    for i in ${BUILD_DPKG_LOCALPACKAGES}; do
       installDPKG "${BUILD_MNT_ROOT}" ${i}
     done
   fi

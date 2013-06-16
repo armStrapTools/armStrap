@@ -27,6 +27,8 @@ function buildUbuntu {
 
   configPackages "${BUILD_MNT_ROOT}" "${BUILD_UBUNTU_RECONFIG}"
   
+  BUILD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BUILD_DPKG_LOCALPACKAGES}"
+
   if [ ! -z "${BUILD_DPKG_LOCALPACKAGES}" ]; then
     for i in ${BUILD_DPKG_LOCALPACKAGES}; do
       installDPKG "${BUILD_MNT_ROOT}" ${i}
@@ -48,10 +50,6 @@ function buildUbuntu {
   
   bootClean "${BUILD_MNT_ROOT}" "${BUILD_ARCH}"
   
-  #printStatus "buildUbuntu" "Restoring original resolver"
-  #rm -f ${BUILD_MNT_ROOT}/etc/resolv.conf
-  #mv ${BUILD_MNT_ROOT}/etc/resolv.conf.orig ${BUILD_MNT_ROOT}/etc/resolv.conf
-  
   clnResolver "${BUILD_MNT_ROOT}"
   
   if [ "${ARMSTRAP_ETH0_MODE}" != "dhcp" ]; then
@@ -60,6 +58,7 @@ function buildUbuntu {
     addNameServer "${BUILD_MNT_ROOT}" "${ARMSTRAP_ETH0_DNS}"
   fi
 
-  installInit "${BUILD_MNT_ROOT}"  
+  installInit "${BUILD_MNT_ROOT}"
+  
   printStatus "buildUbuntu" "Done"
 }
