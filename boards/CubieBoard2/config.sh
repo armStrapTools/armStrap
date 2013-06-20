@@ -8,9 +8,9 @@ BUILD_ARCH_GCC_PACKAGE="gcc-${BUILD_ARCH_GCC_VERSION}-${BUILD_ARCH_COMPILER}"
 
 BUILD_LC="C"
 
-BUILD_BOARD_CPU="a10"
-BUILD_BOARD="cubieboard"
-BUILD_BOARD_KERNEL="sun4i_defconfig"
+BUILD_BOARD_CPU="a20"
+BUILD_BOARD="a20_olinuxino_micro"
+BUILD_BOARD_KERNEL="sun7ismp_defconfig"
 #BUILD_BOARD_KERNEL="sun4i-desktop_defconfig"
 
 BUILD_DISK_LAYOUT=("1:/:ext4:-1")
@@ -57,7 +57,7 @@ BUILD_DPKG_EXTRAPACKAGES="nvi ntp ssh build-essential u-boot-tools parted git bi
 BUILD_DPKG_LOCALPACKAGES=""
 
 BUILD_KERNEL_GIT="https://github.com/linux-sunxi/linux-sunxi.git"
-BUILD_KERNEL_GIT_BRANCH="sunxi-3.4"
+BUILD_KERNEL_GIT_BRANCH="sunxi-3.3"
 if [ -z "${BUILD_KERNEL_GIT_BRANCH}" ]; then
   BUILD_KERNEL_GIT_PARAM=""
   BUILD_KERNEL_DIR="${ARMSTRAP_SRC}/linux-sunxi/head"

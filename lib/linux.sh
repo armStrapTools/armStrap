@@ -10,7 +10,7 @@ function editConfig {
 
   printStatus "editConfig" "Configuring parameter ${TMP_PRM} to ${@}"
   printf "s#^${TMP_PRM}=.*#${TMP_PRM}=\"%s\"#\n" "${@}" > ${TMP_SED}
-  sed -f ${TMP_SED} ${ARMSTRAP_SRC}/linux-sunxi/.config > ${TMP_CNF_MOD}
+  sed -f ${TMP_SED} ${TMP_CNF} > ${TMP_CNF_MOD}
   rm -f ${TMP_SED}
   rm -f ${TMP_CNF}
   mv ${TMP_CNF_MOD} ${TMP_CNF}
