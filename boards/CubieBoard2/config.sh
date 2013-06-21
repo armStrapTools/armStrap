@@ -71,11 +71,7 @@ BUILD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
 BUILD_KERNEL_SRCDST="${BUILD_MNT_ROOT}/usr/src"
 
 # See the kernel subdirectory for all avalable patches
-if [ -z "${ARMSTRAP_KERNEL_PATCH}" ]; then
-  BUILD_KERNEL_PATCH="sun4i_desktop.patch"
-else
-  BUILD_KERNEL_PATCH="${ARMSTRAP_KERNEL_PATCH}"
-fi
+BUILD_KERNEL_PATCH="${ARMSTRAP_KERNEL_PATCH}"
 
 # Set to Yes if you want to install tke kernel image and modules, else No.
 if [ -z "${ARMSTRAP_KERNEL_INSTIMG}" ]; then
