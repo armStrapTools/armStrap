@@ -10,7 +10,7 @@ BUILD_LC="C"
 
 BUILD_BOARD_CPU="a20"
 BUILD_BOARD="a20_olinuxino_micro"
-BUILD_BOARD_KERNEL="sun7ismp_defconfig"
+BUILD_BOARD_KERNEL="cubieboard2_defconfig"
 #BUILD_BOARD_KERNEL="sun4i-desktop_defconfig"
 
 BUILD_DISK_LAYOUT=("1:/:ext4:-1")
@@ -67,7 +67,8 @@ else
 fi
 BUILD_KERNEL_CNF="${BUILD_KERNEL_DIR}/.config"
 BUILD_KERNEL_NAME="uImage"
-BUILD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
+BUILD_KERNEL_MODULES="sun7i_wemac sun7i_ir 8192cu sw_ahci_platform lcd hdmi ump disp mali mali_drm"
+
 BUILD_KERNEL_SRCDST="${BUILD_MNT_ROOT}/usr/src"
 
 # See the kernel subdirectory for all avalable patches
