@@ -12,22 +12,35 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-Usage : sudo armStrap.sh [PARAMETERS]
-
- -b <BOARD>              Use board definition <BOARD>.
- -d <DEVICE>             Write to <DEVICE> instead of creating an image.
- -i <FILE>               Set image filename to <FILE>.
- -s <SIZE>               Set image size to <SIZE>MB.
- -h <HOSTNAME>           Set hostname
- -p <PASSWORD>           Set root password
- -w                      Enable swapfile
- -W                      Disable swapfile
- -Z <SIZE>               Set swapfile size to <SIZE>MB
- -n "<IP> <MASK> <GW>"   Set static IP
- -N                      Set DHCP IP
- -r "<NS1> [NS2] [NS3]"  Set nameservers
- -e <DOMAIN>             Set search domain
- -c                      Show licence.
+    Usage : sudo armStrap.sh [PARAMETERS]
+    
+    Image/SD Builder :
+      -b <BOARD>              Use board definition <BOARD>.
+      -d <DEVICE>             Write to <DEVICE> instead of creating an image.
+      -i <FILE>               Set image filename to <FILE>.
+      -s <SIZE>               Set image size to <SIZE>MB.
+      -h <HOSTNAME>           Set hostname.
+      -p <PASSWORD>           Set root password.
+      -w                      Enable swapfile.
+      -W                      Disable swapfile.
+      -Z <SIZE>               Set swapfile size to <SIZE>MB.
+      -n "<IP> <MASK> <GW>"   Set static IP.
+      -N                      Set DHCP IP.
+      -r "<NS1> [NS2] [NS3]"  Set nameservers.
+      -e <DOMAIN>             Set search domain.
+      -c                      Show licence.
+    
+    Kernel Builder :
+      -k                      Create debian packages for Kernel/Sources/Headers.
+    
+    Utilities :
+      -C                      Clean Log/Work/Deb directory.
+      -S                      Clean Sources directory.
+      -I                      Clean Images directory.
+    
+    Supported boards : CubieBoard CubieBoard2
+    
+    With no parameter, create an image using values found in config.sh.
 
 Licence
 -------

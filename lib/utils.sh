@@ -28,7 +28,8 @@ EOF
 }
 
 function showUsage {
-  printf "Usage : sudo %s [PARAMETERS]\n\n" "${ARMSTRAP_NAME}"
+  printf "Usage : sudo %s [PARAMETERS]\n" "${ARMSTRAP_NAME}"
+  printf "\nImage/SD Builder :\n"
   printf "% 4s %- 20s %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
   printf "% 4s %- 20s %s\n" "-d" "<DEVICE>" "Write to <DEVICE> instead of creating an image."
   printf "% 4s %- 20s %s\n" "-i" "<FILE>" "Set image filename to <FILE>."
@@ -42,13 +43,13 @@ function showUsage {
   printf "% 4s %- 20s %s\n" "-N" "" "Set DHCP IP."
   printf "% 4s %- 20s %s\n" "-r" "\"<NS1> [NS2] [NS3]\"" "Set nameservers."
   printf "% 4s %- 20s %s\n" "-e" "<DOMAIN>" "Set search domain."
-  printf "% 4s %- 20s %s\n\n" "-c" "" "Show licence."
-  printf "\nKernel Building :\n\n"
-  printf "% 4s %- 20s %s\n\n" "-k" "" "Create debian packages for Kernel/Sources/Headers."
-  printf "\nUtilities :\n\n"
-  printf "% 4s %- 20s %s\n\n" "-C" "" "Clean Log/Work/Deb directory."
-  printf "% 4s %- 20s %s\n\n" "-S" "" "Clean Sources directory."
-  printf "% 4s %- 20s %s\n\n" "-I" "" "Clean Images directory."
+  printf "% 4s %- 20s %s\n" "-c" "" "Show licence."
+  printf "\nKernel Builder :\n"
+  printf "% 4s %- 20s %s\n" "-k" "" "Create debian packages for Kernel/Sources/Headers."
+  printf "\nUtilities :\n"
+  printf "% 4s %- 20s %s\n" "-C" "" "Clean Log/Work/Deb directory."
+  printf "% 4s %- 20s %s\n" "-S" "" "Clean Sources directory."
+  printf "% 4s %- 20s %s\n" "-I" "" "Clean Images directory."
   printf "\nSupported boards :"
   for i in boards/*; do 
     printf " %s" `basename ${i}`
