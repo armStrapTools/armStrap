@@ -224,12 +224,12 @@ function showConfig {
   printf "\n% 20s\n" "Configuration"
   printf "%s\n\n" "--------------------"
   printf "% 20s : %s\n" "Board" "${ARMSTRAP_CONFIG}"
+  printf "% 20s : %s\n" "Distribution" "${ARMSTRAP_OS}"
   printf "% 20s : %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
   printf "% 20s : %s\n" "Root Password" "${ARMSTRAP_PASSWORD}"
   if [ ! -z "${ARMSTRAP_SWAP}" ]; then
     printf "% 20s : %sMB\n" "Swapfile Size" "${ARMSTRAP_SWAP_SIZE}"
   fi
-
   printf "% 20s : %s\n" "Log File" "${ARMSTRAP_LOG_FILE}"
   if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
     printf "% 20s : %s\n" "Mac Address" "${ARMSTRAP_MAC_ADDRESS}"

@@ -8,8 +8,7 @@ BUILD_ARCH_GCC_PACKAGE="gcc-${BUILD_ARCH_GCC_VERSION}-${BUILD_ARCH_COMPILER}"
 
 BUILD_LC="C"
 
-BUILD_BOARD_CPU="a20"
-BUILD_BOARD="a20_olinuxino_micro"
+
 BUILD_BOARD_KERNEL="cubieboard2_defconfig"
 #BUILD_BOARD_KERNEL="sun4i-desktop_defconfig"
 
@@ -116,6 +115,8 @@ else
   BUILD_SUNXI_BOARD_DIR="${ARMSTRAP_SRC}/sunxi-board/${BUILD_KERNEL_GIT_BRANCH}"
 fi
 BUILD_SUNXI_BOARD_SRCDST="${BUILD_MNT_ROOT}/usr/src"
+BUILD_SUNXI_BOARD_CPU="a20"
+BUILD_SUNXI_BOARD_FEX="cubieboard2"
 
 BUILD_SUNXI_TOOLS_GIT="https://github.com/linux-sunxi/sunxi-tools.git"
 BUILD_SUNXI_TOOLS_GIT_BRANCH=""
@@ -131,7 +132,7 @@ BUILD_SUNXI_TOOLS_SRCDST="${BUILD_MNT_ROOT}/usr/src"
 BUILD_BOOT_CMD="${BUILD_MNT_ROOT}/boot/boot.cmd"
 BUILD_BOOT_SCR="${BUILD_MNT_ROOT}/boot/boot.scr"
 
-BUILD_BOOT_FEX="${BUILD_MNT_ROOT}/boot/cubieboard.fex"
+BUILD_BOOT_FEX="${BUILD_MNT_ROOT}/boot/cubieboard2.fex"
 BUILD_BOOT_BIN="${BUILD_MNT_ROOT}/boot/script.bin"
 BUILD_BOOT_BIN_LOAD="mmc 0 0x43000000 boot/script.bin"
 BUILD_BOOT_KERNEL_LOAD="mmc 0 0x48000000 boot/${BUILD_KERNEL_NAME}"

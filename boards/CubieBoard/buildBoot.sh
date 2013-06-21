@@ -18,7 +18,7 @@ function buildBoot {
 
   sunxiMkImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
   
-  sunxiSetFex ${BUILD_SUNXI_BOARD_DIR} "${BUILD_BOARD_CPU}" "${BUILD_BOARD}" "${BUILD_MNT_BOOT}/"
+  sunxiSetFex ${BUILD_SUNXI_BOARD_DIR} "${BUILD_SUNXI_BOARD_CPU}" "${BUILD_SUNXI_BOARD_FEX}" "${BUILD_MNT_BOOT}/"
   
   if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
     sunxiSetMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
