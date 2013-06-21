@@ -169,23 +169,28 @@ function promptYN {
   echo ""
 }
 
-# Usage: gitSources <repos> <target_directory>
+# Usage: gitSources <repos> <target_directory> <git_parameter> [<git_parameter2> ...]
 
 function gitSources {
-  printStatus "gitSources" "Checking Sources for ${2}"
-  if [ -d "${2}" ]; then
+  local TMP_REP="${1}"
+  local TMP_DST="${2}"
+  shift;
+  shift;
+  
+  printStatus "gitSources" "Checking Sources for ${TMP_DST}"
+  if [ -d "${TMP_DST}" ]; then
     local TMP_WORKDIR=`pwd`
-    cd ${2}
-    printStatus "gitSources" "Updating sources for ${2}"
+    cd ${TMP_DST}
+    printStatus "gitSources" "Updating sources for ${TMP_DST}"
     git pull --quiet >> ${ARMSTRAP_LOG_FILE} 2>&1
     cd ${TMP_WORKDIR}
   else
-    printStatus "gitSources" "Cloning $2 from $1"
-    git clone --quiet $1 $3 $4 $2 >> ${ARMSTRAP_LOG_FILE} 2>&1
+    printStatus "gitSources" "Cloning ${TMP_DST} from ${TMP_REP}"
+    git clone --quiet ${@} ${TMP_REP} ${TMP_DST} >> ${ARMSTRAP_LOG_FILE} 2>&1
   fi
   
-  if [ ! -d "${2}" ]; then
-    printStatus "gitSources" "Aborting, Cannot find ${2}"
+  if [ ! -d "${TMP_DST}" ]; then
+    printStatus "gitSources" "Aborting, Cannot find ${TMP_DST}"
     exit 1
   fi
 }
