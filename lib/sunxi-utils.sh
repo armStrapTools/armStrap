@@ -8,9 +8,9 @@ function sunxiMkTools {
 
 # usage sunxiMkUBoot <SUNXI_UBOOT_DIR>
 function sunxiMkUBoot {
-  printStatus "sunxiMkUBoot" "Building ${1}"
+  printStatus "sunxiMkUBoot" "Building ${1} for board ${2}"
   make -C ${1} ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} distclean >> ${ARMSTRAP_LOG_FILE} 2>&1
-  make -C ${1} ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} cubieboard >> ${ARMSTRAP_LOG_FILE} 2>&1
+  make -C ${1} ARCH=${BUILD_ARCH} CROSS_COMPILE=${BUILD_ARCH_PREFIX} ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage sunxiMkImage <SRC> <DST>

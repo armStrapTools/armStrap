@@ -9,7 +9,7 @@ function buildBoot {
 
   sunxiMkTools ${BUILD_SUNXI_TOOLS_DIR}
   
-  sunxiMkUBoot ${BUILD_UBOOT_DIR}
+  sunxiMkUBoot ${BUILD_UBOOT_DIR} ${BUILD_UBOOT_BOARD}
 
   ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
   ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_BIN_LOAD}"

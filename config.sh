@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard"
+ARMSTRAP_CONFIG="CubieBoard2"
 # Set this to the hostname you want for the board
 ARMSTRAP_HOSTNAME="CubieDebian"
 # Set this to the password you want for the root user
@@ -20,7 +20,7 @@ ARMSTRAP_SWAP_SIZE="256"
 # OS Sections
 #
 # Currently we support ubuntu and debian. Default choice is debian
-ARMSTRAP_OS="debian"
+ARMSTRAP_OS="ubuntu"
 
 ##############################################################################
 # Packages Sections

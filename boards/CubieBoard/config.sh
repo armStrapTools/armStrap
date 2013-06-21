@@ -99,6 +99,7 @@ fi
 BUILD_UBOOT_GIT="https://github.com/linux-sunxi/u-boot-sunxi.git"
 BUILD_UBOOT_DIR="${ARMSTRAP_SRC}/u-boot-sunxi"
 BUILD_UBOOT_SRCDST="${BUILD_MNT_ROOT}/usr/src"
+BUILD_UBOOT_BOARD="cubieboard"
 
 BUILD_SUNXI_BOARD_GIT="https://github.com/linux-sunxi/sunxi-boards.git"
 BUILD_SUNXI_BOARD_DIR="${ARMSTRAP_SRC}/sunxi-boards"
