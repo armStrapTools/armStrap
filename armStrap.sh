@@ -60,7 +60,7 @@ for i in ./lib/*.sh; do
   source ${i}
 done
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:z:n:r:cCSIwWNk" opt; do
+while getopts ":b:d:i:s:h:p:z:n:r:cCSIwWNkB" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -107,6 +107,9 @@ while getopts ":b:d:i:s:h:p:z:n:r:cCSIwWNk" opt; do
       ;;
     k)
       ARMSTRAP_KERNEL_BUILDER="YES"
+      ;;
+    B)
+      ARMSTRAP_BOOT_BUILDER="YES"
       ;;
     c)
       showLicence
@@ -173,7 +176,7 @@ for i in ${BUILD_SCRIPTS}; do
   source ./boards/${ARMSTRAP_CONFIG}/${i}
 done
 
-if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
+if [ -z "${ARMSTRAP_KERNEL_BUILDER}${ARMSTRAP_BOOT_BUILDER}" ]; then
   showConfig
 fi
 
@@ -182,7 +185,7 @@ if [ ${?} -eq 0 ]; then
   init
 fi
 
-if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
+if [ -z "${ARMSTRAP_KERNEL_BUILDER}${ARMSTRAP_BOOT_BUILDER}" ]; then
   if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
     setupImg ${BUILD_DISK_LAYOUT[@]}
   else
@@ -192,7 +195,7 @@ fi
 
   installOS
 
-if [ -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
+if [ -z "${ARMSTRAP_KERNEL_BUILDER}${ARMSTRAP_BOOT_BUILDER}" ]; then
   if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
     finishImg ${BUILD_DISK_LAYOUT[@]}
   else

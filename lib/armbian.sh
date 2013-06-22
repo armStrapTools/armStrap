@@ -303,6 +303,7 @@ function bootClean {
   printStatus "bootClean" "Running apt-get clean"
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get clean >> ${ARMSTRAP_LOG_FILE} 2>&1
   
+  installInit ${1}
   umountPFS ${1}
   removeQEMU ${1} ${2}
   enableServices ${1}
