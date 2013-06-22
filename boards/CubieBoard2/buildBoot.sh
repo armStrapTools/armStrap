@@ -45,6 +45,7 @@ printStatus "buildFex" "Starting"
   gitSources ${BUILD_SUNXI_BOARD_GIT} ${BUILD_SUNXI_BOARD_DIR} ${BUILD_SUNXI_BOARD_GIT_PARAM}
 
   ubootSetEnv "${1}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
+  ubootSetEnv "${BUILD_BOOT_CMD}" "machid" "0xf35"
   ubootExt2Load "${1}" "${BUILD_BOOT_BIN_LOAD}"
   ubootExt2Load "${1}" "${BUILD_BOOT_KERNEL_LOAD}"
   ubootBootM "${1}" "${BUILD_BOOT_KERNEL_ADDR}"

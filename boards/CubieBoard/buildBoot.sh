@@ -12,7 +12,6 @@ function buildBoot {
   sunxiMkUBoot ${BUILD_UBOOT_DIR} ${BUILD_UBOOT_BOARD}
 
   ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
-  ubootSetEnv "${BUILD_BOOT_CMD}" "machid" "0xf35"
   ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_BIN_LOAD}"
   ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_LOAD}"
   ubootBootM "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_ADDR}"
