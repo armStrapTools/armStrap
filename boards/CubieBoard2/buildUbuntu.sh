@@ -4,6 +4,8 @@ function buildUbuntu {
 
   ubuntuStrap "${BUILD_MNT_ROOT}" "${BUILD_ARCH}" "${BUILD_ARCH_EABI}" "${BUILD_UBUNTU_VERSION}"
   
+  divertServices "${BUILD_MNT_ROOT}"
+  
   insResolver "${BUILD_MNT_ROOT}"
   
   unComment "${BUILD_MNT_ROOT}/etc/apt/sources.list" "deb"
@@ -48,6 +50,10 @@ function buildUbuntu {
 
   addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}"
   
+  installInit "${BUILD_MNT_ROOT}"
+
+  undivertServices "${BUILD_MNT_ROOT}"
+
   bootClean "${BUILD_MNT_ROOT}" "${BUILD_ARCH}"
   
   clnResolver "${BUILD_MNT_ROOT}"
@@ -57,8 +63,6 @@ function buildUbuntu {
     addSearchDomain "${BUILD_MNT_ROOT}" "${ARMSTRAP_ETH0_DOMAIN}"
     addNameServer "${BUILD_MNT_ROOT}" "${ARMSTRAP_ETH0_DNS}"
   fi
-
-  installInit "${BUILD_MNT_ROOT}"
   
   printStatus "buildUbuntu" "Done"
 }

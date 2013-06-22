@@ -17,6 +17,18 @@ function disableServices {
   chmod +x ${1}/usr/sbin/policy-rc.d
 }
 
+function divertServices {
+  printStatus "divertServices" "Disabling Ubuntu Init"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ dpkg-divert --local --rename --add /sbin/init
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ ln -s /bin/true /sbin/init
+}
+
+function undivertServices {
+  printStatus "undivertServices" "Enabling Ubuntu Init"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ unlink /sbin/init
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ dpkg-divert --rename --remove /sbin/init
+}
+
 # Usage : enableServices <ARMSTRAP_ROOT>
 function enableServices {
   printStatus "disableServices" "Enabling services startup"
