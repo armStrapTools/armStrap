@@ -4,7 +4,7 @@ function buildUbuntu {
 
   ubuntuStrap "${BUILD_MNT_ROOT}" "${BUILD_ARCH}" "${BUILD_ARCH_EABI}" "${BUILD_UBUNTU_VERSION}"
   
-  divertServices "${BUILD_MNT_ROOT}"
+  #divertServices "${BUILD_MNT_ROOT}"
   
   insResolver "${BUILD_MNT_ROOT}"
   
@@ -52,7 +52,7 @@ function buildUbuntu {
   
   installInit "${BUILD_MNT_ROOT}"
 
-  undivertServices "${BUILD_MNT_ROOT}"
+  #undivertServices "${BUILD_MNT_ROOT}"
 
   bootClean "${BUILD_MNT_ROOT}" "${BUILD_ARCH}"
   

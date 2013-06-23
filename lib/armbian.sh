@@ -18,14 +18,8 @@ function disableServices {
     mv  ${1}/usr/sbin/policy-rc.d ${1}/usr/sbin/policy-rc.d.disabled
   fi
   
-  if [ -f ${1}/usr/sbin/invoke-rc.d ]; then
-    mv  ${1}/usr/sbin/invoke-rc.d ${1}/usr/sbin/invoke-rc.d.disabled
-  fi
-  
   printf "#!/bin/sh\nexit 101\n" > ${1}/usr/sbin/policy-rc.d
-  printf "#!/bin/sh\nexit 101\n" > ${1}/usr/sbin/invoke-rc.d
   chmod +x ${1}/usr/sbin/policy-rc.d
-  chmod +x  ${1}/usr/sbin/invoke-rc.d
 }
 
 function divertServices {
@@ -44,15 +38,10 @@ function undivertServices {
 function enableServices {
   printStatus "disableServices" "Enabling services startup"
   rm -f ${1}/usr/sbin/policy-rc.d
-  rm -f ${1}/usr/sbin/invoke-rc.d
   
-[C  if [ -f ${1}/usr/sbin/policy-rc.d.disabled ]; then
+  if [ -f ${1}/usr/sbin/policy-rc.d.disabled ]; then
     mv  ${1}/usr/sbin/policy-rc.d.disabled ${1}/usr/sbin/policy-rc.d
-  fi
-  
-  if [ -f ${1}/usr/sbin/invoke-rc.d.disabled ]; then
-    mv  ${1}/usr/sbin/invoke-rc.d.disabled ${1}/usr/sbin/invoke-rc.d
-  fi
+  fi  
 }
 
 # usage ubuntuStrap <ARMSTRAP_ROOT> <ARCH> <EABI> <VERSION>
@@ -159,9 +148,9 @@ function initSources {
 # Usage : mountProcs <ARMSTRAP_ROOT>
 function mountPFS {
   printStatus "mountPFS" "Mounting procfs"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ mount -t proc proc /proc
+  mount -t proc proc ${1}/proc
   printStatus "mountPFS" "Mounting sysfs"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ mount -t sysfs sysfs /sys
+  mount -t sysfs sysfs ${1}/sys
   printStatus "mountPFS" "Binding /dev/pts"
   mount --bind /dev/pts ${1}/dev/pts
 }
@@ -169,9 +158,9 @@ function mountPFS {
 # Usage : umountProcs <ARMSTRAP_ROOT>
 function umountPFS {
   printStatus "umountPFS" "Unmounting procfs"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ umount /proc
+  umount ${1}/proc
   printStatus "umountPFS" "Unounting sysfs"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ umount /sys
+  umount ${1}/sys
   printStatus "umountPFS" "Unbinding /dev/pts"
   umount ${1}/dev/pts
 }
