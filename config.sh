@@ -21,6 +21,9 @@ ARMSTRAP_SWAP_SIZE="256"
 #
 # Currently we support ubuntu and debian. Default choice is debian
 ARMSTRAP_OS="ubuntu"
+# If set, prepackaged version of the kernel files will be used if avalable.
+# Else, always force compilation of kernel.
+#ARMSTRAP_KERNEL_COMPILE="YES"
 
 ##############################################################################
 # Packages Sections
@@ -50,7 +53,7 @@ ARMSTRAP_MAC_ADDRESS="008010EDDF01"
 #
 # If you want to install directly into your SD card, put the device here. If
 # it's not defined, an image will be generated.
-ARMSTRAP_DEVICE="/dev/sdc"
+ARMSTRAP_DEVICE="/dev/sdb"
 # If you want to name your image something else than the generated name
 #ARMSTRAP_IMAGE_NAME="wathever_name_you_want.img"
 # Specify the size of the image to be build in MB

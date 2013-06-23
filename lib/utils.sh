@@ -46,6 +46,7 @@ function showUsage {
   printf "% 4s %- 20s %s\n" "-c" "" "Show licence."
   printf "\nKernel Builder :\n"
   printf "% 4s %- 20s %s\n" "-k" "" "Create debian packages for Kernel/Sources/Headers."
+  printf "% 4s %- 20s %s\n" "-B" "" "Create U-Boot and Fex configuration."
   printf "\nUtilities :\n"
   printf "% 4s %- 20s %s\n" "-C" "" "Clean Log/Work/Deb directory."
   printf "% 4s %- 20s %s\n" "-S" "" "Clean Sources directory."
@@ -149,9 +150,9 @@ function testInstall {
 function partSync {
   local TMP_DEV=""
   printStatus "partSync" "Flush file system buffers"
-  sync > /dev/null 2>&1
+  sync >> ${ARMSTRAP_LOG_FILE} 2>&1
   printStatus "partSync" "Inform the OS of partition table changes on ${ARMSTRAP_DEVICE}"  
-  partprobe ${ARMSTRAP_DEVICE} > /dev/null 2>&1
+  partprobe ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage: promptYN "<question>"

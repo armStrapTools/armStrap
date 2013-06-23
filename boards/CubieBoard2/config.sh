@@ -87,11 +87,36 @@ else
 fi
 # Set to Yes if you want to install tke kernel headers, else to No. It kinda conflict with things already installed in Ubuntu...
 if [ -z "${ARMSTRAP_KERNEL_INSTHDR}" ]; then
-  BUILD_KERNEL_INSTHDR="No"
+  BUILD_KERNEL_INSTHDR=""
 else
   BUILD_KERNEL_INSTHDR="${ARMSTRAP_KERNEL_INSTHDR}"
 fi
 
+if [ -z "${ARMSTRAP_KERNEL_COMPILE}" ]; then
+  BUILD_KERNEL_DEB_IMG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel/sunxi-3.3-cubieboard2.deb"
+  BUILD_KERNEL_DEB_HDR="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel/sunxi-3.3-cubieboard2-headers.deb"
+  BUILD_KERNEL_DEB_SRC="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel/sunxi-3.3-cubieboard2-sources.deb"
+  
+  # Make sure they actually exist, else compile...
+  
+  if [ ! -z "${BUILD_KERNEL_INSTIMG}" ]; then
+    if [ ! -f "${BUILD_KERNEL_DEB_IMG}" ]; then
+      ARMSTRAP_KERNEL_COMPILE="YES"
+    fi
+  fi
+  
+  if [ ! -z "${BUILD_KERNEL_INSTSRC}" ]; then
+    if [ ! -f "${BUILD_KERNEL_DEB_SRC}" ]; then
+      ARMSTRAP_KERNEL_COMPILE="YES"
+    fi
+  fi
+  
+  if [ ! -z "${BUILD_KERNEL_INSTHDR}" ]; then
+    if [ ! -f "${BUILD_KERNEL_DEB_HDR}" ]; then
+      ARMSTRAP_KERNEL_COMPILE="YES"
+    fi
+  fi
+fi
 
 BUILD_UBOOT_GIT="https://github.com/hno/u-boot.git"
 BUILD_UBOOT_GIT_BRANCH="wip/a20"

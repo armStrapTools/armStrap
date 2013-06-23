@@ -18,14 +18,13 @@ function buildKernel {
   menuConfig "${BUILD_ARCH}" "${BUILD_ARCH_PREFIX}" "${BUILD_KERNEL_DIR}"
 
   makeKernel "${BUILD_ARCH}" "${BUILD_ARCH_PREFIX}" "${BUILD_KERNEL_DIR}" "${BUILD_KERNEL_NAME} modules"
-
 }
 
-# Usage : instalKernel <TARGET DIRECTORY> <INSTALL PACKAGE FLAG>
+# Usage : exportKrnlImg <TARGET DIRECTORY> <INSTALL PACKAGE FLAG>
 
 function exportKrnlImg {
   printStatus "exportKrnlImg" "Exporting kernel image and modules to ${1}"
-  
+
   if [ -d "${1}" ]; then
     rm -rf ${1}
   fi
@@ -62,6 +61,7 @@ function exportKrnlImg {
 
 # Usage : exportKrnlHdr <TARGET DIRECTORY> <INSTALL PACKAGE FLAG>
 function exportKrnlHdr {
+
   printStatus "exportKrnlHdr" "Exporting kernel headers to ${1}"
   
   if [ -d "${1}" ]; then
@@ -85,6 +85,7 @@ function exportKrnlHdr {
   printf "Architecture: armhf\n" >> ${1}/DEBIAN/control
   printf "Description: Linux kernel headers for %s.\n" "${ARMSTRAP_CONFIG}" >> ${1}/DEBIAN/control
   
+  rm -f ${ARMSTRAP_DEB}/`basename ${1}`
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
   
   if [ "${2}" == "Yes" ]; then
@@ -94,6 +95,7 @@ function exportKrnlHdr {
 
 # Usage : exportKrnlSrc <TARGET DIRECTORY> <INSTALL PACKAGE FLAG>
 function exportKrnlSrc {
+
   printStatus "exportKrnlSrc" "Exporting kernel sources to ${1}"
   
   if [ -d "${1}" ]; then
@@ -116,7 +118,7 @@ function exportKrnlSrc {
   printf "Maintainer: Eddy Beaupre <eddy@beaupre.biz>\n" >> ${1}/DEBIAN/control
   printf "Architecture: armhf\n" >> ${1}/DEBIAN/control
   printf "Description: Linux kernel sources for %s.\n" "${ARMSTRAP_CONFIG}" >> ${1}/DEBIAN/control
-  
+ 
   printf "#!/bin/bash\n\n" > ${1}/DEBIAN/postinst
   printf "ln -fs /usr/src/linux-sunxi /lib/modules/%s/build\n" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postinst
   printf "ln -fs /usr/src/linux-sunxi /lib/modules/%s/source\n" "${ARMSTRAP_KERNEL_VERSION}" >> ${1}/DEBIAN/postinst
@@ -129,7 +131,7 @@ function exportKrnlSrc {
   chmod 755 ${1}/DEBIAN/postrm
   
   makeDeb ${1} "${ARMSTRAP_DEB}/`basename ${1}`"
-  
+ 
   if [ "${2}" == "Yes" ]; then
     BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${ARMSTRAP_DEB}/`basename ${1}`.deb"
   fi

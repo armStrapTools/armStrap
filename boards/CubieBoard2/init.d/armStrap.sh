@@ -15,6 +15,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
 do_start() {
   [ "$VERBOSE" != no ] && log_begin_msg "Running First run tasks for armStrap builds"
+  export DEBIAN_FRONTEND=noninteractive
   /usr/bin/apt-get -f install
   ES=$?
   [ "$VERBOSE" != no ] && log_end_msg $ES

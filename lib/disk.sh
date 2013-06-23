@@ -52,7 +52,11 @@ function loopImg {
 function uloopImg {
   printStatus "uloopImg" "Detaching ${ARMSTRAP_DEVICE} from loop device"
   losetup -d ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  checkStatus "losetup exit with status $?"
+  while [ $? -ne 0 ]; do
+    printStatus "uloopImg" "${ARMSTRAP_DEVICE} is busy, waiting 10 seconds before retrying"
+    sleep 10
+    losetup -d ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  done
   partSync
 }
 

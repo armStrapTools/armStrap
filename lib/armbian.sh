@@ -145,24 +145,26 @@ function initSources {
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get -q -y upgrade >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
-# Usage : mountProcs <ARMSTRAP_ROOT>
+# Usage : mountPFS <ARMSTRAP_ROOT>
 function mountPFS {
-  printStatus "mountPFS" "Mounting procfs"
-  mount -t proc proc ${1}/proc
-  printStatus "mountPFS" "Mounting sysfs"
-  mount -t sysfs sysfs ${1}/sys
-  printStatus "mountPFS" "Binding /dev/pts"
-  mount --bind /dev/pts ${1}/dev/pts
+  printStatus "mountPFS" "Function disabled."
+  #printStatus "mountPFS" "Mounting procfs"
+  #mount --bind /proc ${1}/proc >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #printStatus "mountPFS" "Mounting sysfs"
+  #mount --bind /sys ${1}/sys >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #printStatus "mountPFS" "Binding /dev/pts"
+  #mount --bind /dev/pts ${1}/dev/pts >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
-# Usage : umountProcs <ARMSTRAP_ROOT>
+# Usage : umountPFS <ARMSTRAP_ROOT>
 function umountPFS {
-  printStatus "umountPFS" "Unmounting procfs"
-  umount ${1}/proc
-  printStatus "umountPFS" "Unounting sysfs"
-  umount ${1}/sys
-  printStatus "umountPFS" "Unbinding /dev/pts"
-  umount ${1}/dev/pts
+  printStatus "umountPFS" "Function disabled."
+  #printStatus "umountPFS" "Unbinding /dev/pts"
+  #umount ${1}/dev/pts >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #printStatus "umountPFS" "Unounting sysfs"
+  #umount ${1}/sys >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #printStatus "umountPFS" "Unmounting procfs"
+  #umount ${1}/proc >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : installTasks <ARMSTRAP_ROOT> <TASK1> [<TASK2> ...]
@@ -324,7 +326,6 @@ function bootClean {
   printStatus "bootClean" "Running apt-get clean"
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${1}/ /usr/bin/apt-get clean >> ${ARMSTRAP_LOG_FILE} 2>&1
   
-  installInit ${1}
   umountPFS ${1}
   removeQEMU ${1} ${2}
   enableServices ${1}
