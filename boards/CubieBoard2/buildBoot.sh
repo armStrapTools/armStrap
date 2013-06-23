@@ -45,14 +45,18 @@ printStatus "buildFex" "Starting"
   gitSources ${BUILD_SUNXI_BOARD_GIT} ${BUILD_SUNXI_BOARD_DIR} ${BUILD_SUNXI_BOARD_GIT_PARAM}
 
   ubootSetEnv "${1}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
-  ubootSetEnv "${BUILD_BOOT_CMD}" "machid" "0xf35"
+  ubootSetEnv "${1}" "machid" "0xf35"
   ubootExt2Load "${1}" "${BUILD_BOOT_BIN_LOAD}"
   ubootExt2Load "${1}" "${BUILD_BOOT_KERNEL_LOAD}"
   ubootBootM "${1}" "${BUILD_BOOT_KERNEL_ADDR}"
 
   sunxiMkImage ${1} ${2}
   
-  sunxiSetFex ${BUILD_SUNXI_BOARD_DIR} "${BUILD_SUNXI_BOARD_CPU}" "${BUILD_SUNXI_BOARD_FEX}" "`dirname ${3}`/"
+  if [ -f "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/fex/${BUILD_SUNXI_BOARD_FEX}.fex" ]; then
+    cp ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/fex/${BUILD_SUNXI_BOARD_FEX}.fex "`dirname ${3}`/"
+  else
+    sunxiSetFex ${BUILD_SUNXI_BOARD_DIR} "${BUILD_SUNXI_BOARD_CPU}" "${BUILD_SUNXI_BOARD_FEX}" "`dirname ${3}`/"
+  fi
   
   if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
     sunxiSetMac "${3}" "${ARMSTRAP_MAC_ADDRESS}"

@@ -13,8 +13,19 @@ function removeQEMU {
 # Usage : disableServices <ARMSTRAP_ROOT>
 function disableServices {
   printStatus "disableServices" "Disabling services startup"
+
+  if [ -f ${1}/usr/sbin/policy-rc.d ]; then
+    mv  ${1}/usr/sbin/policy-rc.d ${1}/usr/sbin/policy-rc.d.disabled
+  fi
+  
+  if [ -f ${1}/usr/sbin/invoke-rc.d ]; then
+    mv  ${1}/usr/sbin/invoke-rc.d ${1}/usr/sbin/invoke-rc.d.disabled
+  fi
+  
   printf "#!/bin/sh\nexit 101\n" > ${1}/usr/sbin/policy-rc.d
+  printf "#!/bin/sh\nexit 101\n" > ${1}/usr/sbin/invoke-rc.d
   chmod +x ${1}/usr/sbin/policy-rc.d
+  chmod +x  ${1}/usr/sbin/invoke-rc.d
 }
 
 function divertServices {
@@ -33,6 +44,15 @@ function undivertServices {
 function enableServices {
   printStatus "disableServices" "Enabling services startup"
   rm -f ${1}/usr/sbin/policy-rc.d
+  rm -f ${1}/usr/sbin/invoke-rc.d
+  
+[C  if [ -f ${1}/usr/sbin/policy-rc.d.disabled ]; then
+    mv  ${1}/usr/sbin/policy-rc.d.disabled ${1}/usr/sbin/policy-rc.d
+  fi
+  
+  if [ -f ${1}/usr/sbin/invoke-rc.d.disabled ]; then
+    mv  ${1}/usr/sbin/invoke-rc.d.disabled ${1}/usr/sbin/invoke-rc.d
+  fi
 }
 
 # usage ubuntuStrap <ARMSTRAP_ROOT> <ARCH> <EABI> <VERSION>

@@ -36,11 +36,16 @@ function installOS {
     fi
     
     if [ ! -z "${ARMSTRAP_BOOT_BUILDER}" ]; then
+      local TMP_WRK="${ARMSTRAP_WRK}/uBoot"
+      local TMP_CMD="${TMP_WRK}/`basename ${BUILD_BOOT_CMD}`"
+      local TMP_SCR="${TMP_WRK}/`basename ${BUILD_BOOT_SCR}`"
+      local TMP_FEX="${TMP_WRK}/`basename ${BUILD_BOOT_FEX}`"
+      local TMP_BIN="${TMP_WRK}/`basename ${BUILD_BOOT_BIN}`"
       printStatus "installOS" "uBoot Builder Starting"
       buildSxTools
       checkDirectory ${ARMSTRAP_WRK}/uBoot
       buildUBoot ${ARMSTRAP_WRK}/uBoot
-      buildFex  ${ARMSTRAP_WRK}/uBoot/`basename ${BUILD_BOOT_CMD}`  ${ARMSTRAP_WRK}/uBoot/`basename ${BUILD_BOOT_SCR}` ${ARMSTRAP_WRK}/uBoot/`basename ${BUILD_BOOT_FEX}` ${ARMSTRAP_WRK}/uBoot/`basename ${BUILD_BOOT_UBOOT}`
+      buildFex ${TMP_CMD} ${TMP_SCR} ${TMP_FEX} ${TMP_BIN} ${TMP_WRK}
       printStatus "installOS" "uBoot Builder Done"
     fi  
   fi
