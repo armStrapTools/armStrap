@@ -20,7 +20,7 @@ ARMSTRAP_SWAP_SIZE="256"
 # OS Sections
 #
 # Currently we support ubuntu and debian. Default choice is debian
-ARMSTRAP_OS="ubuntu"
+#ARMSTRAP_OS="ubuntu"
 # If set, prepackaged version of the kernel files will be used if avalable.
 # Else, always force compilation of kernel.
 #ARMSTRAP_KERNEL_COMPILE="YES"

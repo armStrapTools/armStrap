@@ -4,7 +4,7 @@
 # Variables that should never be changed
 #
 
-ARMSTRAP_VERSION="0.42"
+ARMSTRAP_VERSION="0.50"
 ARMSTRAP_NAME=`basename ${0}`
 
 printf "\n%s version %s\n" "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
@@ -43,6 +43,9 @@ ARMSTRAP_IMAGE_SIZE="2048"
 ARMSTRAP_DEVICE=""
 ARMSTRAP_IMAGE_DEVICE=""
 ARMSTRAP_DEVICE_MAPS=("")
+
+# ARMSTRAP default distribution
+ARMSTRAP_OS="debian"
 
 # The version of the kernel that has been build
 ARMSTRAP_KERNEL_VERSION=""
