@@ -70,8 +70,14 @@ function old_ubuntuStrap {
 
 # usage httpExtract <DESTINATION> <FILE_URL> <EXTRACTOR_CMD>
 function httpExtract {
-  printStatus "bootStrap" "Fetching and extracting `basename ${2}`"
-  wget -q -O - ${2} | ${3} -C ${1}/
+  local TMP_DIR="${1}"
+  local TMP_URL="${2}"
+  shift
+  shift
+  
+  printStatus "bootStrap" "Fetching and extracting `basename ${TMP_URL}`"
+  checkDirectory "${TMP_DIR}/"
+  wget -q -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
 }
 
 function chrootRun {
@@ -158,7 +164,7 @@ function chrootDPKG {
   
   printStatus "chrootDPKG" "Installing package ${TMP_DEB} in `basename ${TMP_CHROOT}`"
   cp ${2} ${TMP_DIR}/${TMP_DEB}
-  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} 2>> ${ARMSTRAP_LOG_FILE}
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
   rm -rf ${TMP_DIR}
     
   umountPFS "${TMP_CHROOT}"
@@ -181,6 +187,37 @@ function chrootReconfig {
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
   enableServices "${TMP_CHROOT}"
+}
+
+# Usage : chrootPassword <ARMSTRAP_ROOT> <ROOT_PASSWORD>
+function chrootPassword {
+  local TMP_CHROOT=${1}
+
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "chrootReconfig" "Configuring root password in `basename ${TMP_CHROOT}`"
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/passwd root <<EOF > /dev/null 2>&1
+${2}
+${2}
+
+EOF
+    
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+}
+
+
+# Usage : setRootPassword <ARMSTRAP_ROOT> <PASSWORD>
+function setRootPassword {
+  printStatus "setRootPassword" "Configuring root password"
+  chroot ${1}/ /usr/bin/passwd root <<EOF > /dev/null 2>&1
+${2}
+${2}
+
+EOF
 }
 
 # Usage : configPackages <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
@@ -206,14 +243,25 @@ function installDPKG {
 }
 
 function installLinux {
+  local TMP_CHROOT="${1}"
   local TMP_KERNEL="`basename ${2}`"
-  printStatus "installLinux" "Downloading ${TMP_KERNEL} script to `basename ${1}`"
-  wget --append-output="${ARMSTRAP_LOG_FILE}" --directory-prefix="${1}/" "${2}"
+  printStatus "installLinux" "Downloading ${TMP_KERNEL} script to `basename ${TMP_CHROOT}`"
+  wget --append-output="${ARMSTRAP_LOG_FILE}" --directory-prefix="${TMP_CHROOT}/" "${2}"
 
-  chmod +x "${1}/${TMP_KERNEL}"
-  chrootRun "${1}" "/${TMP_KERNEL}"
+  chmod +x "${TMP_CHROOT}/${TMP_KERNEL}"
   
-  rm -f "${1}/${TMP_KERNEL}"
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "installLinux" "Executing ${TMP_KERNEL} script in `basename ${TMP_CHROOT}`"
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /${TMP_KERNEL} "--logstderr" 2>> ${ARMSTRAP_LOG_FILE}
+  
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+
+  rm -f "${TMP_CHROOT}/${TMP_KERNEL}"
 }
 
 # Usage : insResolver <ARMSTRAP_ROOT>

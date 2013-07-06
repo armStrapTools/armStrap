@@ -77,11 +77,17 @@ function mapImg {
   partSync
 }
 
-# Usage umapImg <FILE>
+# Usage umapImg <FILE> <DEVICE>
 function umapImg {
   printStatus "umapImg" "UnMapping ${1} from loop device"
   kpartx -d ${1} >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "kpartx exit with status $?"
+  sleep 2
+  kpartx -d ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  checkStatus "kpartx exit with status $?"
+  sleep 2
+  losetup -d ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  checkStatus "losetup exit with status $?"
   partSync
 }
 
@@ -222,7 +228,7 @@ function finishImg {
   
   umountParts ${TMP_RMAP[@]}
   
-  umapImg "${ARMSTRAP_IMAGE_NAME}"
+  umapImg "${ARMSTRAP_IMAGE_NAME}" "${ARMSTRAP_DEVICE}"
 }
 
 # Usage setupSD <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
