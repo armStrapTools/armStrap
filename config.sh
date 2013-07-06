@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard2"
+ARMSTRAP_CONFIG="CubieBoard"
 # Set this to the hostname you want for the board
 ARMSTRAP_HOSTNAME="CubieDebian"
 # Set this to the password you want for the root user
@@ -53,7 +53,7 @@ ARMSTRAP_MAC_ADDRESS="008010EDDF01"
 #
 # If you want to install directly into your SD card, put the device here. If
 # it's not defined, an image will be generated.
-ARMSTRAP_DEVICE="/dev/sdb"
+#ARMSTRAP_DEVICE="/dev/sdb"
 # If you want to name your image something else than the generated name
 #ARMSTRAP_IMAGE_NAME="wathever_name_you_want.img"
 # Specify the size of the image to be build in MB

@@ -1,25 +1,35 @@
-# Usage installQEMU <ARMSTRAP_ROOT> <ARCH>
+# Usage installQEMU <ARMSTRAP_ROOT>
 function installQEMU {
-  printStatus installQEMU "Installing QEMU User Emulator (${2})"  
-  cp /usr/bin/qemu-${2}-static ${1}/usr/bin
+  if [ ! -f "${1}/usr/bin/qemu-arm-static" ]; then
+    printStatus "installQEMU" "Installing QEMU Arm Emulator in `basename ${1}`."
+    cp "/usr/bin/qemu-arm-static" "${1}/usr/bin" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
 }
 
 # Usage removeQEMU <ARMSTRAP_ROOT> <ARCH>
 function removeQEMU {
-  printStatus removeQEMU "Removing QEMU User Emulator (${2})"  
-  rm -f ${1}/usr/bin/qemu-${2}-static
+  if [ -f "${1}/usr/bin/qemu-arm-static" ]; then
+    printStatus "RemoveQEMU" "Removing QEMU Arm Emulator from `basename ${1}`."
+    rm -f "${1}/usr/bin/qemu-arm-static" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
 }
 
 # Usage : disableServices <ARMSTRAP_ROOT>
 function disableServices {
-  printStatus "disableServices" "Disabling services startup"
-
-  if [ -f ${1}/usr/sbin/policy-rc.d ]; then
-    mv  ${1}/usr/sbin/policy-rc.d ${1}/usr/sbin/policy-rc.d.disabled
-  fi
+  if [ ! -f "${1}/usr/sbin/policy-rc.d.lock" ]; then
   
-  printf "#!/bin/sh\nexit 101\n" > ${1}/usr/sbin/policy-rc.d
-  chmod +x ${1}/usr/sbin/policy-rc.d
+    printStatus "disableServices" "Disabling services startup in `basename ${1}`."
+
+    touch "${1}/usr/sbin/policy-rc.d.lock" >> ${ARMSTRAP_LOG_FILE} 2>&1
+
+    if [ -f "${1}/usr/sbin/policy-rc.d" ]; then
+      mv  "${1}/usr/sbin/policy-rc.d" "${1}/usr/sbin/policy-rc.d.disabled" >> ${ARMSTRAP_LOG_FILE} 2>&1
+    fi
+  
+    printf "#!/bin/sh\nexit 101\n" > "${1}/usr/sbin/policy-rc.d"
+    chmod +x "${1}/usr/sbin/policy-rc.d" >> ${ARMSTRAP_LOG_FILE} 2>&1
+
+  fi
 }
 
 function divertServices {
@@ -36,22 +46,174 @@ function undivertServices {
 
 # Usage : enableServices <ARMSTRAP_ROOT>
 function enableServices {
-  printStatus "disableServices" "Enabling services startup"
-  rm -f ${1}/usr/sbin/policy-rc.d
+  if [ -f "${1}/usr/sbin/policy-rc.d.lock" ]; then
+    printStatus "enableServices" "Enabling services startup in `basename ${1}`."
+    rm -f "${1}/usr/sbin/policy-rc.d" >> ${ARMSTRAP_LOG_FILE} 2>&1
   
-  if [ -f ${1}/usr/sbin/policy-rc.d.disabled ]; then
-    mv  ${1}/usr/sbin/policy-rc.d.disabled ${1}/usr/sbin/policy-rc.d
-  fi  
+    if [ -f "${1}/usr/sbin/policy-rc.d.disabled" ]; then
+      mv  "${1}/usr/sbin/policy-rc.d.disabled" "${1}/usr/sbin/policy-rc.d" >> ${ARMSTRAP_LOG_FILE} 2>&1
+    fi
+    
+    rm -f "${1}/usr/sbin/policy-rc.d.lock" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
 }
 
 # usage ubuntuStrap <ARMSTRAP_ROOT> <ARCH> <EABI> <VERSION>
-function ubuntuStrap {
+function old_ubuntuStrap {
   printStatus "ubuntuStrap" "Fetching and extracting ubuntu-core-${4}-core-${2}${3}.tar.gz"
   wget -q -O - http://cdimage.ubuntu.com/ubuntu-core/releases/${4}/release/ubuntu-core-${4}-core-${2}${3}.tar.gz | tar -xz -C ${1}/
   
   installQEMU ${1} ${2}
   disableServices ${1}
   mountPFS ${1}
+}
+
+# usage httpExtract <DESTINATION> <FILE_URL> <EXTRACTOR_CMD>
+function httpExtract {
+  printStatus "bootStrap" "Fetching and extracting `basename ${2}`"
+  wget -q -O - ${2} | ${3} -C ${1}/
+}
+
+function chrootRun {
+  local TMP_CHROOT=${1}
+  shift
+
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "chrootRun" "Executing '${@}' in `basename ${TMP_CHROOT}`"
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot "${TMP_CHROOT}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+}
+
+function chrootShell {
+  local TMP_CHROOT=${1}
+  local TMP_SHELL="${1}/armstrap.shell"
+  
+  printf "#!/bin/sh\n\ndebian_chroot=\"${TMP_CHROOT}\" /bin/bash\n" >> "${TMP_SHELL}"
+  
+  chmod +x "${TMP_SHELL}"
+  
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "chrootRun" "Executing '/bin/bash' in `basename ${TMP_CHROOT}`"
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot "${TMP_CHROOT}" ${@}
+  
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+  
+  rm -f "${TMP_SHELL}"
+}
+
+function chrootUpgrade {
+  local TMP_CHROOT=${1}
+  shift
+
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "chrootUpgrade" "Updating packages in `basename ${TMP_CHROOT}`"
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y update ${@} 2>> ${ARMSTRAP_LOG_FILE}
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y dist-upgrade ${@} 2>> ${ARMSTRAP_LOG_FILE}
+    
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+}
+
+function chrootInstall {
+  local TMP_CHROOT=${1}
+  shift
+  
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "chrootInstall" "Installing packages in `basename ${TMP_CHROOT}`"
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@} 2>> ${ARMSTRAP_LOG_FILE}
+    
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+}
+
+# Usage : chrootDPKG <ARMSTRAP_ROOT> <PACKAGE_FILE>
+function chrootDPKG {
+  local TMP_CHROOT=${1}
+  local TMP_DIR=`mktemp -d ${TMP_CHROOT}/DPKG.XXXXXX`
+  local TMP_CHR=`basename ${TMP_DIR}`
+  local TMP_DEB=`basename ${2}`
+  
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "chrootDPKG" "Installing package ${TMP_DEB} in `basename ${TMP_CHROOT}`"
+  cp ${2} ${TMP_DIR}/${TMP_DEB}
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} 2>> ${ARMSTRAP_LOG_FILE}
+  rm -rf ${TMP_DIR}
+    
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+}
+
+# Usage : chrootReconfig <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
+function chrootReconfig {
+  local TMP_CHROOT=${1}
+  shift
+
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "chrootReconfig" "Reconfiguring packages ${@} in `basename ${TMP_CHROOT}`"
+  LC_ALL="${BUILD_LC_ALL}" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/dpkg-reconfigure ${@}
+    
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+}
+
+# Usage : configPackages <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
+function configPackages {
+  local TMP_ROOT=${1}
+  shift
+
+  printStatus "configPackages" "Configuring ${@}"
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/sbin/dpkg-reconfigure ${@}
+}
+
+# Usage : installDPKG <ARMSTRAP_ROOT> <PACKAGE_FILE>
+function installDPKG {
+  local TMP_ROOT="${1}"
+  local TMP_DIR=`mktemp -d ${TMP_ROOT}/DPKG.XXXXXX`
+  local TMP_CHR=`basename ${TMP_DIR}`
+  local TMP_DEB=`basename ${2}`
+
+  printStatus "installDPKG" "Installing ${TMP_DEB}"
+  cp ${2} ${TMP_DIR}/${TMP_DEB}
+  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  rm -rf ${TMP_DIR}
+}
+
+function installLinux {
+  local TMP_KERNEL="`basename ${2}`"
+  printStatus "installLinux" "Downloading ${TMP_KERNEL} script to `basename ${1}`"
+  wget --append-output="${ARMSTRAP_LOG_FILE}" --directory-prefix="${1}/" "${2}"
+
+  chmod +x "${1}/${TMP_KERNEL}"
+  chrootRun "${1}" "/${TMP_KERNEL}"
+  
+  rm -f "${1}/${TMP_KERNEL}"
 }
 
 # Usage : insResolver <ARMSTRAP_ROOT>
@@ -87,7 +249,7 @@ function clnResolver {
 }
 
 # usage bootStrap <ARMSTRAP_ROOT> <ARCH> <EABI> <SUITE> [<MIRROR>]
-function bootStrap {
+function old_bootStrap {
   if [ $# -eq 4 ]; then
     printStatus "bootStrap" "Running debootstrap --foreign --arch ${2}${3} ${4}"
     debootstrap --foreign --arch ${2}${3} ${4} ${1}/ >> ${ARMSTRAP_LOG_FILE} 2>&1
@@ -147,24 +309,18 @@ function initSources {
 
 # Usage : mountPFS <ARMSTRAP_ROOT>
 function mountPFS {
-  printStatus "mountPFS" "Function disabled."
-  #printStatus "mountPFS" "Mounting procfs"
-  #mount --bind /proc ${1}/proc >> ${ARMSTRAP_LOG_FILE} 2>&1
-  #printStatus "mountPFS" "Mounting sysfs"
-  #mount --bind /sys ${1}/sys >> ${ARMSTRAP_LOG_FILE} 2>&1
-  #printStatus "mountPFS" "Binding /dev/pts"
-  #mount --bind /dev/pts ${1}/dev/pts >> ${ARMSTRAP_LOG_FILE} 2>&1
+  printStatus "mountPFS" "Mounting pseudo-filesystems in `basename ${1}`"
+  mount --bind /proc ${1}/proc >> ${ARMSTRAP_LOG_FILE} 2>&1
+  mount --bind /sys ${1}/sys >> ${ARMSTRAP_LOG_FILE} 2>&1
+  mount --bind /dev/pts ${1}/dev/pts >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : umountPFS <ARMSTRAP_ROOT>
 function umountPFS {
-  printStatus "umountPFS" "Function disabled."
-  #printStatus "umountPFS" "Unbinding /dev/pts"
-  #umount ${1}/dev/pts >> ${ARMSTRAP_LOG_FILE} 2>&1
-  #printStatus "umountPFS" "Unounting sysfs"
-  #umount ${1}/sys >> ${ARMSTRAP_LOG_FILE} 2>&1
-  #printStatus "umountPFS" "Unmounting procfs"
-  #umount ${1}/proc >> ${ARMSTRAP_LOG_FILE} 2>&1
+  printStatus "umountPFS" "Unmounting pseudo-filesystems from `basename ${1}`"
+  umount ${1}/dev/pts >> ${ARMSTRAP_LOG_FILE} 2>&1
+  umount ${1}/sys >> ${ARMSTRAP_LOG_FILE} 2>&1
+  umount ${1}/proc >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : installTasks <ARMSTRAP_ROOT> <TASK1> [<TASK2> ...]
@@ -193,27 +349,9 @@ function installPackages {
   LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@} 2>> ${ARMSTRAP_LOG_FILE}
 }
 
-# Usage : installDPKG <ARMSTRAP_ROOT> <PACKAGE_FILE>
-function installDPKG {
-  local TMP_ROOT="${1}"
-  local TMP_DIR=`mktemp -d ${TMP_ROOT}/DPKG.XXXXXX`
-  local TMP_CHR=`basename ${TMP_DIR}`
-  local TMP_DEB=`basename ${2}`
 
-  printStatus "installDPKG" "Installing ${TMP_DEB}"
-  cp ${2} ${TMP_DIR}/${TMP_DEB}
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  rm -rf ${TMP_DIR}
-}
 
-# Usage : configPackages <ARMSTRAP_ROOT> <PKG1> [<PKG2> ...]
-function configPackages {
-  local TMP_ROOT=${1}
-  shift
 
-  printStatus "configPackages" "Configuring ${@}"
-  LC_ALL=${BUILD_LC} LANGUAGE=${BUILD_LC} LANG=${BUILD_LC} chroot ${TMP_ROOT}/ /usr/sbin/dpkg-reconfigure ${@}
-}
 
 # Usage : setRootPassword <ARMSTRAP_ROOT> <PASSWORD>
 function setRootPassword {
@@ -231,15 +369,20 @@ function addInitTab {
   printf "%s:%s:respawn:/sbin/getty -L %s %s %s\n" ${2} ${3} ${4} ${5} ${6} >> ${1}/etc/inittab
 }
 
-# Usage addTT <ARMSTRAP_ROOT> <RUNLEVELS> <DEVICE> <SPEED> <TYPE>
+# Usage addTT <ARMSTRAP_ROOT> <ID> <RUNLEVELS> <DEVICE> <SPEED> <TYPE>
 function addTTY {
-  local TMP_FILE="${1}/etc/init/${3}.conf"
-  printStatus "addTTY" "Configuring terminal ${3} for runlevels ${2} at ${4} (${5})"
-  printf "# %s - getty\n" "${3}" > ${TMP_FILE}
-  printf "# This service maintains a getty on ttyS0 from the point the system is started until it is shut down again.\n\n" >> ${TMP_FILE} 
-  printf "start on stopped rc or RUNLEVEL=[%s]\n" "${2}" >> ${TMP_FILE} 
-  printf "stop on runlevel [!2345]\n\n" "${2}" >> ${TMP_FILE} 
-  printf "respawn\nexec /sbin/getty -L %s %s %s\n" "${4}" "${3}" "${5}" >> ${TMP_FILE} 
+  if [ -f "${1}/etc/inittab" ]; then
+    printStatus "addInitTab" "Configuring terminal ${2} for runlevels ${3} on device ${4} at ${5}bps (${6})"
+    printf "%s:%s:respawn:/sbin/getty -L %s %s %s\n" ${2} ${3} ${4} ${5} ${6} >> ${1}/etc/inittab
+  else
+    local TMP_FILE="${1}/etc/init/${4}.conf"
+    printStatus "addTTY" "Configuring terminal ${4} for runlevels ${3} at ${5} (${6})"
+    printf "# %s - getty\n" "${4}" > ${TMP_FILE}
+    printf "# This service maintains a getty on ttyS0 from the point the system is started until it is shut down again.\n\n" >> ${TMP_FILE} 
+    printf "start on stopped rc or RUNLEVEL=[%s]\n" "${3}" >> ${TMP_FILE} 
+    printf "stop on runlevel [!2345]\n\n" >> ${TMP_FILE} 
+    printf "respawn\nexec /sbin/getty -L %s %s %s\n" "${5}" "${4}" "${6}" >> ${TMP_FILE} 
+  fi
 }
 
 # Usage : initFSTab <ARMSTRAP_ROOT>
@@ -273,17 +416,36 @@ function addKernelModule {
 # Usage : addIface <ARMSTRAP_ROOT> <INTERFACE> <dhcp|static> [<address> <netmask> <gateway>]
 function addIface {
   local TMP_ROOT="${1}"
+  local TMP_INTF="${2}"
+  local TMP_DHCP="${3}"
+  local TMP_ADDR="${4}"
+  local TMP_MASK="${5}"
+  local TMP_GWAY="${6}"
+  local TMP_DOMN="${7}"
+  shift
+  shift
+  shift
+  shift
+  shift
+  shift
   shift
   
-  printStatus "addIface" "Configuring interface ${1}"
-  printf "auto %s\n" ${1} >> ${TMP_ROOT}/etc/network/interfaces
-  printf "allow-hotplug %s\n\n" ${1} >> ${TMP_ROOT}/etc/network/interfaces
-  printf "iface %s inet %s\n" ${1} ${2} >> ${TMP_ROOT}/etc/network/interfaces
-  if [ "${2}" != "dhcp" ]; then
-    printStatus "addIface" "IP address : ${3}/${4}, default gateway ${5}"
-    printf "  address %s\n" ${3} >> ${TMP_ROOT}/etc/network/interfaces
-    printf "  netmask %s\n" ${4} >> ${TMP_ROOT}/etc/network/interfaces
-    printf "  gateway %s\n\n" ${5} >> ${TMP_ROOT}/etc/network/interfaces
+  printStatus "addIface" "Configuring interface ${TMP_INTF}"
+  printf "auto %s\n" ${TMP_INTF} >> ${TMP_ROOT}/etc/network/interfaces
+  printf "allow-hotplug %s\n\n" ${TMP_INTF} >> ${TMP_ROOT}/etc/network/interfaces
+  printf "iface %s inet %s\n" ${TMP_INTF} ${TMP_DHCP} >> ${TMP_ROOT}/etc/network/interfaces
+  if [ "${TMP_DHCP}" != "dhcp" ]; then
+    printStatus "addIface" "IP address : ${TMP_ADDR}/${TMP_MASK}, default gateway ${TMP_GWAY}"
+    printf "  address %s\n" ${TMP_ADDR} >> ${TMP_ROOT}/etc/network/interfaces
+    printf "  netmask %s\n" ${TMP_MASK} >> ${TMP_ROOT}/etc/network/interfaces
+    printf "  gateway %s\n" ${TMP_GWAY} >> ${TMP_ROOT}/etc/network/interfaces
+    if [ ! -z "${@}" ]; then
+      printf "  dns-nameserver %s" "${@}"
+    fi
+    if [ ! -z "${6}" ]; then
+      printf "  dns-search %s" ${6}
+    fi
+    printf "\n" >> ${TMP_ROOT}/etc/network/interfaces    
   else
     printStatus "addIface" "IP address : DHCP"
     printf "\n" >> ${TMP_ROOT}/etc/network/interfaces

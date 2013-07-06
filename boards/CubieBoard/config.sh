@@ -148,5 +148,5 @@ BUILD_BOOT_UBOOT="${BUILD_UBOOT_DIR}/u-boot.bin"
 BUILD_BOOT_UBOOT_SIZE="1024"
 BUILD_BOOT_UBOOT_SEEK="32"
 
-BUILD_SCRIPTS="init.sh buildBoot.sh buildKernel.sh buildDebian.sh buildUbuntu.sh build.sh"
+BUILD_SCRIPTS="init.sh buildBoot.sh buildKernel.sh buildDebian.sh buildUbuntu.sh buildOS.sh build.sh"
 BUILD_PREREQ="build-essential u-boot-tools qemu qemu-user-static debootstrap parted kpartx lvm2 git binfmt-support libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev"

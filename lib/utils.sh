@@ -61,7 +61,7 @@ function showUsage {
 # Usage: logStatus <function> <message>
 
 function logStatus {
-  local TMP_TIME=`date +%y/%m/%d-%H:%M:%S`
+  local TMP_TIME=`date "+%y/%m/%d-%H:%M:%S"`
   local TMP_NAME=${1}
   shift
   
@@ -72,18 +72,32 @@ function logStatus {
 # Usage: printStatus <function> <message>
 
 function printStatus {
-  local TMP_NAME=${1}
+  local TMP_NAME="${1}"
+  local TMP_TIME="`date '+%y/%m/%d %H:%M:%S'`"
   shift
+
+  if [ -z "${ARMSTRAP_LOG_SILENT}" ]; then
+    case "${TMP_NAME}" in
+      "checkStatus")
+        printf "[${ANF_GRN}${TMP_TIME}${ANS_RST} ${ANS_BLD}${ANF_RED}%.15s${ANS_RST}] ${ANS_BLD}${ANF_YEL}Aborting${ANS_RST}: ${ANSI_BLD}%s${ANS_RST}\n\n" "${TMP_NAME}" "$@"
+        ;;
+      "isBlockDev")
+        printf "[${ANF_GRN}${TMP_TIME}${ANS_RST} ${ANS_BLD}${ANF_YEL}%.15s${ANS_RST}] ${ANS_BLD}${ANF_YEL}Warning${ANS_RST}: ${ANSI_BLD}%s${ANS_RST}\n" "${TMP_NAME}" "$@"
+        ;;
+      *)
+        printf "[${ANF_GRN}${TMP_TIME}${ANS_RST} ${ANF_CYN}%.15s${ANS_RST}] %s\n" "${TMP_NAME}" "$@"
+        ;;
+    esac
+  fi
   
-  printf "** % 15s : " "${TMP_NAME}" 
-  echo "${@}"
-  logStatus "${TMP_NAME}" "${@}"
+  if [ -f "${ARMSTRAP_LOG_FILE}" ]; then
+    printf "[${TMP_TIME} %.15s] %s\n" "${TMP_NAME}" "$@" >> ${ARMSTRAP_LOG_FILE}
+  fi
 }
 
 function checkStatus {
   if [ $? -ne 0 ]; then
-    echo ""
-    printStatus "checkStatus" "Aborting (${1})"
+    printStatus "checkStatus" "${@}"
     exit 1
   fi
 }
@@ -118,6 +132,7 @@ function installPrereqs {
 
 function isBlockDev {
   if ! [ -b ${1} ]; then
+    echo ""
     printStatus "isBlockDev" "Device ${1} is not a block device"
     return 1
   fi  
@@ -160,11 +175,19 @@ function partSync {
 function promptYN {
   echo ""
   while true; do
-    read -p "$1 " yn
+    read -n 1 -p "$1 " yn
     case $yn in
-      [Yy]* ) return 0;;
-      [Nn]* ) return 1;;
-      * ) echo "Please answer yes or no.";;
+      [Yy]* ) 
+        printf "\n\n"
+        return 0
+        ;;
+      [Nn]* ) 
+        printf "\n\n"
+        return 1
+        ;;
+      * ) 
+        printf "\nPlease answer ${ANS_BLD}${ANF_RED}Y${ANF_DEF}${ANS_RST}es or ${ANS_BLD}${ANF_RED}N${ANF_DEF}${ANS_RST}o.\n"
+        ;;
     esac
   done
   echo ""
@@ -228,36 +251,36 @@ function fixSymLink {
 }
 
 function showConfig {
-  printf "\n% 20s\n" "Configuration"
-  printf "%s\n\n" "--------------------"
-  printf "% 20s : %s\n" "Board" "${ARMSTRAP_CONFIG}"
-  printf "% 20s : %s\n" "Distribution" "${ARMSTRAP_OS}"
-  printf "% 20s : %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
-  printf "% 20s : %s\n" "Root Password" "${ARMSTRAP_PASSWORD}"
+  printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "CONFIGURATION"
+#  printf "%s\n\n" "--------------------"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Board" "${ARMSTRAP_CONFIG}"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Distribution" "${ARMSTRAP_OS}"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Root Password" "${ARMSTRAP_PASSWORD}"
   if [ ! -z "${ARMSTRAP_SWAP}" ]; then
-    printf "% 20s : %sMB\n" "Swapfile Size" "${ARMSTRAP_SWAP_SIZE}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %sMB\n" "Swapfile Size" "${ARMSTRAP_SWAP_SIZE}"
   fi
-  printf "% 20s : %s\n" "Log File" "${ARMSTRAP_LOG_FILE}"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Log File" "${ARMSTRAP_LOG_FILE}"
   if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
-    printf "% 20s : %s\n" "Mac Address" "${ARMSTRAP_MAC_ADDRESS}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Mac Address" "${ARMSTRAP_MAC_ADDRESS}"
   fi
   if [ "${ARMSTRAP_ETH0_MODE}" == "dhcp" ]; then
-    printf "% 20s : %s\n" "IP Address" "${ARMSTRAP_ETH0_MODE}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "IP Address" "${ARMSTRAP_ETH0_MODE}"
   else
-    printf "% 20s : %s\n" "IP Address" "${ARMSTRAP_ETH0_IP}"
-    printf "% 20s : %s\n" "Mask" "${ARMSTRAP_ETH0_MASK}"
-    printf "% 20s : %s\n" "Gateway" "${ARMSTRAP_ETH0_GW}"
-    printf "% 20s : %s\n" "Search Domain" "${ARMSTRAP_ETH0_DOMAIN}"
-    printf "% 20s : %s\n" "DNS" "${ARMSTRAP_ETH0_DNS}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "IP Address" "${ARMSTRAP_ETH0_IP}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Mask" "${ARMSTRAP_ETH0_MASK}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Gateway" "${ARMSTRAP_ETH0_GW}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Search Domain" "${ARMSTRAP_ETH0_DOMAIN}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "DNS" "${ARMSTRAP_ETH0_DNS}"
   fi
   if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-    printf "% 20s : %sMB\n" "Image Size" "${ARMSTRAP_IMAGE_SIZE}"
-    printf "% 20s : %s\n" "Image File" "${ARMSTRAP_IMAGE_NAME}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %sMB\n" "Image Size" "${ARMSTRAP_IMAGE_SIZE}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Image File" "${ARMSTRAP_IMAGE_NAME}"
     if [ -e "${ARMSTRAP_IMAGE_NAME}" ]; then
       printf "\n% 20s : %s\n" "!!! Warning !!!" "Image file exists, will be overwritten"
     fi
   else
-    printf "% 20s : %s\n" "Content of" "${ARMSTRAP_DEVICE}"
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Content of" "${ARMSTRAP_DEVICE}"
     isBlockDev ${ARMSTRAP_DEVICE}
     checkStatus "${ARMSTRAP_DEVICE} is not a block device"
     isRemDevice ${ARMSTRAP_DEVICE}

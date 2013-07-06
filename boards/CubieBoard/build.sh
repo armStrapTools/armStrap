@@ -2,6 +2,10 @@
 # installOS is called once everything is mounted and ready. 
 
 function installOS {
+  buildOS
+}
+
+function old_installOS {
 
   local TMP_KERNEL_IMG="${ARMSTRAP_WRK}/`basename ${BUILD_KERNEL_DIR}`"
   local TMP_KERNEL_SRC="${ARMSTRAP_WRK}/`basename ${BUILD_KERNEL_DIR}`-sources"
