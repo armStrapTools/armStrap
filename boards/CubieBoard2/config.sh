@@ -1,178 +1,75 @@
-#BUILD_ARCH="arm"
-#BUILD_ARCH_EABI="hf"
-#BUILD_ARCH_TYPE="linux-gnueabi"
-#BUILD_ARCH_COMPILER="${BUILD_ARCH}-${BUILD_ARCH_TYPE}${BUILD_ARCH_EABI}"
-#BUILD_ARCH_PREFIX="${BUILD_ARCH_COMPILER}-"
-#BUILD_ARCH_GCC_VERSION="4.7"
-#BUILD_ARCH_GCC_PACKAGE="gcc-${BUILD_ARCH_GCC_VERSION}-${BUILD_ARCH_COMPILER}"
-
-#BUILD_LC="C"
-
-#BUILD_BOARD_KERNEL="sun4i_defconfig"
-#BUILD_BOARD_KERNEL="sun4i-desktop_defconfig"
-
-#BUILD_MNT_BOOT="${BUILD_MNT_ROOT}/boot"
-
-#BUILD_DEBIAN_SOURCE="http://ftp.debian.org/debian"
-#BUILD_DEBIAN_SOURCE_COMPONENTS="main contrib non-free"
-#BUILD_DEBIAN_SOURCE_SECURITY="http://security.debian.org"
-#BUILD_DEBIAN_SOURCE_SECURITY_COMPONENTS="main contrib non-free"
-#BUILD_DEBIAN_TASKS="ssh-server standard"
-# Not all packages can be configured this way.
-#BUILD_DEBIAN_RECONFIG="locales tzdata ${ARMSTRAP_DPKG_RECONFIG}"
-
-#BUILD_UBUNTU_VERSION="13.04"
-#BUILD_UBUNTU_TASKS="minimal^ openssh-server^ server^ standard^"
-#BUILD_UBUNTU_LOCALES="${LANG} en_US.UTF-8 en_US"
-
-#BUILD_KERNEL_GIT="https://github.com/linux-sunxi/linux-sunxi.git"
-#BUILD_KERNEL_GIT_BRANCH="sunxi-3.4"
-#if [ -z "${BUILD_KERNEL_GIT_BRANCH}" ]; then
-#  BUILD_KERNEL_GIT_PARAM=""
-#  BUILD_KERNEL_DIR="${ARMSTRAP_SRC}/linux-sunxi/head"
-#else
-#  BUILD_KERNEL_GIT_PARAM="-b ${BUILD_KERNEL_GIT_BRANCH}"
-#  BUILD_KERNEL_DIR="${ARMSTRAP_SRC}/linux-sunxi/${BUILD_KERNEL_GIT_BRANCH}"
-#fi
-#BUILD_KERNEL_CNF="${BUILD_KERNEL_DIR}/.config"
-#BUILD_KERNEL_NAME="uImage"
-
-#BUILD_KERNEL_SRCDST="${BUILD_MNT_ROOT}/usr/src"
-
-# See the kernel subdirectory for all avalable patches
-#if [ -z "${ARMSTRAP_KERNEL_PATCH}" ]; then
-#  BUILD_KERNEL_PATCH="sun4i_desktop.patch"
-#else
-#  BUILD_KERNEL_PATCH="${ARMSTRAP_KERNEL_PATCH}"
-#fi
-
-# Set to Yes if you want to install tke kernel image and modules, else No.
-#if [ -z "${ARMSTRAP_KERNEL_INSTIMG}" ]; then
-#  BUILD_KERNEL_INSTIMG="Yes"
-#else
-#  BUILD_KERNEL_INSTIMG="${ARMSTRAP_KERNEL_INSTIMG}"
-#fi
-# Set to Yes if you want to install tke kernel sources, else to No.
-#if [ -z "${ARMSTRAP_KERNEL_INSTSRC}" ]; then
-#  BUILD_KERNEL_INSTSRC="Yes"
-#else
-#  BUILD_KERNEL_INSTSRC="${ARMSTRAP_KERNEL_INSTSRC}"
-#fi
-# Set to Yes if you want to install tke kernel headers, else to No. It kinda conflict with things already installed in Ubuntu...
-#if [ -z "${ARMSTRAP_KERNEL_INSTHDR}" ]; then
-#  BUILD_KERNEL_INSTHDR="No"
-#else
-#  BUILD_KERNEL_INSTHDR="${ARMSTRAP_KERNEL_INSTHDR}"
-#fi
-
-#BUILD_UBOOT_GIT="https://github.com/linux-sunxi/u-boot-sunxi.git"
-#BUILD_UBOOT_GIT_BRANCH=""
-#if [ -z "${BUILD_UBOOT_GIT_BRANCH}" ]; then
-#  BUILD_UBOOT_GIT_PARAM=""
-#  BUILD_UBOOT_DIR="${ARMSTRAP_SRC}/u-boot-sunxi/head"
-#else
-#  BUILD_UBOOT_GIT_PARAM="-b ${BUILD_KERNEL_GIT_BRANCH}"
-#  BUILD_UBOOT_DIR="${ARMSTRAP_SRC}/u-boot-sunxi/${BUILD_KERNEL_GIT_BRANCH}"
-#fi
-#BUILD_UBOOT_SRCDST="${BUILD_MNT_ROOT}/usr/src"
-#BUILD_UBOOT_BOARD="cubieboard"
-
-#BUILD_SUNXI_BOARD_GIT="https://github.com/linux-sunxi/sunxi-boards.git"
-#BUILD_SUNXI_BOARD_GIT_BRANCH=""
-#if [ -z "${BUILD_SUNXI_BOARD_GIT_BRANCH}" ]; then
-#  BUILD_SUNXI_BOARD_GIT_PARAM=""
-#  BUILD_SUNXI_BOARD_DIR="${ARMSTRAP_SRC}/sunxi-board/head"
-#else
-#  BUILD_SUNXI_BOARD_GIT_PARAM="-b ${BUILD_KERNEL_GIT_BRANCH}"
-#  BUILD_SUNXI_BOARD_DIR="${ARMSTRAP_SRC}/sunxi-board/${BUILD_KERNEL_GIT_BRANCH}"
-#fi
-#BUILD_SUNXI_BOARD_SRCDST="${BUILD_MNT_ROOT}/usr/src"
-#BUILD_SUNXI_BOARD_CPU="a10"
-#BUILD_SUNXI_BOARD_FEX="cubieboard"
-
-#BUILD_SUNXI_TOOLS_GIT="https://github.com/linux-sunxi/sunxi-tools.git"
-#BUILD_SUNXI_TOOLS_GIT_BRANCH=""
-#if [ -z "${BUILD_SUNXI_TOOLS_GIT_BRANCH}" ]; then
-#  BUILD_SUNXI_TOOLS_GIT_PARAM=""
-#  BUILD_SUNXI_TOOLS_DIR="${ARMSTRAP_SRC}/sunxi-tools/head"
-#else
-#  BUILD_SUNXI_TOOLS_GIT_PARAM="-b ${BUILD_KERNEL_GIT_BRANCH}"
-#  BUILD_SUNXI_TOOLS_DIR="${ARMSTRAP_SRC}/sunxi-tools/${BUILD_KERNEL_GIT_BRANCH}"
-#fi
-#BUILD_SUNXI_TOOLS_SRCDST="${BUILD_MNT_ROOT}/usr/src"
-
-  BUILD_LC_ALL="" 
-  BUILD_LANGUAGE="en_US:en" 
-  BUILD_LANG="en_US.UTF-8"
+BUILD_LC_ALL="" 
+BUILD_LANGUAGE="en_US:en" 
+BUILD_LANG="en_US.UTF-8"
   
-  BUILD_ARCH="arm"
+BUILD_ARCH="arm"
 
-  case "${ARMSTRAP_OS}" in
-    "ubuntu")  
-       BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.04-armv7l-hf.txz"
-       BUILD_ARMBIAN_SUITE="rarring"
-       ;;
-      *)
-       BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/debian-wheezy-armv7l-hf.txz"
-       BUILD_ARMBIAN_SUITE="wheezy"
-       ;;
-   esac
+case "${ARMSTRAP_OS}" in
+  "ubuntu")  
+    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.04-armv7l-hf.txz"
+    BUILD_ARMBIAN_SUITE="rarring"
+    ;;
+  *)
+    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/debian-wheezy-armv7l-hf.txz"
+    BUILD_ARMBIAN_SUITE="wheezy"
+    ;;
+esac
        
-  BUILD_ARMBIAN_EXTRACT="tar -xJ"
-  BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/cubieboard2/install-cubieboard2-kernel.sh"
-  BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/Cubieboard2-u-boot.txz"
+BUILD_ARMBIAN_EXTRACT="tar -xJ"
+BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/cubieboard2/install-cubieboard2-linux-kernel-3.3.0+_3.3.0+-1_armhf.sh"
+BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/Cubieboard2-u-boot.txz"
   
-  BUILD_MNT_ROOT="${ARMSTRAP_MNT}"
+BUILD_MNT_ROOT="${ARMSTRAP_MNT}"
   
-  # Not all packages can be install this way.
-  BUILD_DPKG_EXTRAPACKAGES="nvi ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0 libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev ${ARMSTRAP_DEBIAN_EXTRAPACKAGES}"
+# Not all packages can be install this way.
+BUILD_DPKG_EXTRAPACKAGES="nvi ntp ssh build-essential u-boot-tools parted git binfmt-support libusb-1.0-0 libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev ${ARMSTRAP_DEBIAN_EXTRAPACKAGES}"
   
-  # Not all packages can be configured this way.
-  BUILD_UBUNTU_RECONFIG="tzdata ${ARMSTRAP_DPKG_RECONFIG}"
+# Not all packages can be configured this way.
+BUILD_UBUNTU_RECONFIG="tzdata ${ARMSTRAP_DPKG_RECONFIG}"
   
-  # Theses are packages included with or generated by the script. The script will automatically include .deb files in the dpkg directory
-  BUILD_DPKG_LOCALPACKAGES=""
+# Theses are packages included with or generated by the script. The script will automatically include .deb files in the dpkg directory
+BUILD_DPKG_LOCALPACKAGES=""
   
-  BUILD_SERIALCON_ID="T0"
-  BUILD_SERIALCON_RUNLEVEL="2345"
-  BUILD_SERIALCON_TERM="ttyS0"
-  BUILD_SERIALCON_SPEED="115200"
-  BUILD_SERIALCON_TYPE="vt100"
+BUILD_SERIALCON_ID="T0"
+BUILD_SERIALCON_RUNLEVEL="2345"
+BUILD_SERIALCON_TERM="ttyS0"
+BUILD_SERIALCON_SPEED="115200"
+BUILD_SERIALCON_TYPE="vt100"
   
-  BUILD_FSTAB_ROOTDEV="/dev/root"
-  BUILD_FSTAB_ROOTMNT="/"
-  BUILD_FSTAB_ROOTFST="ext4"
-  BUILD_FSTAB_ROOTOPT="defaults"
-  BUILD_FSTAB_ROOTDMP="0"
-  BUILD_FSTAB_ROOTPSS="1"
+BUILD_FSTAB_ROOTDEV="/dev/root"
+BUILD_FSTAB_ROOTMNT="/"
+BUILD_FSTAB_ROOTFST="ext4"
+BUILD_FSTAB_ROOTOPT="defaults"
+BUILD_FSTAB_ROOTDMP="0"
+BUILD_FSTAB_ROOTPSS="1"
+ 
+BUILD_KERNEL_MODULES="sun7i_wemac sun7i_ir 8192cu sw_ahci_platform lcd hdmi ump disp mali mali_drm"
   
-  BUILD_KERNEL_MODULES="sun7i_wemac sun7i_ir 8192cu sw_ahci_platform lcd hdmi ump disp mali mali_drm"
+BUILD_ROOT_DEV="/dev/mmcblk0p1"
+BUILD_MAC_VENDOR=0x000246
   
-  BUILD_ROOT_DEV="/dev/mmcblk0p1"
-  BUILD_MAC_VENDOR=0x000246
+BUILD_BOOT_CMD="${BUILD_MNT_ROOT}/boot/boot.cmd"
+BUILD_BOOT_SCR="${BUILD_MNT_ROOT}/boot/boot.scr"
   
-  BUILD_BOOT_CMD="${BUILD_MNT_ROOT}/boot/boot.cmd"
-  BUILD_BOOT_SCR="${BUILD_MNT_ROOT}/boot/boot.scr"
+BUILD_CONFIG_CMDLINE="console=tty0 console=${BUILD_SERIALCON_TERM},${BUILD_SERIALCON_SPEED} hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BUILD_ROOT_DEV} rootwait panic=10"
   
-  BUILD_CONFIG_CMDLINE="console=tty0 console=${BUILD_SERIALCON_TERM},${BUILD_SERIALCON_SPEED} hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BUILD_ROOT_DEV} rootwait panic=10"
+BUILD_KERNEL_NAME="uImage"
   
-  BUILD_KERNEL_NAME="uImage"
+BUILD_BOOT_FEX="${BUILD_MNT_ROOT}/boot/cubieboard2.fex"
+BUILD_BOOT_BIN="${BUILD_MNT_ROOT}/boot/script.bin"
+BUILD_BOOT_BIN_LOAD="mmc 0 0x43000000 boot/script.bin"
+BUILD_BOOT_KERNEL_LOAD="mmc 0 0x48000000 boot/${BUILD_KERNEL_NAME}"
+BUILD_BOOT_KERNEL_ADDR="0x48000000"
   
-  BUILD_BOOT_FEX="${BUILD_MNT_ROOT}/boot/cubieboard2.fex"
-  BUILD_BOOT_BIN="${BUILD_MNT_ROOT}/boot/script.bin"
-  BUILD_BOOT_BIN_LOAD="mmc 0 0x43000000 boot/script.bin"
-  BUILD_BOOT_KERNEL_LOAD="mmc 0 0x48000000 boot/${BUILD_KERNEL_NAME}"
-  BUILD_BOOT_KERNEL_ADDR="0x48000000"
-  
-  #BUILD_BOOT_SPL="${BUILD_UBOOT_DIR}/spl/sunxi-spl.bin"
-  BUILD_BOOT_SPL_SIZE="1024"
-  BUILD_BOOT_SPL_SEEK="8"
+#BUILD_BOOT_SPL="${BUILD_UBOOT_DIR}/spl/sunxi-spl.bin"
+BUILD_BOOT_SPL_SIZE="1024"
+BUILD_BOOT_SPL_SEEK="8"
 
-  #BUILD_BOOT_UBOOT="${BUILD_UBOOT_DIR}/u-boot.bin"
-  BUILD_BOOT_UBOOT_SIZE="1024"
-  BUILD_BOOT_UBOOT_SEEK="32"
+#BUILD_BOOT_UBOOT="${BUILD_UBOOT_DIR}/u-boot.bin"
+BUILD_BOOT_UBOOT_SIZE="1024"
+BUILD_BOOT_UBOOT_SEEK="32"
   
-  BUILD_DISK_LAYOUT=("1:/:ext4:-1")
+BUILD_DISK_LAYOUT=("1:/:ext4:-1")
 
 BUILD_SCRIPTS="init.sh build.sh"
 BUILD_PREREQ="build-essential u-boot-tools qemu qemu-user-static debootstrap parted kpartx lvm2 git binfmt-support libusb-1.0-0-dev pkg-config dosfstools libncurses5-dev"
