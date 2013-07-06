@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard"
+ARMSTRAP_CONFIG="CubieBoard2"
 # Set this to the hostname you want for the board
 ARMSTRAP_HOSTNAME="CubieDebian"
 # Set this to the password you want for the root user

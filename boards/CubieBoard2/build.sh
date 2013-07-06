@@ -1,69 +1,66 @@
-
-# installOS is called once everything is mounted and ready. 
-
+# Usage: buildOS
 function installOS {
-
-  local TMP_KERNEL_IMG="${ARMSTRAP_WRK}/`basename ${BUILD_KERNEL_DIR}`"
-  local TMP_KERNEL_SRC="${ARMSTRAP_WRK}/`basename ${BUILD_KERNEL_DIR}`-sources"
-  local TMP_KERNEL_HDR="${ARMSTRAP_WRK}/`basename ${BUILD_KERNEL_DIR}`-headers"
-
-  if [ -z "${ARMSTRAP_KERNEL_BUILDER}${ARMSTRAP_BOOT_BUILDER}" ]; then
-    if [ ! -z "${ARMSTRAP_KERNEL_COMPILE}" ]; then
-      buildKernel
-      exportKrnlImg ${TMP_KERNEL_IMG} ${BUILD_KERNEL_INSTIMG}
-      exportKrnlSrc ${TMP_KERNEL_SRC} ${BUILD_KERNEL_INSTSRC}
-      exportKrnlHdr ${TMP_KERNEL_HDR} ${BUILD_KERNEL_INSTHDR}
-    else
-      if [ ! -z "${BUILD_KERNEL_INSTIMG}" ]; then
-        printStatus "installOS" "Using included `basename ${BUILD_KERNEL_DEB_IMG}`"
-        BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${BUILD_KERNEL_DEB_IMG}"
-      fi
-            
-      if [ ! -z "${BUILD_KERNEL_INSTHDR}" ]; then
-        printStatus "installOS" "Using included `basename ${BUILD_KERNEL_DEB_HDR}`"
-        BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${BUILD_KERNEL_DEB_HDR}"
-      fi
-      
-      if [ ! -z "${BUILD_KERNEL_INSTSRC}" ]; then
-        printStatus "installOS" "Using included `basename ${BUILD_KERNEL_DEB_SRC}`"
-        BUILD_DPKG_LOCALPACKAGES="${BUILD_DPKG_LOCALPACKAGES} ${BUILD_KERNEL_DEB_SRC}"
-      fi
-    fi
-    case ${ARMSTRAP_OS} in
-      [dD]*)
-        buildDebian
-        ;;
-      [uU]*)
-        buildUbuntu
-        ;;
-      *)
-        buildDebian
-        ;;
-    esac
-
-    buildBoot
-  else
-    if [ ! -z "${ARMSTRAP_KERNEL_BUILDER}" ]; then
-      printStatus "installOS" "Kernel Builder Starting"
-      buildKernel
-      exportKrnlImg ${TMP_KERNEL_IMG} ${BUILD_KERNEL_INSTIMG}
-      exportKrnlSrc ${TMP_KERNEL_SRC} ${BUILD_KERNEL_INSTSRC}
-      exportKrnlHdr ${TMP_KERNEL_HDR} ${BUILD_KERNEL_INSTHDR}
-      printStatus "installOS" "Kernel Builder Done"
-    fi
-    
-    if [ ! -z "${ARMSTRAP_BOOT_BUILDER}" ]; then
-      local TMP_WRK="${ARMSTRAP_WRK}/uBoot"
-      local TMP_CMD="${TMP_WRK}/`basename ${BUILD_BOOT_CMD}`"
-      local TMP_SCR="${TMP_WRK}/`basename ${BUILD_BOOT_SCR}`"
-      local TMP_FEX="${TMP_WRK}/`basename ${BUILD_BOOT_FEX}`"
-      local TMP_BIN="${TMP_WRK}/`basename ${BUILD_BOOT_BIN}`"
-      printStatus "installOS" "uBoot Builder Starting"
-      buildSxTools
-      checkDirectory ${ARMSTRAP_WRK}/uBoot
-      buildUBoot ${ARMSTRAP_WRK}/uBoot
-      buildFex ${TMP_CMD} ${TMP_SCR} ${TMP_FEX} ${TMP_BIN} ${TMP_WRK}
-      printStatus "installOS" "uBoot Builder Done"
-    fi  
+  httpExtract "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
+  
+  setHostName "${BUILD_MNT_ROOT}" "${ARMSTRAP_HOSTNAME}"
+  
+  chrootUpgrade "${BUILD_MNT_ROOT}"
+  
+  if [ -n "${BUILD_DPKG_EXTRAPACKAGES}" ]; then
+    chrootInstall "${BUILD_MNT_ROOT}" "${BUILD_DPKG_EXTRAPACKAGES}"
   fi
+  
+  if [ -n "${ARMSTRAP_SWAP}" ]; then
+    printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
+  else
+    printf "CONF_SWAPSIZE=0" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
+  fi
+
+  chrootReconfig "${BUILD_MNT_ROOT}" "${BUILD_UBUNTU_RECONFIG}"
+  
+  BUILD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BUILD_DPKG_LOCALPACKAGES}"
+
+  if [ ! -z "${BUILD_DPKG_LOCALPACKAGES}" ]; then
+    for i in ${BUILD_DPKG_LOCALPACKAGES}; do
+      chrootDPKG "${BUILD_MNT_ROOT}" ${i}
+    done
+  fi
+
+  chrootPassword "${BUILD_MNT_ROOT}" "${ARMSTRAP_PASSWORD}"
+  
+  addTTY "${BUILD_MNT_ROOT}" "${BUILD_SERIALCON_ID}" "${BUILD_SERIALCON_RUNLEVEL}" "${BUILD_SERIALCON_TERM}" "${BUILD_SERIALCON_SPEED}" "${BUILD_SERIALCON_TYPE}"
+
+  initFSTab "${BUILD_MNT_ROOT}" 
+  addFSTab "${BUILD_MNT_ROOT}" "${BUILD_FSTAB_ROOTDEV}" "${BUILD_FSTAB_ROOTMNT}" "${BUILD_FSTAB_ROOTFST}" "${BUILD_FSTAB_ROOTOPT}" "${UILD_FSTAB_ROOTDMP}" "${BUILD_FSTAB_ROOTPSS}"
+
+  for i in "${BUILD_KERNEL_MODULES}"; do
+    addKernelModule "${BUILD_MNT_ROOT}" "${i}"
+  done
+
+  addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
+  
+  installLinux "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"
+  
+  httpExtract "${BUILD_MNT_ROOT}/boot" "${BUILD_ARMBIAN_UBOOT}" "${BUILD_ARMBIAN_EXTRACT}"
+  
+  rm -f "${BUILD_BOOT_CMD}"
+  touch "${BUILD_BOOT_CMD}"
+  
+  ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
+  ubootSetEnv "${BUILD_BOOT_CMD}" "machid" "0xf35"
+  ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_BIN_LOAD}"
+  ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_LOAD}"
+  ubootBootM "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_ADDR}"
+  
+  if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
+    sunxiSetMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
+  fi
+  
+  sunxiMkImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
+  
+  chrootRun "${BUILD_MNT_ROOT}" "/usr/local/bin/fex2bin /boot/cubieboard2.fex /boot/script.bin"
+  
+  ubootDDLoader "${BUILD_MNT_ROOT}/boot/sunxi-spl.bin" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"
+  ubootDDLoader "${BUILD_MNT_ROOT}/boot/u-boot.bin" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"
+  
 }
