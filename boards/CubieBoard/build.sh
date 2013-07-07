@@ -51,13 +51,14 @@ function installOS {
   ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_LOAD}"
   ubootBootM "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_ADDR}"
   
+  sunxiMkImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
+  
   if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
     sunxiSetMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
   fi
   
-  sunxiMkImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
-  
-  chrootRun "${BUILD_MNT_ROOT}" "/usr/local/bin/fex2bin /boot/cubieboard.fex /boot/script.bin"
+  ${BUILD_MNT_ROOT}/boot/fexc_x86 -I fex -O bin ${BUILD_MNT_ROOT}/boot/cubieboard.fex ${BUILD_MNT_ROOT}/boot/script.bin
+  rm -f ${BUILD_MNT_ROOT}/boot/fexc_x86
   
   ubootDDLoader "${BUILD_MNT_ROOT}/boot/sunxi-spl.bin" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"
   ubootDDLoader "${BUILD_MNT_ROOT}/boot/u-boot.bin" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"

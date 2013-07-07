@@ -43,7 +43,7 @@ BUILD_FSTAB_ROOTOPT="defaults"
 BUILD_FSTAB_ROOTDMP="0"
 BUILD_FSTAB_ROOTPSS="1"
  
-BUILD_KERNEL_MODULES="sun7i_wemac sun7i_ir 8192cu sw_ahci_platform lcd hdmi ump disp mali mali_drm"
+BUILD_KERNEL_MODULES="sun7i_wemac sun7i_ir 8192cu sw_ahci_platform"
   
 BUILD_ROOT_DEV="/dev/mmcblk0p1"
 BUILD_MAC_VENDOR=0x000246
