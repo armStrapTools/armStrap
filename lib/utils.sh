@@ -1,4 +1,3 @@
-
 function showLicence {
   cat <<EOF
 -------------------------------------------------------------------------------
@@ -28,49 +27,36 @@ EOF
 }
 
 function showUsage {
-  printf "Usage : sudo %s [PARAMETERS]\n" "${ARMSTRAP_NAME}"
-  printf "\nImage/SD Builder :\n"
-  printf "% 4s %- 20s %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
-  printf "% 4s %- 20s %s\n" "-d" "<DEVICE>" "Write to <DEVICE> instead of creating an image."
-  printf "% 4s %- 20s %s\n" "-i" "<FILE>" "Set image filename to <FILE>."
-  printf "% 4s %- 20s %s\n" "-s" "<SIZE>" "Set image size to <SIZE>MB."
-  printf "% 4s %- 20s %s\n" "-h" "<HOSTNAME>" "Set hostname."
-  printf "% 4s %- 20s %s\n" "-p" "<PASSWORD>" "Set root password."
-  printf "% 4s %- 20s %s\n" "-w" "" "Enable swapfile."
-  printf "% 4s %- 20s %s\n" "-W" "" "Disable swapfile."
-  printf "% 4s %- 20s %s\n" "-Z" "<SIZE>" "Set swapfile size to <SIZE>MB."
-  printf "% 4s %- 20s %s\n" "-n" "\"<IP> <MASK> <GW>\"" "Set static IP."
-  printf "% 4s %- 20s %s\n" "-N" "" "Set DHCP IP."
-  printf "% 4s %- 20s %s\n" "-r" "\"<NS1> [NS2] [NS3]\"" "Set nameservers."
-  printf "% 4s %- 20s %s\n" "-e" "<DOMAIN>" "Set search domain."
-  printf "% 4s %- 20s %s\n" "-c" "" "Show licence."
-  printf "\nKernel Builder :\n"
-  printf "% 4s %- 20s %s\n" "-k" "" "Create debian packages for Kernel/Sources/Headers."
-  printf "% 4s %- 20s %s\n" "-B" "" "Create U-Boot and Fex configuration."
-  printf "\nUtilities :\n"
-  printf "% 4s %- 20s %s\n" "-C" "" "Clean Log/Work/Deb directory."
-  printf "% 4s %- 20s %s\n" "-S" "" "Clean Sources directory."
-  printf "% 4s %- 20s %s\n" "-I" "" "Clean Images directory."
-  printf "\nSupported boards :"
+  printf "Usage : ${ANS_BLD}sudo %s${ANS_RST} [PARAMETERS]\n" "${ARMSTRAP_NAME}"
+  printf "\n${ANS_BLD}Image/SD Builder${ANS_RST}:\n"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-d" "<DEVICE>" "Write to <DEVICE> instead of creating an image."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-i" "<FILE>" "Set image filename to <FILE>."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-s" "<SIZE>" "Set image size to <SIZE>MB."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-h" "<HOSTNAME>" "Set hostname."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-p" "<PASSWORD>" "Set root password."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-w" "<SIZE>" "Enable swapfile."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-W" "" "Disable swapfile."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-Z" "<SIZE>" "Set swapfile size to <SIZE>MB."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-n" "\"<IP> <MASK> <GW>\"" "Set static IP."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-N" "" "Set DHCP IP."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-r" "\"<NS1> [NS2] [NS3]\"" "Set nameservers."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-e" "<DOMAIN>" "Set search domain."
+  printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Show licence."
+  printf "\nSupported boards:"
   for i in boards/*; do 
-    printf " %s" `basename ${i}`
+    printf " ${ANS_BLD}%s${ANS_RST}" `basename ${i}`
   done
-  printf "\n\nWith no parameter, create an image using values found in config.sh.\n"
+  printf "\n\nWith no parameter, create an image using values found in ${ANS_BLD}config.sh${ANS_RST}.\n\n"
 }
 
-# Usage: logStatus <function> <message>
-
-function logStatus {
-  local TMP_TIME=`date "+%y/%m/%d-%H:%M:%S"`
-  local TMP_NAME=${1}
-  shift
-  
-  printf "[% 17s] % 15s : " "${TMP_TIME}" "${TMP_NAME}" >> ${ARMSTRAP_LOG_FILE}
-  echo "${@}" >> ${ARMSTRAP_LOG_FILE}
+function showTitle {
+  printf "\n${ANS_BLD}%s version %s${ANS_RST}\n" "${1}" "${2}"
+  printf "Copyright (C) 2013 Eddy Beaupre\n\n"
 }
 
 # Usage: printStatus <function> <message>
-
 function printStatus {
   local TMP_NAME="${1}"
   local TMP_TIME="`date '+%y/%m/%d %H:%M:%S'`"
@@ -103,19 +89,18 @@ function checkStatus {
 }
 
 # Usage: checkDirectory <path>
-
 function checkDirectory {
   if [ ! -d "${1}" ]; then
     mkdir -p ${1}
     checkStatus "Creation of directory ${1} failed"
-    printStatus "checkDirectory" "Creating ${1}"
+    printStatus "checkDirectory" "Directory ${1} created"
   fi
 }
 
 # Usage: isRoot
 function isRoot {
   if [ "`id -u`" -ne "0" ]; then
-    logStatus "isRoot" "User `whoami` (`id -u`) is not root"
+    printStatus "isRoot" "User `whoami` (`id -u`) is not root"
     return 1
   fi
   return 0
@@ -128,8 +113,16 @@ function installPrereqs {
   done
 }
 
-# Usage : isBlockDev <DEVICE>
+# Usage: testInstall <package>
+function testInstall {
+  local IN=(`dpkg-query -W -f='${Status} ${Version}\n' ${1} 2> /dev/null`)
+  if [ "${IN[0]}" != "install" ]; then
+    printStatus "testInstall" "Installing ${1}"
+    apt-get --quiet -y install ${1} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
+}
 
+# Usage : isBlockDev <DEVICE>
 function isBlockDev {
   if ! [ -b ${1} ]; then
     echo ""
@@ -140,7 +133,6 @@ function isBlockDev {
 }
 
 # Usage: isRemDevice <DEVICE>
-
 function isRemDevice {
   local TMP_DEVICE=`basename ${1}`
   if [ `cat /sys/block/${TMP_DEVICE}/removable` != "1" ]; then
@@ -150,18 +142,7 @@ function isRemDevice {
   return 0
 }
 
-# Usage: testInstall <package>
-
-function testInstall {
-  local IN=(`dpkg-query -W -f='${Status} ${Version}\n' ${1} 2> /dev/null`)
-  if [ "${IN[0]}" != "install" ]; then
-    printStatus "testInstall" "Installing ${1}"
-    apt-get --quiet -y install ${1} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  fi
-}
-
 # Usage: partSync
-
 function partSync {
   local TMP_DEV=""
   printStatus "partSync" "Flush file system buffers"
@@ -171,7 +152,6 @@ function partSync {
 }
 
 # Usage: promptYN "<question>"
-
 function promptYN {
   echo ""
   while true; do
@@ -193,47 +173,15 @@ function promptYN {
   echo ""
 }
 
-# Usage: gitSources <repos> <target_directory> <git_parameter> [<git_parameter2> ...]
-
-function gitSources {
-  local TMP_REP="${1}"
-  local TMP_DST="${2}"
-  shift;
-  shift;
-  
-  printStatus "gitSources" "Checking Sources for ${TMP_DST}"
-  if [ -d "${TMP_DST}" ]; then
-    local TMP_WORKDIR=`pwd`
-    cd ${TMP_DST}
-    printStatus "gitSources" "Updating sources for ${TMP_DST}"
-    git pull --quiet >> ${ARMSTRAP_LOG_FILE} 2>&1
-    cd ${TMP_WORKDIR}
-  else
-    printStatus "gitSources" "Cloning ${TMP_DST} from ${TMP_REP}"
-    git clone --quiet ${@} ${TMP_REP} ${TMP_DST} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  fi
-  
-  if [ ! -d "${TMP_DST}" ]; then
-    printStatus "gitSources" "Aborting, Cannot find ${TMP_DST}"
-    exit 1
-  fi
-}
-
-function gitExport {
-  local TMP_DIR=`basename ${1}`
-  printStatus "gitExport" "Exporting ${TMP_DIR} to ${2}"
-  cd "${1}"
-  checkDirectory "${2}/${TMP_DIR}"
-  git archive --format tar HEAD | tar -x -C "${2}/${TMP_DIR}"
-  cd "${ARMSTRAP_ROOT}"
-}
-
-# Usage macAddress <VENDOR_ID>
+# Usage macAddress [<VENDOR_ID>]
 function macAddress {
-  if [ -n ${1} ]; then
-    if [ -z ${ARMSTRAP_MAC_ADDRESS} ]; then
-      ARMSTRAP_MAC_ADDRESS=$( printf "%012x" $((${1} * 16777216 + $[ $RANDOM % 16777216 ])) )
-    fi
+  if [ -z "${1}" ]; then
+    BUILD_MAC_VENDOR=0x000246
+  fi
+  
+  if [ -z ${ARMSTRAP_MAC_ADDRESS} ]; then
+    ARMSTRAP_MAC_ADDRESS=$( printf "%012x" $((${1} * 16777216 + $[ $RANDOM % 16777216 ])) )
+    printStatus"macAddress" "Generated Mac Address : ${ARMSTRAP_MAC_ADDRESS}"
   fi
 }
 
@@ -241,18 +189,16 @@ function funExist {
   declare -f -F ${1} > /dev/null
 }
 
-# usage <TARGET_LINK> <TARGET_DIRECTORY> <SOURCE>
+# usage fixSymLink <TARGET_LINK> <TARGET_DIRECTORY> <SOURCE>
 function fixSymLink {
   printStatus "fixSymLink" "Fixing symlink for ${1}"
   cd ${2}
-  rm -f ${1}
-  ln -s ${3} ${1}
+  ln -fs ${3} ${1}
   cd ${ARMSTRAP_ROOT}
 }
 
 function showConfig {
   printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "CONFIGURATION"
-#  printf "%s\n\n" "--------------------"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Board" "${ARMSTRAP_CONFIG}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Distribution" "${ARMSTRAP_OS}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
@@ -306,9 +252,115 @@ function unComment {
   mv ${TMP_CNF_MOD} ${1}
 }
 
-# usage makeDeb <PACKAGE CONTENT> <PACKAGE NAME>
-function makeDeb {
-  printStatus "makeDeb" "Creating package ${2}.deb"
-  
-  dpkg-deb --build "${1}" "${2}.deb" >> ${ARMSTRAP_LOG_FILE} 2>&1
+# Usage ubootImage <SRC> <DST>
+function ubootImage {
+  if [ -f "${1}" ]; then
+    printStatus "ubootImage" "Generating ${2} from ${1}"
+    mkimage -C none -A ${BUILD_ARCH} -T script -d ${1} ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  else
+    printStatus "ubootImage" "WARNING: ${1} not found. Cannot generate image."
+  fi
+}
+
+# Usage ubootSetEnv <TARGET_FILE> <VARIABLE> <VALUE>
+function ubootSetEnv {
+  local TMP_CFG="${1}"
+  local TMP_VAR="${2}"
+  shift
+  shift
+
+  if [ -f "${TMP_CFG}" ]; then
+    if [ ! -z "${@}" ]; then
+      printStatus "ubootSetEnv" "Setting ${2} to ${@}"
+      echo "setenv ${2} ${@}" >> ${TMP_CFG}
+    else
+      printStatus "ubootSetEnv" "WARNING: No value to set variable ${TMP_VAR}"
+    fi
+  else
+    printStatus "ubootSetEnv" "WARNING: File ${TMP_CFG} not found"
+  fi
+}
+
+# Usage ubootDDLoader <FILE> <DEVICE> <BS> <SEEK>
+function ubootDDLoader {
+  printStatus "ubootDDLoader" "Installing ${1} to ${2}, block size ${3}, seek ${4}"
+  dd if=${1} of=${2} bs=${3} seek=${4} >> ${ARMSTRAP_LOG_FILE} 2>&1
+}
+
+# Usage fexMac <TARGET_FILE> <MAC_ADDRESS>
+function fexMac {
+  if [ -f "${1}" ]; then
+    printStatus "fexMac" "Configuring board mac address to ${2}"
+    printf "\n[dynamic]\nMAC = \"%s\"\n" "${2}" >> ${1}
+  else
+    printStatus "fexMac" "WARNING: ${1} not found. Cannot add Mac Address."
+  fi
+}
+
+
+ANS_BLD=""
+ANS_DIM=""
+ANS_REV=""
+ANS_RST=""
+ANS_SUL=""
+ANS_RUL=""
+ANS_SSO=""
+ANS_RSO=""
+	
+ANF_BLK=""
+ANF_RED=""
+ANF_GRN=""
+ANF_YEL=""
+ANF_BLU=""
+ANF_MAG=""
+ANF_CYN=""
+ANF_GRA=""
+ANF_DEF=""
+	
+ANB_BLK=""
+ANB_RED=""
+ANB_GRN=""
+ANB_YEL=""
+ANB_BLU=""
+ANB_MAG=""
+ANB_CYN=""
+ANB_GRA=""
+ANB_DEF=""
+
+function detectAnsi {
+  local TMP_TPUT="`/bin/which tput`"
+
+  if [ ! -z "${TMP_TPUT}" ]; then
+    if [ `${TMP_TPUT} colors` -ge 8 ]; then
+      ANS_BLD="`${TMP_TPUT} bold`"
+      ANS_DIM="`${TMP_TPUT} dim`"
+      ANS_REV="`${TMP_TPUT} rev`"
+      ANS_RST="`${TMP_TPUT} sgr0`"
+      ANS_SUL="`${TMP_TPUT} smul`"
+      ANS_RUL="`${TMP_TPUT} rmul`"
+
+      ANS_SSO="`${TMP_TPUT} smso`"
+      ANS_RSO="`${TMP_TPUT} rmso`"
+	
+      ANF_BLK="`${TMP_TPUT} setaf 0`"
+      ANF_RED="`${TMP_TPUT} setaf 1`"
+      ANF_GRN="`${TMP_TPUT} setaf 2`"
+      ANF_YEL="`${TMP_TPUT} setaf 3`"
+      ANF_BLU="`${TMP_TPUT} setaf 4`"
+      ANF_MAG="`${TMP_TPUT} setaf 5`"
+      ANF_CYN="`${TMP_TPUT} setaf 6`"
+      ANF_GRA="`${TMP_TPUT} setaf 7`"
+      ANF_DEF="`${TMP_TPUT} setaf 9`"
+	
+      ANB_BLK="`${TMP_TPUT} setab 0`"
+      ANB_RED="`${TMP_TPUT} setab 1`"
+      ANB_GRN="`${TMP_TPUT} setab 2`"
+      ANB_YEL="`${TMP_TPUT} setab 3`"
+      ANB_BLU="`${TMP_TPUT} setab 4`"
+      ANB_MAG="`${TMP_TPUT} setab 5`"
+      ANB_CYN="`${TMP_TPUT} setab 6`"
+      ANB_GRA="`${TMP_TPUT} setab 7`"
+      ANB_DEF="`${TMP_TPUT} setab 9`"
+    fi
+  fi
 }

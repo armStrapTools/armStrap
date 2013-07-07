@@ -1,6 +1,9 @@
-# Usage: buildOS
+# Usage: installOS
 function installOS {
   httpExtract "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
+
+  chrootLocales "${BUILD_MNT_ROOT}" "${BUILD_LANG}" "${BUILD_LANG_EXTRA}"
+  chrootTimeZone "${BUILD_MNT_ROOT}" "${BUILD_TIMEZONE}"
   
   setHostName "${BUILD_MNT_ROOT}" "${ARMSTRAP_HOSTNAME}"
   
@@ -16,7 +19,9 @@ function installOS {
     printf "CONF_SWAPSIZE=0" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
   fi
 
-  chrootReconfig "${BUILD_MNT_ROOT}" "${BUILD_UBUNTU_RECONFIG}"
+  if [ ! -z "${BUILD_ARMBIAN_RECONFIG}" ]; then
+    chrootReconfig "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_RECONFIG}"
+  fi
   
   BUILD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BUILD_DPKG_LOCALPACKAGES}"
 
@@ -39,7 +44,7 @@ function installOS {
 
   addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
   
-  installLinux "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"
+  chrootKernel "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"
   
   httpExtract "${BUILD_MNT_ROOT}/boot" "${BUILD_ARMBIAN_UBOOT}" "${BUILD_ARMBIAN_EXTRACT}"
   
@@ -47,20 +52,19 @@ function installOS {
   touch "${BUILD_BOOT_CMD}"
   
   ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
-  ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_BIN_LOAD}"
-  ubootExt2Load "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_LOAD}"
-  ubootBootM "${BUILD_BOOT_CMD}" "${BUILD_BOOT_KERNEL_ADDR}"
+  ubootSetEnv "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_BIN_LOAD}"
+  ubootSetEnv "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_KERNEL_LOAD}"
+  ubootSetEnv "${BUILD_BOOT_CMD}" "bootm" "${BUILD_BOOT_KERNEL_ADDR}"
   
-  sunxiMkImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
+  ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
   
   if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
-    sunxiSetMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
+    fexMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
   fi
   
-  ${BUILD_MNT_ROOT}/boot/fexc_x86 -I fex -O bin ${BUILD_MNT_ROOT}/boot/cubieboard.fex ${BUILD_MNT_ROOT}/boot/script.bin
+  ${BUILD_MNT_ROOT}/boot/fexc_x86 -I fex -O bin ${BUILD_BOOT_FEX} ${BUILD_BOOT_BIN}
   rm -f ${BUILD_MNT_ROOT}/boot/fexc_x86
   
-  ubootDDLoader "${BUILD_MNT_ROOT}/boot/sunxi-spl.bin" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"
-  ubootDDLoader "${BUILD_MNT_ROOT}/boot/u-boot.bin" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"
-  
+  ubootDDLoader "${BUILD_BOOT_SPL}" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"
+  ubootDDLoader "${BUILD_BOOT_UBOOT}" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"
 }

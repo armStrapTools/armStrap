@@ -9,6 +9,18 @@ ARMSTRAP_HOSTNAME="CubieDebian"
 ARMSTRAP_PASSWORD="debian"
 
 ##############################################################################
+# TimeZone and Locales
+# If you want to select the timezone, set it here. If not, America/Montreal
+# is used as the default.
+#ARMSTRAP_TIMEZONE="America/Montreal"
+# By default, armStrap install the default locale of the maching used to
+# run the script, if you want to change it, set it here.
+ARMSTRAP_LANG="fr_CA.UTF8"
+ARMSTRAP_LANGUAGE="fr_CA:fr"
+# If you want to install more locales, set it here.
+ARMSTRAP_LANG_EXTRA="fr_CA ISO-8859-1"
+
+##############################################################################
 # Swapfile configuration
 #
 # If you want a swapfile, uncomment this.
