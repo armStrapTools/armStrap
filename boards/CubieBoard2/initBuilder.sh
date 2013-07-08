@@ -1,6 +1,6 @@
 
 # usage initBuilder <ARMSTRAP_CONFIG> <ARMSTRAP_BOARD_CONFIG>
-function init {
+function initBuilder {
   printStatus "initBuilder" "Initializing builder for ${ANS_BLD}${ANF_GRN}${1}${ANF_DEF}${ANS_RST}"
   
   for i in ${BUILD_SCRIPTS}; do

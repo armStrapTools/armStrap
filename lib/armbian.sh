@@ -190,6 +190,7 @@ EOF
 function chrootKernel {
   local TMP_CHROOT="${1}"
   local TMP_KERNEL="`basename ${2}`"
+
   printStatus "chrootKernel" "Downloading ${TMP_KERNEL} script to `basename ${TMP_CHROOT}`"
   wget --append-output="${ARMSTRAP_LOG_FILE}" --directory-prefix="${TMP_CHROOT}/" "${2}"
 
@@ -219,15 +220,23 @@ function chrootLocales {
   installQEMU "${TMP_CHROOT}"
   mountPFS "${TMP_CHROOT}"
   
-  printStatus "chrootLocales" "Adding locale ${2} to avalable locales"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/locale-gen ${TMP_LANG} ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  printStatus "chrootLocales" "Adding locale ${TMP_LANG} to avalable locales"
+  
+  for i in ${TMP_LANG} ${@}; do
+    local TMP_LC="`echo "${i}" | cut -d "." -f 2`"
+    local TMP_FN="`echo "${i}" | cut -d "_" -f 1`"
+
+    echo "${i} ${TMP_LC}" >> ${TMP_CHROOT}/var/lib/locales/supported.d/local
+    echo "${i} ${TMP_LC}" >> ${TMP_CHROOT}/var/lib/locales/supported.d/${TMP_FN}
+    
+  done
+  
+  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/locale-gen >> ${ARMSTRAP_LOG_FILE} 2>&1
   LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/update-locale LANG=${TMP_LANG} >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
   enableServices "${TMP_CHROOT}"
-
-  rm -f "${TMP_CHROOT}/${TMP_KERNEL}"
 }
 
 function chrootTimeZone {
@@ -243,6 +252,7 @@ function chrootTimeZone {
 
     printStatus "chrootTimeZone" "Setting timezone to ${TMP_TZ}"
     LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ ln -sf /usr/share/zoneinfo/${TMP_TZ} /etc/localtime >> ${ARMSTRAP_LOG_FILE} 2>&1
+    echo "${TMP_TZ}" > ${TMP_CHROOT}/etc/timezone
   
     umountPFS "${TMP_CHROOT}"
     removeQEMU "${TMP_CHROOT}"
@@ -318,15 +328,16 @@ function addKernelModule {
   printf "%s\n" ${TMP_MODULE} >> ${TMP_ROOT}/etc/modules
 }
 
-# Usage : addIface <ARMSTRAP_ROOT> <INTERFACE> <dhcp|static> [<address> <netmask> <gateway>]
+# Usage : addIface <ARMSTRAP_ROOT> <INTERFACE> <MAC_ADDRESS> <dhcp|static> [<address> <netmask> <gateway>]
 function addIface {
   local TMP_ROOT="${1}"
   local TMP_INTF="${2}"
-  local TMP_DHCP="${3}"
-  local TMP_ADDR="${4}"
-  local TMP_MASK="${5}"
-  local TMP_GWAY="${6}"
-  local TMP_DOMN="${7}"
+  local TMP_MACA="${3}"
+  local TMP_DHCP="${4}"
+  local TMP_ADDR="${5}"
+  local TMP_MASK="${6}"
+  local TMP_GWAY="${7}"
+  local TMP_DOMN="${8}"
   shift
   shift
   shift
@@ -345,14 +356,13 @@ function addIface {
     printf "  netmask %s\n" ${TMP_MASK} >> ${TMP_ROOT}/etc/network/interfaces
     printf "  gateway %s\n" ${TMP_GWAY} >> ${TMP_ROOT}/etc/network/interfaces
     if [ ! -z "${@}" ]; then
-      printf "  dns-nameserver %s" "${@}"
+      printf "  dns-nameserver %s" "${@}" >> ${TMP_ROOT}/etc/network/interfaces
     fi
     if [ ! -z "${6}" ]; then
-      printf "  dns-search %s" ${6}
+      printf "  dns-search %s" ${6} >> ${TMP_ROOT}/etc/network/interfaces
     fi
-    printf "\n" >> ${TMP_ROOT}/etc/network/interfaces    
   else
     printStatus "addIface" "IP address : DHCP"
-    printf "\n" >> ${TMP_ROOT}/etc/network/interfaces
-  fi
+  fi  
+  printf "hwaddress ether %s:%s:%s:%s:%s:%s\n\n" "${TMP_MACA:0:2}" "${TMP_MACA:2:2}" "${TMP_MACA:4:2}" "${TMP_MACA:6:2}" "${TMP_MACA:8:2}" "${TMP_MACA:10:2}" >> ${TMP_ROOT}/etc/network/interfaces
 }

@@ -271,13 +271,32 @@ function ubootSetEnv {
 
   if [ -f "${TMP_CFG}" ]; then
     if [ ! -z "${@}" ]; then
-      printStatus "ubootSetEnv" "Setting ${2} to ${@}"
-      echo "setenv ${2} ${@}" >> ${TMP_CFG}
+      printStatus "ubootSetEnv" "Setting variable ${TMP_VAR} to ${@}"
+      echo "setenv ${TMP_VAR} ${@}" >> ${TMP_CFG}
     else
       printStatus "ubootSetEnv" "WARNING: No value to set variable ${TMP_VAR}"
     fi
   else
     printStatus "ubootSetEnv" "WARNING: File ${TMP_CFG} not found"
+  fi
+}
+
+# Usage ubootSetCMD <TARGET_FILE> <COMMAND> <VALUE>
+function ubootSetCMD {
+  local TMP_CFG="${1}"
+  local TMP_VAR="${2}"
+  shift
+  shift
+
+  if [ -f "${TMP_CFG}" ]; then
+    if [ ! -z "${@}" ]; then
+      printStatus "ubootSetCMD" "Setting command ${TMP_VAR} to ${@}"
+      echo "${TMP_VAR} ${@}" >> ${TMP_CFG}
+    else
+      printStatus "ubootSetCMD" "WARNING: No value to set command ${TMP_VAR}"
+    fi
+  else
+    printStatus "ubootSetCMD" "WARNING: File ${TMP_CFG} not found"
   fi
 }
 

@@ -3,6 +3,10 @@
 #
 # Set this to the name of the board you want to build
 ARMSTRAP_CONFIG="CubieBoard"
+
+##############################################################################
+# Basic configuration
+#
 # Set this to the hostname you want for the board
 ARMSTRAP_HOSTNAME="CubieDebian"
 # Set this to the password you want for the root user
@@ -15,10 +19,10 @@ ARMSTRAP_PASSWORD="debian"
 #ARMSTRAP_TIMEZONE="America/Montreal"
 # By default, armStrap install the default locale of the maching used to
 # run the script, if you want to change it, set it here.
-ARMSTRAP_LANG="fr_CA.UTF8"
-ARMSTRAP_LANGUAGE="fr_CA:fr"
+#ARMSTRAP_LANG="fr_CA.UTF-8"
+#ARMSTRAP_LANGUAGE="fr_CA:fr"
 # If you want to install more locales, set it here.
-ARMSTRAP_LANG_EXTRA="fr_CA ISO-8859-1"
+#ARMSTRAP_LANG_EXTRA="fr_CA.ISO-8859-1"
 
 ##############################################################################
 # Swapfile configuration
@@ -32,10 +36,7 @@ ARMSTRAP_SWAP_SIZE="256"
 # OS Sections
 #
 # Currently we support ubuntu and debian. Default choice is debian
-ARMSTRAP_OS="ubuntu"
-# If set, prepackaged version of the kernel files will be used if avalable.
-# Else, always force compilation of kernel.
-#ARMSTRAP_KERNEL_COMPILE="YES"
+#ARMSTRAP_OS="ubuntu"
 
 ##############################################################################
 # Packages Sections
@@ -61,14 +62,14 @@ ARMSTRAP_ETH0_MODE="dhcp"
 # Some board need a mac address, if this is not set and the board need one,
 # a pseudo random mac address will be generated. The vendor mac prefix used
 # to generate the mac address is define in the board configuration.
-ARMSTRAP_MAC_ADDRESS="008010EDDF01"
+#ARMSTRAP_MAC_ADDRESS="DEADBEEFBAAD"
 
 ##############################################################################
 # Output configuration
 #
 # If you want to install directly into your SD card, put the device here. If
 # it's not defined, an image will be generated.
-ARMSTRAP_DEVICE="/dev/sdc"
+#ARMSTRAP_DEVICE="/dev/sdc"
 # If you want to name your image something else than the generated name
 #ARMSTRAP_IMAGE_NAME="wathever_name_you_want.img"
 # Specify the size of the image to be build in MB
