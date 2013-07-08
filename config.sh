@@ -71,6 +71,6 @@ ARMSTRAP_ETH0_MODE="dhcp"
 # it's not defined, an image will be generated.
 #ARMSTRAP_DEVICE="/dev/sdc"
 # If you want to name your image something else than the generated name
-#ARMSTRAP_IMAGE_NAME="wathever_name_you_want.img"
+#ARMSTRAP_IMAGE_NAME="wathever_you_want_to_name_your_image.img"
 # Specify the size of the image to be build in MB
 #ARMSTRAP_IMAGE_SIZE="2048"

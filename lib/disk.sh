@@ -5,7 +5,7 @@ function makeImg {
   printStatus "mkImage" "Creating image ${1}, size ${2}MB"
   
   if [ -e "${1}" ]; then
-    logStatus "mkImage" "${1} exist"
+    printStatus "mkImage" "${1} exist"
     promptYN "${1} exist, overwrite?"
     checkStatus "Not overwriting ${1}"
   fi
@@ -81,13 +81,10 @@ function mapImg {
 function umapImg {
   printStatus "umapImg" "UnMapping ${1} from loop device"
   kpartx -d ${1} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  checkStatus "kpartx exit with status $?"
   sleep 2
   kpartx -d ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  checkStatus "kpartx exit with status $?"
   sleep 2
   losetup -d ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  checkStatus "losetup exit with status $?"
   partSync
 }
 

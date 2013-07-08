@@ -181,7 +181,7 @@ function macAddress {
   
   if [ -z ${ARMSTRAP_MAC_ADDRESS} ]; then
     ARMSTRAP_MAC_ADDRESS=$( printf "%012x" $((${1} * 16777216 + $[ $RANDOM % 16777216 ])) )
-    printStatus"macAddress" "Generated Mac Address : ${ARMSTRAP_MAC_ADDRESS}"
+    printStatus "macAddress" "Generated Mac Address : ${ARMSTRAP_MAC_ADDRESS}"
   fi
 }
 
