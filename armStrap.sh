@@ -3,8 +3,9 @@
 #
 # Variables that should never be changed
 #
+set +x
 
-ARMSTRAP_VERSION="0.53"
+ARMSTRAP_VERSION="0.58"
 ARMSTRAP_NAME=`basename ${0}`
 
 if [ "`id -u`" -ne "0" ]; then
@@ -22,6 +23,9 @@ ARMSTRAP_ROOT=`pwd`
 ARMSTRAP_MNT="${ARMSTRAP_ROOT}/mnt"
 ARMSTRAP_LOG="${ARMSTRAP_ROOT}/log"
 ARMSTRAP_IMG="${ARMSTRAP_ROOT}/img"
+ARMSTRAP_SRC="${ARMSTRAP_ROOT}/src"
+ARMSTRAP_DEB="${ARMSTRAP_ROOT}/deb"
+ARMSTRAP_BIN="${ARMSTRAP_ROOT}/bin"
 
 ARMSTRAP_BOARDS="${ARMSTRAP_ROOT}/boards"
 
@@ -48,6 +52,11 @@ ARMSTRAP_OS="debian"
 ARMSTRAP_INIT_SCRIPTS="initBuilder.sh"
 ARMSTRAP_INIT_FUNCTION="initBuilder"
 
+ARMSTRAP_KBUILDER=""
+ARMSTRAP_RUPDATER=""
+ARMSTRAP_UBUILDER=""
+ARMSTRAP_DONE=""
+
 #
 # Here we go...
 #
@@ -62,7 +71,7 @@ detectAnsi
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:cWN" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:cWNKRU" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -109,6 +118,15 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:cWN" opt; do
       showLicence
       ARMSTRAP_EXIT="Yes"
       ;;
+    K)
+      ARMSTRAP_KBUILDER="Yes"
+      ;;
+    R)
+      ARMSTRAP_RUPDATER="Yes"
+      ;;
+    U)
+      ARMSTRAP_UBUILDER="Yes"
+      ;;
     \?)
       showUsage
       ARMSTRAP_EXIT="Yes"
@@ -129,6 +147,9 @@ ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
 
 checkDirectory ${ARMSTRAP_MNT}
 checkDirectory ${ARMSTRAP_IMG}
+checkDirectory ${ARMSTRAP_SRC}
+checkDirectory ${ARMSTRAP_DEB}
+checkDirectory ${ARMSTRAP_BIN}
 
 source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
 
@@ -141,6 +162,44 @@ done
 rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
 mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
 ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log"
+
+if [ ! -z "${ARMSTRAP_KBUILDER}" ]; then
+  printStatus "armStrap" "Kernel Builder"
+  kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
+  gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
+  kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
+  ARMSTRAP_DONE="Yes"
+fi
+
+if [ ! -z "${ARMSTRAP_RUPDATER}" ]; then
+  TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
+  TMP_ROOTFS="${TMP_ROOTFS%.txz}"
+
+  printStatus "armStrap" "RootFS Updater"
+  if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
+    checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+    httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
+  fi
+
+  shellRun "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "apt-get update && apt-get dist-upgrade"
+  
+  printStatus "armStrap" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_BIN}"
+  rm -f "${ARMSTRAP_BIN}/${TMP_ROOTFS}.txz"
+  ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_BIN}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+
+  ARMSTRAP_DONE="Yes"
+fi
+
+if [ ! -z "${ARMSTRAP_UBUILDER}" ]; then
+  printStatus "armStrap" "U-Boot Builder"
+  gitClone "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_GITSRC}" "${BUILD_UBUILDER_GITBRN}"
+  makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_BIN}"
+  ARMSTRAP_DONE="Yes"
+fi
+
+if [ ! -z "${ARMSTRAP_DONE}" ]; then
+  exit 0
+fi
 
 if [ -z "${ARMSTRAP_DEVICE}" ]; then
   if [ -z "${ARMSTRAP_IMAGE_NAME}" ]; then

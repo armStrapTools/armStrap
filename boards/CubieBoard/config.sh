@@ -1,3 +1,4 @@
+BUILD_CONFIG="${ARMSTRAP_CONFIG,,}"
 
 if [ -z "${ARMSTRAP_LANG}" ]; then
   BUILD_LANG="${LANG}"
@@ -35,8 +36,9 @@ case "${ARMSTRAP_OS}" in
 esac
 
 BUILD_ARMBIAN_EXTRACT="tar -xJ"
-BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/cubieboard/install-cubieboard-linux-desktop-kernel-3.4.43+_3.4.43+-1_armhf.sh"
-BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/cubieboard-u-boot.txz"
+BUILD_ARMBIAN_COMPRESS="tar -cJvf"
+BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-desktop-kernel-3.4.43+_3.4.43+-1_armhf.sh"
+BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
   
 BUILD_MNT_ROOT="${ARMSTRAP_MNT}"
   
@@ -71,7 +73,7 @@ BUILD_CONFIG_CMDLINE="console=tty0 console=${BUILD_SERIALCON_TERM},${BUILD_SERIA
   
 BUILD_KERNEL_NAME="uImage"
 
-BUILD_BOOT_FEX="${BUILD_MNT_ROOT}/boot/cubieboard.fex"
+BUILD_BOOT_FEX="${BUILD_MNT_ROOT}/boot/${BUILD_CONFIG}.fex"
 BUILD_BOOT_BIN="${BUILD_MNT_ROOT}/boot/script.bin"
 
 BUILD_BOOT_BIN_LOAD="mmc 0 0x43000000 boot/script.bin"
@@ -87,6 +89,32 @@ BUILD_BOOT_UBOOT_SIZE="1024"
 BUILD_BOOT_UBOOT_SEEK="32"
   
 BUILD_DISK_LAYOUT=("1:/:ext4:-1")
+
+#############################################################################
+#
+# Kernel builder stuff
+#
+BUILD_KBUILDER_TYPE="sun4i"
+if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
+  BUILD_KBUILDER_CONF="desktop"
+else
+  BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
+fi
+BUILD_KBUILDER_ARCH="arm"
+BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
+BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi"
+BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
+BUILD_KBUILDER_GITSRC="https://github.com/linux-sunxi/linux-sunxi.git"
+BUILD_KBUILDER_GITBRN="sunxi-3.4"
+
+#############################################################################
+#
+# U-Boot Stuff
+#
+BUILD_UBUILDER_FAMILLY="${BUILD_CONFIG}"
+BUILD_UBUILDER_GITSRC="https://github.com/hno/u-boot.git"
+BUILD_UBUILDER_GITBRN="sunxi-current"
+BUILD_UBUILDER_SOURCE=""${ARMSTRAP_SRC}/${BUILD_CONFIG}/uboot-hno
 
 BUILD_SCRIPTS="installOS.sh"
 BUILD_PREREQ="u-boot-tools qemu qemu-user-static parted kpartx lvm2 binfmt-support libusb-1.0-0-dev dosfstools libncurses5-dev"

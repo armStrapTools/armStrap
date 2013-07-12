@@ -270,11 +270,46 @@ function setHostName {
 
 # Usage : mountPFS <ARMSTRAP_ROOT>
 function mountPFS {
-  printStatus "mountPFS" "Mounting pseudo-filesystems in `basename ${1}`"
-  mount --bind /proc ${1}/proc >> ${ARMSTRAP_LOG_FILE} 2>&1
-  mount --bind /sys ${1}/sys >> ${ARMSTRAP_LOG_FILE} 2>&1
-  mount --bind /dev/pts ${1}/dev/pts >> ${ARMSTRAP_LOG_FILE} 2>&1
+  TMP_ISPROC="`mount -l | grep "${1}" | grep '/proc'`"
+  TMP_ISSYS="`mount -l | grep "${1}" | grep '/sys'`"
+  TMP_ISDEV="`mount -l | grep "${1}" | grep '/dev/pts'`"
+
+  if [ -z "${TMP_ISPROC}" ]; then
+    printStatus "mountFPS" "Mounting /proc in `basename ${1}`."
+    mount --bind /proc "${1}/proc" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
+
+  if [ -z "${TMP_ISSYS}" ]; then
+    printStatus "mountFPS" "Mounting /sys in `basename ${1}`."
+    mount --bind /sys "${1}/sys" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
+
+  if [ -z "${TMP_ISDEV}" ]; then
+    printStatus "mountFPS" "Mounting /dev/pts in `basename ${1}`."
+    mount --bind /dev/pts "${1}/dev/pts" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
 }
+
+function umountPFS {
+  TMP_ISPROC="`mount -l | grep "${1}" | grep '/proc'`"
+  TMP_ISSYS="`mount -l | grep "${1}" | grep '/sys'`"
+  TMP_ISDEV="`mount -l | grep "${1}" | grep '/dev/pts'`"
+  
+  if [ ! -z "${TMP_ISPROC}" ]; then
+    printStatus "umountFPS" "UnMounting /dev/pts in `basename ${1}`."
+    umount "${1}/dev/pts" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
+
+  if [ ! -z "${TMP_ISSYS}" ]; then
+    printStatus "umountFPS" "UnMounting /sys in `basename ${1}`."
+    umount "${1}/sys" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
+  
+  if [ ! -z "${TMP_ISDEV}" ]; then
+    printStatus "umountFPS" "UnMounting /proc in `basename ${1}`."
+    umount "${1}/proc" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
+} 
 
 # Usage : umountPFS <ARMSTRAP_ROOT>
 function umountPFS {
@@ -365,4 +400,60 @@ function addIface {
     printStatus "addIface" "IP address : DHCP"
   fi  
   printf "hwaddress ether %s:%s:%s:%s:%s:%s\n\n" "${TMP_MACA:0:2}" "${TMP_MACA:2:2}" "${TMP_MACA:4:2}" "${TMP_MACA:6:2}" "${TMP_MACA:8:2}" "${TMP_MACA:10:2}" >> ${TMP_ROOT}/etc/network/interfaces
+}
+
+function trapError {
+  local TMP_DIR="$1"
+  
+  printStatus "trapError" "Something went wrong. Exiting."
+  
+  umountPFS "${TMP_DIR}"
+  removeQEMU "${TMP_DIR}"
+  enableServices "${TMP_DIR}"
+
+  exit
+}
+
+function shellRun {
+  local TMP_DIR="$1"
+  shift
+
+  disableServices "${TMP_DIR}"
+  installQEMU "${TMP_DIR}"
+  mountPFS "${TMP_DIR}"
+
+  if [ ! -z "${1}" ]; then
+    printStatus "shellRun" "About to execute '${1}' in `basename ${TMP_DIR}`."
+    echo "${@}" > "${TMP_DIR}/armstrap-run.sh"
+    chmod +x "${TMP_DIR}/armstrap-run.sh"
+    trap "trapError ${TMP_DIR}" INT TERM EXIT
+      debian_chroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login -c /armstrap-run.sh  >> ${ARMSTRAP_LOG_FILE} 2>&1
+    trap - INT TERM EXIT
+    rm -f "${TMP_DIR}/armstrap-run.sh"
+  else
+    printStatus "shellRun" "About to execute a shell in `basename ${TMP_DIR}`."
+    trap "trapError ${TMP_DIR}" INT TERM EXIT
+      debian_chroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login
+    trap - INT TERM EXIT
+  fi
+  printStatus "shellRun" "Exiting from `basename ${TMP_DIR}`."
+  
+  umountPFS "${TMP_DIR}"
+  removeQEMU "${TMP_DIR}"
+  enableServices "${TMP_DIR}"
+}
+
+function makeUBoot {
+
+  printStatus "makeUBoot" "Compiling `basename ${1}` for ${2}"
+  make -C "${1}" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- distclean >> ${ARMSTRAP_LOG_FILE} 2>&1  
+  make -C "${1}" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  
+  checkDirectory "${3}/${2}"
+  
+  printStatus "makeUBoot" "Copying sunxi-spl.bin to ${3}/${2}"
+  cp "${1}/spl/sunxi-spl.bin" "${3}/${2}"
+  
+  printStatus "makeUBoot" "Copying u-boot.bin to ${3}/${2}"
+  cp "${1}/u-boot.bin" "${3}/${2}"
 }

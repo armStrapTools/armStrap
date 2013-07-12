@@ -42,6 +42,8 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-N" "" "Set DHCP IP."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-r" "\"<NS1> [NS2] [NS3]\"" "Set nameservers."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-e" "<DOMAIN>" "Set search domain."
+  printf "\n${ANS_BLD}Utility Builder${ANS_RST}:\n"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-k" "" "Build Kernel (debian packages)."
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Show licence."
   printf "\nSupported boards:"
@@ -380,6 +382,28 @@ function detectAnsi {
       ANB_CYN="`${TMP_TPUT} setab 6`"
       ANB_GRA="`${TMP_TPUT} setab 7`"
       ANB_DEF="`${TMP_TPUT} setab 9`"
+    fi
+  fi
+}
+
+#usage gitClone <TARGET_DIR> <GIT_SRC> [<BRANCH>]
+
+function gitClone {
+  local TMP_GIT="${2}"
+  
+  if [ -d "${1}" ]; then
+    printStatus "gitClone" "Updating `basename ${1}`"
+    cd "${1}"
+    git pull >> ${ARMSTRAP_LOG_FILE} 2>&1
+    cd "${ARMSTRAP_ROOT}"
+  else
+    if [ ! -z "${3}" ]; then
+      local TMP_GIT="${TMP_GIT} -b ${3}"
+      printStatus "gitClone" "Cloning `basename ${1}` (branch ${3})"
+      git clone "${2}" -b "${3}" "${1}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+    else
+      printStatus "gitClone" "Cloning `basename ${1}`"
+      git clone "${2}" "${1}" >> ${ARMSTRAP_LOG_FILE} 2>&1
     fi
   fi
 }
