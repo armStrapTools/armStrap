@@ -457,3 +457,23 @@ function makeUBoot {
   printStatus "makeUBoot" "Copying u-boot.bin to ${3}/${2}"
   cp "${1}/u-boot.bin" "${3}/${2}"
 }
+
+
+#usage makeFEXC <BUILD_TBUILDER_SOURCE> <BUILD_BOARD>
+function makeFEXC {
+  printStatus "makeSTools" "Compiling `basename ${1}` for ${2}"
+  make -C "${1}" clean >> ${ARMSTRAP_LOG_FILE} 2>&1  
+  make -C "${1}" fexc >> ${ARMSTRAP_LOG_FILE} 2>&1
+}
+
+#usage fex2bin <BUILD_TBUILDER_SOURCE> <src_fex> <dst_bin>
+function fex2bin {
+  printStatus "fex2bin" "Compilling `basename ${3}`"
+  ${1}/fexc -v -I fex -O bin ${2} ${3} >> ${ARMSTRAP_LOG_FILE} 2>&1
+}
+
+function makeFex {
+  printStatus "makeFex" "Copying `basename ${1}` for ${2}"
+  checkDirectory "${3}/${2}"
+  cp "${1}" "${3}/${2}"
+}

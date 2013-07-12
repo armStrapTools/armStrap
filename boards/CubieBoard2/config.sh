@@ -1,4 +1,6 @@
 BUILD_CONFIG="${ARMSTRAP_CONFIG,,}"
+BUILD_CPU="a20"
+BUILD_ARCH="arm"
 
 if [ -z "${ARMSTRAP_LANG}" ]; then
   BUILD_LANG="${LANG}"
@@ -19,8 +21,6 @@ if [ -z "${ARMSTRAP_TIMEZONE}" ]; then
 else
   BUILD_TIMEZONE="${ARMSTRAP_TIMEZONE}"
 fi
-
-BUILD_ARCH="arm"
 
 case "${ARMSTRAP_OS}" in
   "ubuntu")  
@@ -115,6 +115,30 @@ BUILD_UBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_UBUILDER_GITSRC="https://github.com/hno/u-boot.git"
 BUILD_UBUILDER_GITBRN="wip/a20"
 BUILD_UBUILDER_SOURCE=""${ARMSTRAP_SRC}/${BUILD_CONFIG}/uboot-hno
+
+#############################################################################
+#
+# Sunxi-Boards Stuff
+#
+
+BUILD_SBUILDER_FAMILLY="${BUILD_CONFIG}"
+BUILD_SBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-boards.git"
+BUILD_SBUILDER_GITBRN=""
+BUILD_SBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/sunxi-boards"
+
+if [ -f "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/sys_config/${BUILD_CPU}/${BUILD_SBUILDER_FAMILLY}.fex" ]; then
+  BUILD_SBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/sys_config/${BUILD_CPU}/${BUILD_SBUILDER_FAMILLY}.fex"
+else
+  BUILD_SBUILDER_CONFIG="${BUILD_SBUILDER_SOURCE}/sys_config/${BUILD_CPU}/${BUILD_SBUILDER_FAMILLY}.fex"
+fi
+
+#############################################################################
+#
+# Sunxi-Tools Stuff
+#
+BUILD_TBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-tools.git"
+BUILD_TBUILDER_GITBRN=""
+BUILD_TBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/sunxi-tools"
 
 BUILD_SCRIPTS="installOS.sh"
 BUILD_PREREQ="u-boot-tools qemu qemu-user-static parted kpartx lvm2 binfmt-support libusb-1.0-0-dev dosfstools libncurses5-dev"
