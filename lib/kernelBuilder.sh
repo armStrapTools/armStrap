@@ -64,13 +64,9 @@ function kernelBuilder {
 }
 
 function kernelConf {
-
   printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "KERNEL BUILDER"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Board" "${1}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Type" "${2}"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Configuration" "${3}"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n\n" "Configuration" "${3}"
   
-  promptYN "OK to proceed?"
-  checkStatus "Not ok to proceed."      
-
 }
