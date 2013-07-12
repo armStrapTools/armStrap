@@ -14,3 +14,7 @@ old/
 bin/
 pkg/
 bak/
+
+# Misc
+buildall.sh
+
