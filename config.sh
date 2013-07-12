@@ -39,6 +39,25 @@ ARMSTRAP_SWAP_SIZE="256"
 #ARMSTRAP_OS="ubuntu"
 
 ##############################################################################
+# Kernel Sections
+#
+# There are many default configuration for the kernel avalable.
+#
+#  For Cubieboard :
+#          (none) : Build the stock configuration
+#          server : Most network modules, no graphics
+#         desktop : Graphics and multimedia, no cedar acceleration
+#           video : Graphics and multimedia, cedar acceleration
+#
+# For Cubieboard2 :
+#          (none) : Build the stock configuration.
+#         desktop : Some graphics (since it's not completly done in kernel 3.3)
+#            mega : Every modules that compile on 3.3 are included.
+#
+#ARMSTRAP_KBUILDER_CONF="desktop"
+
+
+##############################################################################
 # Packages Sections
 #
 # If you want to install packages to the base distribution, add them here
