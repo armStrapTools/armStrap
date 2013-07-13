@@ -177,6 +177,17 @@ function promptYN {
   echo ""
 }
 
+function isTrue {
+  case ${1} in
+    [YyTt1]*)
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
 # Usage macAddress [<VENDOR_ID>]
 function macAddress {
   if [ -z "${1}" ]; then

@@ -54,7 +54,7 @@ ARMSTRAP_INIT_FUNCTION="initBuilder"
 ARMSTRAP_KBUILDER=""
 ARMSTRAP_RUPDATER=""
 ARMSTRAP_UBUILDER=""
-ARMSTRAP_DONE=""
+ARMSTRAP_EXIT=""
 
 #
 # Here we go...
@@ -70,7 +70,7 @@ detectAnsi
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:cWNKRU" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:cWNKRUI" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -120,6 +120,9 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:cWNKRU" opt; do
     K)
       ARMSTRAP_KBUILDER="Yes"
       ;;
+    I)
+      ARMSTRAP_KBUILDER_MENUCONFIG="Yes"
+      ;;
     R)
       ARMSTRAP_RUPDATER="Yes"
       ;;
@@ -138,7 +141,8 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:cWNKRU" opt; do
   esac
 done
 
-if [ ! -z "${ARMSTRAP_EXIT}" ]; then
+isTrue "${ARMSTRAP_EXIT}"
+if [ $? -ne 0 ]; then
   exit 0
 fi
 
@@ -161,15 +165,17 @@ rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTN
 mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
 ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log"
 
-if [ ! -z "${ARMSTRAP_KBUILDER}" ]; then
+isTrue "${ARMSTRAP_KBUILDER}"
+if [ $? -ne 0 ]; then
   printStatus "armStrap" "Kernel Builder"
   kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
   gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
   kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
-  ARMSTRAP_DONE="Yes"
+  ARMSTRAP_EXIT="Yes"
 fi
 
-if [ ! -z "${ARMSTRAP_RUPDATER}" ]; then
+isTrue "${ARMSTRAP_RUPDATER}"
+if [ $? -ne 0 ]; then
   TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
   TMP_ROOTFS="${TMP_ROOTFS%.txz}"
 
@@ -185,10 +191,11 @@ if [ ! -z "${ARMSTRAP_RUPDATER}" ]; then
   rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
   ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
 
-  ARMSTRAP_DONE="Yes"
+  ARMSTRAP_EXIT="Yes"
 fi
 
-if [ ! -z "${ARMSTRAP_UBUILDER}" ]; then
+isTrue "${ARMSTRAP_UBUILDER}"
+if [ $? -ne 0 ]; then
   printStatus "armStrap" "U-Boot Builder"
   gitClone "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_GITSRC}" "${BUILD_UBUILDER_GITBRN}"
   gitClone "${BUILD_SBUILDER_SOURCE}" "${BUILD_SBUILDER_GITSRC}" "${BUILD_SBUILDER_GITBRN}"
@@ -200,10 +207,10 @@ if [ ! -z "${ARMSTRAP_UBUILDER}" ]; then
   printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
   ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
   rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
-  ARMSTRAP_DONE="Yes"
+  ARMSTRAP_EXIT="Yes"
 fi
 
-if [ ! -z "${ARMSTRAP_DONE}" ]; then
+if [ ! -z "${ARMSTRAP_EXIT}" ]; then
   exit 0
 fi
 

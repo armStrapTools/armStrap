@@ -13,7 +13,8 @@ function installOS {
     chrootInstall "${BUILD_MNT_ROOT}" "${BUILD_DPKG_EXTRAPACKAGES}"
   fi
   
-  if [ -n "${ARMSTRAP_SWAP}" ]; then
+  isTrue "${ARMSTRAP_SWAP}"  
+  if [ $? -ne 0 ]; then
     printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
   else
     printf "CONF_SWAPSIZE=0" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
