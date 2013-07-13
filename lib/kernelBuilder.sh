@@ -37,7 +37,21 @@ function kernelBuilder {
   printStatus "kernelBuilder" "Configuring Kernel"
   CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" "`basename ${TMP_BUILD_CFGDEF}`" >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "Error while configuring Kernel"
- 
+  
+  isTrue "${ARMSTRAP_KBUILDER_MENUCONFIG}"
+  if [ $? -ne 0 ]; then
+    CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" menuconfig
+    TMP_BUILD_CONFIG="custom"
+    TMP_BUILD_CFGDEF="${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}_defconfig"
+    export ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
+    
+    promptYN "Do you want to save this config to be able to use it another time?"
+    if [ $? -ne 1 ]; then
+      printStatus "kernelBuilder" "Saving configuration as ${TMP_BUILD_CFGTYP}-custom_defconfig"
+      cp "${TMP_BUILD_WRKDIR}/.config" "${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-custom_defconfig"
+    fi
+  fi
+  
   printStatus "kernelBuilder" "Building Kernel image"
   CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make -j4 ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" uImage >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "Error while building kernel image"

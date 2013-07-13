@@ -44,6 +44,7 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-e" "<DOMAIN>" "Set search domain."
   printf "\n${ANS_BLD}Utility Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-K" "" "Build Kernel (debian packages)."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-I" "" "Call menuconfig before building Kernel."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-U" "" "Build U-Boot (txz package)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "" "Update RootFS (txz package)."
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"

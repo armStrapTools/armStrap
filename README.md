@@ -12,7 +12,7 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.60
+    armStrap.sh version 0.61
     Copyright (C) 2013 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
@@ -34,6 +34,7 @@ You need to be root to run this script. You have two options:
     
     Utility Builder:
       -K                      Build Kernel (debian packages).
+      -I                      Call menuconfig before building Kernel
       -U                      Build U-Boot (txz package).
       -R                      Update RootFS (txz package).
     
