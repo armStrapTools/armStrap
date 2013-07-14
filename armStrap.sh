@@ -189,12 +189,12 @@ if [ $? -ne 0 ]; then
       for k in ${BUILD_ARMBIAN_ROOTFS_LIST}; do
         if [[ ${TMP_ROOTFS_LIST} != *!${k}!* ]]; then
           TMP_ROOTFS_LIST="${TMP_ROOTFS_LIST} !${k}!"
-          TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
-          TMP_ROOTFS="${TMP_ROOTFS%.txz}"
           ARMSTRAP_OS="${k}"
           source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
+          TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
+          TMP_ROOTFS="${TMP_ROOTFS%.txz}"
 
-          printStatus "armStrap" "Updating rootFS ${k}"
+          printStatus "armStrap" "Updating rootFS '${ARMSTRAP_OS}'"
           if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
             checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
             httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"

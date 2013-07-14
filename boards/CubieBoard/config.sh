@@ -65,7 +65,12 @@ BUILD_FSTAB_ROOTPSS="1"
  
 BUILD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
   
-BUILD_ROOT_DEV="/dev/mmcblk0p1"
+if [ -z ARMSTRAP_ROOT_DEV ]; then
+  BUILD_ROOT_DEV="/dev/mmcblk0p1"
+else
+  BUILD_ROOT_DEV="${ARMSTRAP_ROOT_DEV}"
+fi
+
 BUILD_MAC_VENDOR=0x000246
   
 BUILD_BOOT_CMD="${BUILD_MNT_ROOT}/boot/boot.cmd"

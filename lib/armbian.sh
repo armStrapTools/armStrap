@@ -56,6 +56,7 @@ function httpExtract {
   printStatus "bootStrap" "Fetching and extracting `basename ${TMP_URL}`"
   checkDirectory "${TMP_DIR}/"
   wget -q -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
+  checkStatus "Error while downloading/extracting ${TMP_URL}"
 }
 
 function chrootRun {
