@@ -446,8 +446,9 @@ function shellRun {
 
 function makeUBoot {
 
-  printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "U-Boot Builder"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n\n" "Board" "${2}"
+  printStatus "ubootBuilder" "----------------------------------------"
+  printStatus "ubootBuilder" "- Board : ${2}"
+  printStatus "ubootBuilder" "----------------------------------------"
   
   gitClone "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_GITSRC}" "${BUILD_UBUILDER_GITBRN}"
   

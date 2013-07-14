@@ -4,8 +4,6 @@
 # Variables that should never be changed
 #
 
-set -x
-
 ARMSTRAP_VERSION="0.63"
 ARMSTRAP_NAME=`basename ${0}`
 
@@ -173,9 +171,9 @@ if [ $? -ne 0 ]; then
   TMP_ROOTFS_LIST=""
   TMP_UBOOT_LIST=""
   
-  rm -f ${ARMSTRAP_LOG}/armstrap-builder-${ARMSTRAP_DATE}.log
-  mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/armstrap-builder-${ARMSTRAP_DATE}.log
-  ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/armstrap_builder-${ARMSTRAP_DATE}.log"
+  rm -f ${ARMSTRAP_LOG}/armStrap_Builder-${ARMSTRAP_DATE}.log
+  mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/armStrap_Builder-${ARMSTRAP_DATE}.log
+  ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/armStrap_Builder-${ARMSTRAP_DATE}.log"
   
   rm -f ${ARMSTRAP_PKG}/*
 
@@ -194,10 +192,10 @@ if [ $? -ne 0 ]; then
           TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
           TMP_ROOTFS="${TMP_ROOTFS%.txz}"
 
-          printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "rootFS Updater"
-          printf "${ANF_GRN}% 20s${ANS_RST}: %s\n\n" "rootFS" "${TMP_ROOTFS}"
+          printStatus "rootfsUpdater" "----------------------------------------"
+          printStatus "rootfsUpdater" "- image : ${TMP_ROOTFS}"
+          printStatus "rootfsUpdater" "----------------------------------------"
           
-          printStatus "armStrap" "Updating rootFS '${ARMSTRAP_OS}'"
           if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
             checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
             httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
@@ -207,7 +205,7 @@ if [ $? -ne 0 ]; then
   
           printStatus "armStrap" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
           rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
-          #${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+          ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
         fi
       done
       
@@ -262,8 +260,9 @@ if [ $? -ne 0 ]; then
   TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
   TMP_ROOTFS="${TMP_ROOTFS%.txz}"
   
-  printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "rootFS Updater"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n\n" "rootFS" "${TMP_ROOTFS}"
+  printStatus "rootfsUpdater" "----------------------------------------"
+  printStatus "rootfsUpdater" "- image : ${TMP_ROOTFS}"
+  printStatus "rootfsUpdater" "----------------------------------------"
 
   if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
     checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"

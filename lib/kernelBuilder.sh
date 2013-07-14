@@ -30,10 +30,6 @@ function kernelBuilder {
   CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" distclean >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "Cannot clean kernel source directory."
 
-  cd "${TMP_BUILD_WRKDIR}/.."
-  rm -f *.deb
-  cd "${ARMSTRAP_ROOT}"
-  
   printStatus "kernelBuilder" "Configuring Kernel"
   CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" "`basename ${TMP_BUILD_CFGDEF}`" >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "Error while configuring Kernel"
@@ -76,64 +72,61 @@ function kernelBuilder {
   local TMP_KERNEL_CHANGES=""
   local TMP_KERNEL_BUILDLOG=""
   local TMP_SCRIPT=""
+  local TMP_I=""
   
-  for i in *.deb; do 
-    str="`echo $i | cut -d'_' -f1`"
+  for TMP_I in *.deb; do 
+    local TMP_STR="`echo ${TMP_I} | cut -d'_' -f1`"
     
-    if [[ $str == *image-* ]]; then
-      TMP_KERNEL_SCR="${i/image/kernel}"
+    if [[ $TMP_STR == *image-* ]]; then
+      TMP_KERNEL_SCR="${TMP_I/image/kernel}"
       TMP_KERNEL_SCR="${TMP_KERNEL_SCR/.deb/.sh}"
-      TMP_KERNEL_SCRIPT="/var/www/armstrap/kernel/${TMP_BUILD_DEBREP}/install-${TMP_KERNEL_SCR}"
-      TMP_KERNEL_IMG="$str"
+      TMP_KERNEL_SCR="${ARMSTRAP_PKG}/install-${TMP_KERNEL_SCR}"
+      TMP_KERNEL_IMG="$TMP_STR"
     fi
     
-    if [[ $str == *headers-* ]]; then
-      TMP_KERNEL_HDR="$str"
+    if [[ $TMP_STR == *headers-* ]]; then
+      TMP_KERNEL_HDR="$TMP_STR"
     fi
 	
-    if [[ $str == *libc-* ]]; then
-      TMP_KERNEL_LBC="$str"
+    if [[ $TMP_STR == *libc-* ]]; then
+      TMP_KERNEL_LBC="$TMP_STR"
     fi
 	
-    if [[ $str == *firmware-* ]]; then
-      TMP_KERNEL_FWR="$str"
+    if [[ $TMP_STR == *firmware-* ]]; then
+      TMP_KERNEL_FWR="$TMP_STR"
     fi
   
   done
 
-  printStatus "buildKernel" "Creating Kernel installation script."
-  if [ ! -d "`dirname ${TMP_KERNEL_SCRIPT}`" ]; then
-    mkdir -p `dirname ${TMP_KERNEL_SCRIPT}`
-  fi
+  rm -f ${TMP_KERNEL_SCR}
+  touch ${TMP_KERNEL_SCR}
 
-  rm -f ${TMP_KERNEL_SCRIPT}
-  touch ${TMP_KERNEL_SCRIPT}
+  echo "#!/bin/sh" >> ${TMP_KERNEL_SCR}
+  echo "" >> ${TMP_KERNEL_SCR}
 
-  echo "#!/bin/sh" >> ${TMP_KERNEL_SCRIPT}
-  echo "" >> ${TMP_KERNEL_SCRIPT}
+  echo "KERNEL_IMG=\"${TMP_KERNEL_IMG}\"" >> ${TMP_KERNEL_SCR}
+  echo "KERNEL_HDR=\"${TMP_KERNEL_HDR}\"" >> ${TMP_KERNEL_SCR}
+  echo "KERNEL_LBC=\"${TMP_KERNEL_LBC}\"" >> ${TMP_KERNEL_SCR}
+  echo "KERNEL_FWR=\"${TMP_KERNEL_FWR}\"" >> ${TMP_KERNEL_SCR}
 
-  echo "KERNEL_IMG=\"${TMP_KERNEL_IMG}\"" >> ${TMP_KERNEL_SCRIPT}
-  echo "KERNEL_HDR=\"${TMP_KERNEL_HDR}\"" >> ${TMP_KERNEL_SCRIPT}
-  echo "KERNEL_LBC=\"${TMP_KERNEL_LBC}\"" >> ${TMP_KERNEL_SCRIPT}
-  echo "KERNEL_FWR=\"${TMP_KERNEL_FWR}\"" >> ${TMP_KERNEL_SCRIPT}
-
-  echo "" >> ${TMP_KERNEL_SCRIPT}
-  echo "echo \"deb http://packages.vls.beaupre.biz/apt/armstrap/ ${TMP_BUILD_DEBREP} main\" > /etc/apt/sources.list.d/${BUILDEB_TARGET}armstrap.list" >> ${TMP_KERNEL_SCRIPT}
-  echo "echo \"deb-src http://packages.vls.beaupre.biz/apt/armstrap/ ${TMP_BUILD_DEBREP} main\" >> /etc/apt/sources.list.d/${BUILDEB_TARGET}armstrap.list" >> ${TMP_KERNEL_SCRIPT}
-  echo "TMP_GNUPGHOME=\"\${GNUPGHOME}\"" >> ${TMP_KERNEL_SCRIPT}
-  echo "export GNUPGHOME=\"\`mktemp -d\`\"" >> ${TMP_KERNEL_SCRIPT}
-  echo "chown \${USER}:\${USER} \${GNUPGHOME}" >> ${TMP_KERNEL_SCRIPT}
-  echo "chmod 0700 \${GNUPGHOME}" >> ${TMP_KERNEL_SCRIPT}
-  echo "gpg --keyserver pgpkeys.mit.edu --recv-key 1F7F94D7A99BC726" >> ${TMP_KERNEL_SCRIPT}
-  echo "gpg --armor --export 1F7F94D7A99BC726 | apt-key add -" >> ${TMP_KERNEL_SCRIPT}
-  echo "rm -rf \${GNUPGHOME}" >> ${TMP_KERNEL_SCRIPT}
-  echo "GNUPGHOME=\"\${TMP_GNUPGHOME}\"" >> ${TMP_KERNEL_SCRIPT}
-  echo "/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true update" >> ${TMP_KERNEL_SCRIPT}
-  echo "/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install \$KERNEL_IMG \$KERNEL_HDR \$KERNEL_FWR" >> ${TMP_KERNEL_SCRIPT}
+  echo "" >> ${TMP_KERNEL_SCR}
+  echo "echo \"deb http://packages.vls.beaupre.biz/apt/armstrap/ ${TMP_BUILD_DEBREP} main\" > /etc/apt/sources.list.d/${BUILDEB_TARGET}armstrap.list" >> ${TMP_KERNEL_SCR}
+  echo "echo \"deb-src http://packages.vls.beaupre.biz/apt/armstrap/ ${TMP_BUILD_DEBREP} main\" >> /etc/apt/sources.list.d/${BUILDEB_TARGET}armstrap.list" >> ${TMP_KERNEL_SCR}
+  echo "TMP_GNUPGHOME=\"\${GNUPGHOME}\"" >> ${TMP_KERNEL_SCR}
+  echo "export GNUPGHOME=\"\`mktemp -d\`\"" >> ${TMP_KERNEL_SCR}
+  echo "chown \${USER}:\${USER} \${GNUPGHOME}" >> ${TMP_KERNEL_SCR}
+  echo "chmod 0700 \${GNUPGHOME}" >> ${TMP_KERNEL_SCR}
+  echo "gpg --keyserver pgpkeys.mit.edu --recv-key 1F7F94D7A99BC726" >> ${TMP_KERNEL_SCR}
+  echo "gpg --armor --export 1F7F94D7A99BC726 | apt-key add -" >> ${TMP_KERNEL_SCR}
+  echo "rm -rf \${GNUPGHOME}" >> ${TMP_KERNEL_SCR}
+  echo "GNUPGHOME=\"\${TMP_GNUPGHOME}\"" >> ${TMP_KERNEL_SCR}
+  echo "/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true update" >> ${TMP_KERNEL_SCR}
+  echo "/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install \$KERNEL_IMG \$KERNEL_HDR \$KERNEL_FWR" >> ${TMP_KERNEL_SCR}
   
-  for i in *.deb ${TMP_KERNEL_SCRIPT}; do
-    printStatus "kernelBuilder" "Moving `basename ${i}` to ${ARMSTRAP_PKG}"
-    mv "${i}" "${ARMSTRAP_PKG}"
+  for TMP_I in *.deb; do
+    printStatus "kernelBuilder" "Moving `basename ${TMP_I}` to ${ARMSTRAP_PKG}"
+    rm -f "${ARMSTRAP_PKG}/`basename ${TMP_I}`"
+    mv "${TMP_I}" "${ARMSTRAP_PKG}"
   done
   
   cd "${ARMSTRAP_ROOT}"
@@ -150,9 +143,9 @@ function kernelBuilder {
 }
 
 function kernelConf {
-  printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "KERNEL BUILDER"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Board" "${1}"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Type" "${2}"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n\n" "Configuration" "${3}"
-  
+  printStatus "kernelBuilder" "----------------------------------------"
+  printStatus "kernelBuilder" "-         Board : ${1}"
+  printStatus "kernelBuilder" "-          Type : ${2}"
+  printStatus "kernelBuilder" "- Configuration : ${3}"
+  printStatus "kernelBuilder" "----------------------------------------"
 }
