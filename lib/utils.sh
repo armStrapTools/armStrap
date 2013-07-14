@@ -477,3 +477,22 @@ function checkConfig {
     checkStatus "Kernel configuration ${ARMSTRAP_KBUILDER_CONF} not found"
   fi
 }
+
+# usage checkRootFS 
+function checkRootFS {
+  local TMP_FND=""
+
+  for i in ${BUILD_ARMBIAN_ROOTFS_LIST}; do
+    case ${i} in
+      ${ARMSTRAP_OS})
+        TMP_FND="Yes"
+        ;;
+    esac
+  done
+  
+  isTrue ${TMP_FND}
+  if [ $? -eq "0" ]; then
+    $(exit 1)
+    checkStatus "rootFS ${ARMSTRAP_OS} not found for this board, valid choices are : ${BUILD_ARMBIAN_ROOTFS_LIST}"
+  fi
+}

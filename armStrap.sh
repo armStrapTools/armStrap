@@ -163,6 +163,8 @@ checkDirectory ${ARMSTRAP_PKG}
 
 source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
 
+checkRootFS
+
 for i in ${ARMSTRAP_INIT_SCRIPTS}; do
   if [ -f "${ARMSTRAP_BOARD_CONFIG}/${i}" ]; then
     source "${ARMSTRAP_BOARD_CONFIG}/${i}"

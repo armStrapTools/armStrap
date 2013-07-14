@@ -22,6 +22,8 @@ else
   BUILD_TIMEZONE="${ARMSTRAP_TIMEZONE}"
 fi
 
+BUILD_ARMBIAN_ROOTFS_LIST="debian ubuntu"
+
 case "${ARMSTRAP_OS}" in
   "ubuntu")  
     BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.04-armv7l-hf.txz"
