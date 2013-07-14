@@ -388,14 +388,14 @@ function addIface {
   printf "iface %s inet %s\n" ${TMP_INTF} ${TMP_DHCP} >> ${TMP_ROOT}/etc/network/interfaces
   if [ "${TMP_DHCP}" != "dhcp" ]; then
     printStatus "addIface" "IP address : ${TMP_ADDR}/${TMP_MASK}, default gateway ${TMP_GWAY}"
-    printf "  address %s\n" ${TMP_ADDR} >> ${TMP_ROOT}/etc/network/interfaces
-    printf "  netmask %s\n" ${TMP_MASK} >> ${TMP_ROOT}/etc/network/interfaces
-    printf "  gateway %s\n" ${TMP_GWAY} >> ${TMP_ROOT}/etc/network/interfaces
+    printf "  address %s\n" "${TMP_ADDR}" >> ${TMP_ROOT}/etc/network/interfaces
+    printf "  netmask %s\n" "${TMP_MASK}" >> ${TMP_ROOT}/etc/network/interfaces
+    printf "  gateway %s\n" "${TMP_GWAY}" >> ${TMP_ROOT}/etc/network/interfaces
     if [ ! -z "${@}" ]; then
       printf "  dns-nameserver %s" "${@}" >> ${TMP_ROOT}/etc/network/interfaces
     fi
     if [ ! -z "${6}" ]; then
-      printf "  dns-search %s" ${6} >> ${TMP_ROOT}/etc/network/interfaces
+      printf "  dns-search %s" "${TMP_DOMN}" >> ${TMP_ROOT}/etc/network/interfaces
     fi
   else
     printStatus "addIface" "IP address : DHCP"

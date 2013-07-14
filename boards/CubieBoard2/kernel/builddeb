@@ -192,6 +192,7 @@ function updateBoot {
     echo "setenv bootargs console=tty0 console=ttyS0,115200 hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=/dev/mmcblk0p1 rootwait panic=10" >> \${TMP_TXTD}
     echo "ext2load mmc 0 0x43000000 boot/script.bin" >> \${TMP_TXTD}
     echo "ext2load mmc 0 0x48000000 boot/uImage-\${2}" >> \${TMP_TXTD}
+    bootSetEnv "${BUILD_BOOT_CMD}" "machid" "0xf35"
     echo "bootm 0x48000000" >> \${TMP_TXTD}    
   fi
   
