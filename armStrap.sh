@@ -177,7 +177,7 @@ if [ $? -ne 0 ]; then
   mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/armstrap-builder-${ARMSTRAP_DATE}.log
   ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/armstrap_builder-${ARMSTRAP_DATE}.log"
   
-  rm -f "${ARMSTRAP_PKG}/*"
+  rm -f ${ARMSTRAP_PKG}/*
 
   for i in $(boardConfigs); do
     for j in $(kernelConfigs ${i}); do
@@ -191,6 +191,8 @@ if [ $? -ne 0 ]; then
           TMP_ROOTFS_LIST="${TMP_ROOTFS_LIST} !${k}!"
           TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
           TMP_ROOTFS="${TMP_ROOTFS%.txz}"
+          ARMSTRAP_OS="${k}"
+          source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
 
           printStatus "armStrap" "Updating rootFS ${k}"
           if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
