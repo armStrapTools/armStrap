@@ -78,10 +78,10 @@ tmpdir="$objtree/debian/tmp"
 fwdir="$objtree/debian/fwtmp"
 kernel_headers_dir="$objtree/debian/hdrtmp"
 libc_headers_dir="$objtree/debian/headertmp"
-packagename=${ARMSTRAP_TARGET}linux${ARMSTRAP_RELEASE}-image-$version
-fwpackagename=${ARMSTRAP_TARGET}linux${ARMSTRAP_RELEASE}-firmware-image
-kernel_headers_packagename=${ARMSTRAP_TARGET}linux${ARMSTRAP_RELEASE}-headers-$version
-libc_headers_packagename=${ARMSTRAP_TARGET}linux${ARMSTRAP_RELEASE}-libc-dev
+packagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-image-$version
+fwpackagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-firmware-image
+kernel_headers_packagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-headers-$version
+libc_headers_packagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-libc-dev
 
 if [ "$ARCH" = "um" ] ; then
 	packagename=user-mode-linux-$version
@@ -226,7 +226,7 @@ maintainer="$name <$email>"
 
 # Generate a simple changelog template
 cat <<EOF > debian/changelog
-linux-upstream ($packageversion) ${ARMSTRAP_REPOS}; urgency=low
+linux-upstream ($packageversion) ${EXPORT_ARMSTRAP_REPOS}; urgency=low
 
   * Custom built Linux kernel.
 

@@ -4,6 +4,8 @@
 # Variables that should never be changed
 #
 
+set -x
+
 ARMSTRAP_VERSION="0.63"
 ARMSTRAP_NAME=`basename ${0}`
 
@@ -182,16 +184,19 @@ if [ $? -ne 0 ]; then
       ARMSTRAP_CONFIG="${i}"
       ARMSTRAP_KBUILDER_CONF="${j}"
       ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
-      source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
+      source ${ARMSTRAP_BOARD_CONFIG}/config.sh
 
       for k in ${BUILD_ARMBIAN_ROOTFS_LIST}; do
         if [[ ${TMP_ROOTFS_LIST} != *!${k}!* ]]; then
           TMP_ROOTFS_LIST="${TMP_ROOTFS_LIST} !${k}!"
           ARMSTRAP_OS="${k}"
-          source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
+          source ${ARMSTRAP_BOARD_CONFIG}/config.sh
           TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
           TMP_ROOTFS="${TMP_ROOTFS%.txz}"
 
+          printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "rootFS Updater"
+          printf "${ANF_GRN}% 20s${ANS_RST}: %s\n\n" "rootFS" "${TMP_ROOTFS}"
+          
           printStatus "armStrap" "Updating rootFS '${ARMSTRAP_OS}'"
           if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
             checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
@@ -200,17 +205,14 @@ if [ $? -ne 0 ]; then
 
           shellRun "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "apt-get update && apt-get dist-upgrade"
   
-           printStatus "armStrap" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
-           rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
-           ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+          printStatus "armStrap" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
+          rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
+          #${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
         fi
       done
       
     if [[ ${TMP_UBOOT_LIST} != *!${i}!* ]]; then
       TMP_UBOOT_LIST="${TMP_UBOOT_LIST} !${i}!"
-      printStatus "armStrap" "Compiling U-Boot for ${i}"
-      gitClone "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_GITSRC}" "${BUILD_UBUILDER_GITBRN}"
-      gitClone "${BUILD_SBUILDER_SOURCE}" "${BUILD_SBUILDER_GITSRC}" "${BUILD_SBUILDER_GITBRN}"
       makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
       makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
       printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
@@ -231,7 +233,7 @@ if [ $? -ne 0 ]; then
   exit 0
 fi
 
-source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
+source ${ARMSTRAP_BOARD_CONFIG}/config.sh
 
 checkConfig
 checkRootFS
@@ -259,8 +261,10 @@ isTrue "${ARMSTRAP_RUPDATER}"
 if [ $? -ne 0 ]; then
   TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
   TMP_ROOTFS="${TMP_ROOTFS%.txz}"
+  
+  printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "rootFS Updater"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n\n" "rootFS" "${TMP_ROOTFS}"
 
-  printStatus "armStrap" "RootFS Updater"
   if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
     checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
     httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
@@ -278,8 +282,6 @@ fi
 isTrue "${ARMSTRAP_UBUILDER}"
 if [ $? -ne 0 ]; then
   printStatus "armStrap" "U-Boot Builder"
-  gitClone "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_GITSRC}" "${BUILD_UBUILDER_GITBRN}"
-  gitClone "${BUILD_SBUILDER_SOURCE}" "${BUILD_SBUILDER_GITSRC}" "${BUILD_SBUILDER_GITBRN}"
   makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
   makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
   printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"

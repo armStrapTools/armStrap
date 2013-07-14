@@ -432,7 +432,7 @@ function shellRun {
     trap - INT TERM EXIT
     rm -f "${TMP_DIR}/armstrap-run.sh"
   else
-    printStatus "shellRun" "About to execute a shell in `basename ${TMP_DIR}`."
+    printStatus "shellRun" "Entering `basename ${TMP_DIR}`."
     trap "trapError ${TMP_DIR}" INT TERM EXIT
       debian_chroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login
     trap - INT TERM EXIT
@@ -446,7 +446,12 @@ function shellRun {
 
 function makeUBoot {
 
-  printStatus "makeUBoot" "Compiling `basename ${1}` for ${2}"
+  printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "U-Boot Builder"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n\n" "Board" "${2}"
+  
+  gitClone "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_GITSRC}" "${BUILD_UBUILDER_GITBRN}"
+  
+  printStatus "makeUBoot" "Compiling U-Boot for ${2}"
   make -C "${1}" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- distclean >> ${ARMSTRAP_LOG_FILE} 2>&1  
   make -C "${1}" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
   
@@ -474,6 +479,7 @@ function fex2bin {
 }
 
 function makeFex {
+  gitClone "${BUILD_SBUILDER_SOURCE}" "${BUILD_SBUILDER_GITSRC}" "${BUILD_SBUILDER_GITBRN}"
   printStatus "makeFex" "Copying `basename ${1}` for ${2}"
   checkDirectory "${3}/${2}"
   cp "${1}" "${3}/${2}"

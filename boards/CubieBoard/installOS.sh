@@ -45,19 +45,19 @@ function installOS {
 
   addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
   
-  chrootKernel "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"
-  
   httpExtract "${BUILD_MNT_ROOT}/boot" "${BUILD_ARMBIAN_UBOOT}" "${BUILD_ARMBIAN_EXTRACT}"
   
-#  rm -f "${BUILD_BOOT_CMD}"
-#  touch "${BUILD_BOOT_CMD}"
+  rm -f "${BUILD_BOOT_CMD}"
+  touch "${BUILD_BOOT_CMD}"
   
-#  ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
-#  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_BIN_LOAD}"
-#  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_KERNEL_LOAD}"
-#  ubootSetCMD "${BUILD_BOOT_CMD}" "bootm" "${BUILD_BOOT_KERNEL_ADDR}"
+  ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
+  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_BIN_LOAD}"
+  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_KERNEL_LOAD}"
+  ubootSetCMD "${BUILD_BOOT_CMD}" "bootm" "${BUILD_BOOT_KERNEL_ADDR}"
   
-#  ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
+  ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
+
+  chrootKernel "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"
   
   if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
     fexMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"

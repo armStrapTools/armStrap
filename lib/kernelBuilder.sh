@@ -18,9 +18,9 @@ function kernelBuilder {
   export KBUILD_DEBARCH="armhf"
   export DEBEMAIL="eddy@beaupre.biz"
   export DEBFULLNAME="Eddy Beaupre" 
-  export ARMSTRAP_TARGET="${TMP_BUILD_DEBREP}-"
-  export ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
-  export ARMSTRAP_REPOS="${TMP_BUILD_DEBREP}"
+  export EXPORT_ARMSTRAP_TARGET="${TMP_BUILD_DEBREP}-"
+  export EXPORT_ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
+  export EXPORT_ARMSTRAP_REPOS="${TMP_BUILD_DEBREP}"
   
   printStatus "kernelBuilder" "Configuring for ${TMP_BUILD_DEBREP} (${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG})"
   cp "${TMP_BUILD_CFGDEF}" "${TMP_BUILD_CFGDST}/"
@@ -43,7 +43,7 @@ function kernelBuilder {
     CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" menuconfig
     TMP_BUILD_CONFIG="custom"
     TMP_BUILD_CFGDEF="${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}_defconfig"
-    export ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
+    export EXPORT_ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
     
     promptYN "Do you want to save this config to be able to use it another time?"
     if [ $? -ne 1 ]; then
@@ -143,8 +143,9 @@ function kernelBuilder {
   unset KBUILD_DEBARCH
   unset DEBEMAIL
   unset DEBFULLNAME
-  unset ARMSTRAP_TARGET
-  unset ARMSTRAP_RELEASE
+  unset EXPORT_ARMSTRAP_TARGET
+  unset EXPORT_ARMSTRAP_RELEASE
+  unset EXPORT_ARMSTRAP_REPOS
   
 }
 
