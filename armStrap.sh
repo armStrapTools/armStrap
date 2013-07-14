@@ -4,7 +4,7 @@
 # Variables that should never be changed
 #
 
-ARMSTRAP_VERSION="0.62"
+ARMSTRAP_VERSION="0.63"
 ARMSTRAP_NAME=`basename ${0}`
 
 if [ "`id -u`" -ne "0" ]; then

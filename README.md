@@ -12,7 +12,7 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.62
+    armStrap.sh version 0.63
     Copyright (C) 2013 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
@@ -46,6 +46,7 @@ You need to be root to run this script. You have two options:
     
     Utilities:
       -c                      Show licence.
+      -A                      Build Kernel/RootFS/U-Boot for all boards/configurations
     
     Supported boards and kernel configurations:
       CubieBoard              custom default desktop server video 
