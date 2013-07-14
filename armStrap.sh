@@ -160,8 +160,6 @@ fi
 
 ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
 
-checkConfig
-
 checkDirectory ${ARMSTRAP_MNT}
 checkDirectory ${ARMSTRAP_IMG}
 checkDirectory ${ARMSTRAP_SRC}
@@ -232,10 +230,10 @@ if [ $? -ne 0 ]; then
   
   exit 0
 fi
-  
 
 source ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/config.sh
 
+checkConfig
 checkRootFS
 
 for i in ${ARMSTRAP_INIT_SCRIPTS}; do

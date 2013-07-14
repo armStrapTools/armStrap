@@ -467,7 +467,7 @@ function checkConfig {
   
   for i in ${TMP_CFG}; do
     case ${i} in
-      ${ARMSTRAP_KBUILDER_CONF})
+      ${BUILD_KBUILDER_CONF})
         TMP_FND="Yes"
         ;;
     esac
@@ -476,7 +476,7 @@ function checkConfig {
   isTrue ${TMP_FND}
   if [ $? -eq "0" ]; then
     $(exit 1)
-    checkStatus "Kernel configuration ${ARMSTRAP_KBUILDER_CONF} not found"
+    checkStatus "Kernel configuration ${BUILD_KBUILDER_CONF} not found"
   fi
 }
 
