@@ -56,7 +56,9 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "" "Select which RootFS to update."
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Show licence."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "<hookscript>" "Build Kernel/RootFS/U-Boot for all boards/configurations"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "" "Once done, execute <hookscript> with <PKG_PATH> and <LOGFILE>"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "" "as parameters"
   
   printf "\n${ANS_BLD}Supported boards and kernel configurations:${ANS_RST}\n"
   for i in ${TMP_BOARDS}; do
