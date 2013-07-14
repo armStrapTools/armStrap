@@ -227,7 +227,7 @@ function showConfig {
   printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "CONFIGURATION"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Board" "${ARMSTRAP_CONFIG}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Distribution" "${ARMSTRAP_OS}"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Kernel Config" "${ARMSTRAP_KBUILDER_CONF}"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Kernel Config" "${BUILD_KBUILDER_CONF}"
 
   printf "\n${ANF_GRN}% 20s${ANS_RST}: %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Root Password" "${ARMSTRAP_PASSWORD}"

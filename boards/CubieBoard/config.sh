@@ -36,11 +36,6 @@ case "${ARMSTRAP_OS}" in
     BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
     ;;
 esac
-
-BUILD_ARMBIAN_EXTRACT="tar -xJ"
-BUILD_ARMBIAN_COMPRESS="tar -cJvf"
-BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-desktop-kernel-3.4.43+_3.4.43+-1_armhf.sh"
-BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
   
 BUILD_MNT_ROOT="${ARMSTRAP_MNT}"
   
@@ -146,6 +141,11 @@ BUILD_TBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_TBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-tools.git"
 BUILD_TBUILDER_GITBRN=""
 BUILD_TBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/sunxi-tools"
+
+BUILD_ARMBIAN_EXTRACT="tar -xJ"
+BUILD_ARMBIAN_COMPRESS="tar -cJvf"
+BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-desktop-kernel-3.4.43+_3.4.43+-1_armhf.sh"
+BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
 
 BUILD_SCRIPTS="installOS.sh"
 BUILD_PREREQ="u-boot-tools qemu qemu-user-static parted kpartx lvm2 binfmt-support libusb-1.0-0-dev dosfstools libncurses5-dev"
