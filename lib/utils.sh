@@ -26,7 +26,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 EOF
 }
 
+
+
 function showUsage {
+  local TMP_BOARDS="$(boardConfigs)"
   printf "Usage : ${ANS_BLD}sudo %s${ANS_RST} [PARAMETERS]\n" "${ARMSTRAP_NAME}"
   printf "\n${ANS_BLD}Image/SD Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
@@ -42,18 +45,23 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-N" "" "Set DHCP IP."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-r" "\"<NS1> [NS2] [NS3]\"" "Set nameservers."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-e" "<DOMAIN>" "Set search domain."
-  printf "\n${ANS_BLD}Utility Builder${ANS_RST}:\n"
+  printf "\n${ANS_BLD}Kernel Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-K" "" "Build Kernel (debian packages)."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-C" "<CONFIG>" "Select a different kernel configuration."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-I" "" "Call menuconfig before building Kernel."
+  printf "\n${ANS_BLD}U-Boot Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-U" "" "Build U-Boot (txz package)."
+  printf "\n${ANS_BLD}RootFS updater${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "" "Update RootFS (txz package)."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "" "Select which RootFS to update."
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Show licence."
-  printf "\nSupported boards:"
-  for i in boards/*; do 
-    printf " ${ANS_BLD}%s${ANS_RST}" `basename ${i}`
+  printf "\n${ANS_BLD}Supported boards and kernel configurations:${ANS_RST}\n"
+  for i in ${TMP_BOARDS}; do
+    local TMP_BRDCFG="$(kernelConfigs ${i})"
+    printf "  ${ANS_BLD}%- 24s${ANS_RST}%s\n" "${i}" "${TMP_BRDCFG}"
   done
-  printf "\n\nWith no parameter, create an image using values found in ${ANS_BLD}config.sh${ANS_RST}.\n\n"
+  printf "\nWith no parameter, create an image using values found in ${ANS_BLD}config.sh${ANS_RST}.\n\n"
 }
 
 function showTitle {
@@ -217,12 +225,14 @@ function showConfig {
   printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "CONFIGURATION"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Board" "${ARMSTRAP_CONFIG}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Distribution" "${ARMSTRAP_OS}"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
+  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Kernel Config" "${ARMSTRAP_KBUILDER_CONF}"
+
+  printf "\n${ANF_GRN}% 20s${ANS_RST}: %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Root Password" "${ARMSTRAP_PASSWORD}"
   if [ ! -z "${ARMSTRAP_SWAP}" ]; then
     printf "${ANF_GRN}% 20s${ANS_RST}: %sMB\n" "Swapfile Size" "${ARMSTRAP_SWAP_SIZE}"
   fi
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Log File" "${ARMSTRAP_LOG_FILE}"
+
   if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
     printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Mac Address" "${ARMSTRAP_MAC_ADDRESS}"
   fi
@@ -235,12 +245,13 @@ function showConfig {
     printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Search Domain" "${ARMSTRAP_ETH0_DOMAIN}"
     printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "DNS" "${ARMSTRAP_ETH0_DNS}"
   fi
+  printf "\n${ANF_GRN}% 20s${ANS_RST}: %s\n" "Log File" "${ARMSTRAP_LOG_FILE}"
   if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-    printf "${ANF_GRN}% 20s${ANS_RST}: %sMB\n" "Image Size" "${ARMSTRAP_IMAGE_SIZE}"
     printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Image File" "${ARMSTRAP_IMAGE_NAME}"
     if [ -e "${ARMSTRAP_IMAGE_NAME}" ]; then
-      printf "\n% 20s : %s\n" "!!! Warning !!!" "Image file exists, will be overwritten"
+      printf "\n% 20s : %s\n" "${ANS_BLD}${ANF_YEL}!!! Warning !!!${ANF_DEF}${ANS_RST}" "Image file exists, will be overwritten"
     fi
+    printf "${ANF_GRN}% 20s${ANS_RST}: %sMB\n" "Image Size" "${ARMSTRAP_IMAGE_SIZE}"
   else
     printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Content of" "${ARMSTRAP_DEVICE}"
     isBlockDev ${ARMSTRAP_DEVICE}
@@ -419,5 +430,50 @@ function gitClone {
       printStatus "gitClone" "Cloning `basename ${1}`"
       git clone "${2}" "${1}" >> ${ARMSTRAP_LOG_FILE} 2>&1
     fi
+  fi
+}
+
+# usage boardConfigs
+function boardConfigs {
+  for i in ${ARMSTRAP_BOARDS}/*; do
+    if [ -d "${i}" ]; then
+      printf "%s " "`basename ${i}`"
+    fi
+  done
+}
+
+# usage kernelConfigs <BOARD_NAME>
+function kernelConfigs {
+  local TMP_DIRLST="${ARMSTRAP_BOARDS}/${1}/kernels/*_defconfig"
+  local TMP_FILE=""
+  
+  for i in ${ARMSTRAP_BOARDS}/${1}/kernel/*_defconfig; do
+    TMP_FILE="`echo "${i}" | cut -d- -f2 | cut -d_ -f1`"
+    printf "%s " ${TMP_FILE}
+  done
+}
+
+# usage checkConfig 
+function checkConfig {
+  local TMP_CFG="$(kernelConfigs ${ARMSTRAP_CONFIG})"
+  local TMP_FND=""
+  
+  if [ ! -d "${ARMSTRAP_BOARD_CONFIG}" ]; then
+    $(exit 1)
+    checkStatus "Board configuration ${ARMSTRAP_CONFIG} not found"
+  fi
+  
+  for i in ${TMP_CFG}; do
+    case ${i} in
+      ${ARMSTRAP_KBUILDER_CONF})
+        TMP_FND="Yes"
+        ;;
+    esac
+  done
+  
+  isTrue ${TMP_FND}
+  if [ $? -eq "0" ]; then
+    $(exit 1)
+    checkStatus "Kernel configuration ${ARMSTRAP_KBUILDER_CONF} not found"
   fi
 }

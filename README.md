@@ -12,7 +12,7 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.61
+    armStrap.sh version 0.62
     Copyright (C) 2013 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
@@ -32,19 +32,26 @@ You need to be root to run this script. You have two options:
       -r "<NS1> [NS2] [NS3]"  Set nameservers.
       -e <DOMAIN>             Set search domain.
     
-    Utility Builder:
+    Kernel Builder:
       -K                      Build Kernel (debian packages).
-      -I                      Call menuconfig before building Kernel
+      -C <CONFIG>             Select a different kernel configuration.
+      -I                      Call menuconfig before building Kernel.
+    
+    U-Boot Builder:
       -U                      Build U-Boot (txz package).
+    
+    RootFS updater:
       -R                      Update RootFS (txz package).
+      -F                      Select which RootFS to update.
     
     Utilities:
       -c                      Show licence.
     
-    Supported boards: CubieBoard CubieBoard2
+    Supported boards and kernel configurations:
+      CubieBoard              custom default desktop server video 
+      CubieBoard2             default desktop mega 
     
     With no parameter, create an image using values found in config.sh.
-
 
 Licence
 -------

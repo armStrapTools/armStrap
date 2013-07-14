@@ -3,9 +3,8 @@
 #
 # Variables that should never be changed
 #
-set +x
 
-ARMSTRAP_VERSION="0.61"
+ARMSTRAP_VERSION="0.62"
 ARMSTRAP_NAME=`basename ${0}`
 
 if [ "`id -u`" -ne "0" ]; then
@@ -71,7 +70,7 @@ detectAnsi
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:cWNKRUI" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:cWNKRUI" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -93,7 +92,7 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:cWNKRUI" opt; do
       ;;
     w)
       ARMSTRAP_SWAP="yes"
-      ARMSTRAP_SWAP_SIZE=="${OPTARG}"
+      ARMSTRAP_SWAP_SIZE="${OPTARG}"
       ;;
     W)
       ARMSTRAP_SWAP=""
@@ -121,11 +120,17 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:cWNKRUI" opt; do
     K)
       ARMSTRAP_KBUILDER="Yes"
       ;;
+    C)
+      ARMSTRAP_KBUILDER_CONF="${OPTARG}"
+      ;;
     I)
       ARMSTRAP_KBUILDER_MENUCONFIG="Yes"
       ;;
     R)
       ARMSTRAP_RUPDATER="Yes"
+      ;;
+    F)
+      ARMSTRAP_OS="${OPTARG}"
       ;;
     U)
       ARMSTRAP_UBUILDER="Yes"
@@ -148,6 +153,8 @@ if [ $? -ne 0 ]; then
 fi
 
 ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
+
+checkConfig
 
 checkDirectory ${ARMSTRAP_MNT}
 checkDirectory ${ARMSTRAP_IMG}
@@ -202,9 +209,6 @@ if [ $? -ne 0 ]; then
   gitClone "${BUILD_SBUILDER_SOURCE}" "${BUILD_SBUILDER_GITSRC}" "${BUILD_SBUILDER_GITBRN}"
   makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
   makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-  gitClone "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_GITSRC}" "${BUILD_TBUILDER_GITBRN}"
-  makeFEXC "${BUILD_TBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}"
-  fex2bin "${BUILD_TBUILDER_SOURCE}" "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}/${BUILD_UBUILDER_FAMILLY}.fex" "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}/${BUILD_UBUILDER_FAMILLY}.bin"
   printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
   ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
   rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"

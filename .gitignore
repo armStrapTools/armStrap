@@ -14,7 +14,9 @@ old/
 bin/
 pkg/
 bak/
+img/
 
 # Misc
 buildall.sh
+boards/*/kernel/*custom_defconfig
 

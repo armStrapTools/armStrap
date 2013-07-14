@@ -136,6 +136,7 @@ fi
 #
 # Sunxi-Tools Stuff
 #
+BUILD_TBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_TBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-tools.git"
 BUILD_TBUILDER_GITBRN=""
 BUILD_TBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/sunxi-tools"
