@@ -227,8 +227,14 @@ function chrootLocales {
     local TMP_LC="`echo "${i}" | cut -d "." -f 2`"
     local TMP_FN="`echo "${i}" | cut -d "_" -f 1`"
 
-    echo "${i} ${TMP_LC}" >> ${TMP_CHROOT}/var/lib/locales/supported.d/local
-    echo "${i} ${TMP_LC}" >> ${TMP_CHROOT}/var/lib/locales/supported.d/${TMP_FN}
+    if [ -d "${TMP_CHROOT}/var/lib/locales/supported.d" ]; then
+      # For Ubuntu
+      echo "${i} ${TMP_LC}" >> ${TMP_CHROOT}/var/lib/locales/supported.d/local
+      echo "${i} ${TMP_LC}" >> ${TMP_CHROOT}/var/lib/locales/supported.d/${TMP_FN}
+    else
+      # For Debian
+      echo "${i} ${TMP_LC}" >> ${TMP_CHROOT}/etc/locale.gen
+    fi
     
   done
   
