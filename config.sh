@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard2K34"
+ARMSTRAP_CONFIG="CubieBoard"
 
 ##############################################################################
 # Basic configuration
