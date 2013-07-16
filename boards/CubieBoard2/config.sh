@@ -96,18 +96,41 @@ BUILD_DISK_LAYOUT=("1:/:ext4:-1")
 #
 # Kernel builder stuff
 #
-BUILD_KBUILDER_TYPE="${BUILD_CONFIG}"
-if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
-  BUILD_KBUILDER_CONF="desktop"
-else
-  BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
-fi
-BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
-BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
-BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi"
-BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
-BUILD_KBUILDER_GITSRC="https://github.com/jwrdegoede/linux-sunxi.git"
-BUILD_KBUILDER_GITBRN="sunxi-3.3-cubieboard2"
+BUILD__KBUILDER_VERSION_LIST="3.3 3.4"
+
+case ${ARMSTRAP_KBUILDER_VERSION} in
+  3.4)
+    BUILD_KBUILDER_VERSION="${ARMSTRAP_KBUILDER_VERSION}"
+    BUILD_KBUILDER_TYPE="${BUILD_CONFIG}"
+    if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
+      BUILD_KBUILDER_CONF="mega"
+    else
+      BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}mega"
+    fi
+    BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
+    BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
+    BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi-3.4"
+    BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel-3.4"
+    BUILD_KBUILDER_GITSRC="https://github.com/jwrdegoede/linux-sunxi.git"
+    BUILD_KBUILDER_GITBRN="sunxi-3.4"
+    ;;
+  *)
+    BUILD_KBUILDER_VERSION="3.3"
+    BUILD_KBUILDER_TYPE="${BUILD_CONFIG}"
+    if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
+      BUILD_KBUILDER_CONF="desktop"
+    else
+      BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
+    fi
+    BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
+    BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
+    BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi-3.3"
+    BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel-3.3"
+    BUILD_KBUILDER_GITSRC="https://github.com/jwrdegoede/linux-sunxi.git"
+    BUILD_KBUILDER_GITBRN="sunxi-3.3-cubieboard2"
+    ;;
+esac
+
 
 #############################################################################
 #
@@ -117,7 +140,7 @@ BUILD_UBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_UBUILDER_GITSRC="https://github.com/hno/u-boot.git"
 BUILD_UBUILDER_GITBRN="wip/a20"
 BUILD_UBUILDER_SOURCE=""${ARMSTRAP_SRC}/${BUILD_CONFIG}/uboot-hno
-
+BUILD_UBUILDER_BOOTCMD=('bootargs=${BUILD_CONFIG_CMDLINE}' 'machid=0xf35' 'ext2load=${BUILD_BOOT_BIN_LOAD}' 'ext2load=${BUILD_BOOT_KERNEL_LOAD}' 'bootm=${BUILD_BOOT_KERNEL_ADDR}')
 #############################################################################
 #
 # Sunxi-Boards Stuff

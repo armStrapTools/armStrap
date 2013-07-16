@@ -72,7 +72,7 @@ detectAnsi
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:A:cWNKRUI" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:A:V:cWNKRUI" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -121,6 +121,9 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:A:cWNKRUI" opt; do
       ;;
     K)
       ARMSTRAP_KBUILDER="Yes"
+      ;;
+    V)
+      ARMSTRAP_KBUILDER_VERSION="${OPTARG}"
       ;;
     C)
       ARMSTRAP_KBUILDER_CONF="${OPTARG}"
@@ -218,7 +221,7 @@ if [ $? -ne 0 ]; then
       rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
     fi
     
-    kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
+    kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
     gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
     kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
     done
@@ -249,7 +252,7 @@ ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${A
 isTrue "${ARMSTRAP_KBUILDER}"
 if [ $? -ne 0 ]; then
   printStatus "armStrap" "Kernel Builder"
-  kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
+  kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
   gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
   kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
   ARMSTRAP_EXIT="Yes"

@@ -47,6 +47,7 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-e" "<DOMAIN>" "Set search domain."
   printf "\n${ANS_BLD}Kernel Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-K" "" "Build Kernel (debian packages)."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-V" "<version>" "Select an alternate kernel version (if avalable)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-C" "<CONFIG>" "Select a different kernel configuration."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-I" "" "Call menuconfig before building Kernel."
   printf "\n${ANS_BLD}U-Boot Builder${ANS_RST}:\n"
@@ -451,10 +452,24 @@ function kernelConfigs {
   local TMP_DIRLST="${ARMSTRAP_BOARDS}/${1}/kernels/*_defconfig"
   local TMP_FILE=""
   
-  for i in ${ARMSTRAP_BOARDS}/${1}/kernel/*_defconfig; do
-    TMP_FILE="`echo "${i}" | cut -d- -f2 | cut -d_ -f1`"
-    printf "%s " ${TMP_FILE}
-  done
+  if [ -d "${ARMSTRAP_BOARDS}/${1}/kernel/" ]; then
+    for j in ${ARMSTRAP_BOARDS}/${1}/kernel/*_defconfig; do
+      TMP_FILE="`echo "${j}" | cut -d- -f2 | cut -d_ -f1`"
+      printf "%s " ${TMP_FILE}
+    done
+  else
+    for i in ${ARMSTRAP_BOARDS}/${1}/kernel*; do
+      if [ ! -z "${TMP_FILE}" ]; then
+        printf "\n                          "
+      fi
+      printf "%s : " "`basename ${i}`"
+      for j in ${ARMSTRAP_BOARDS}/${1}/`basename ${i}`/*_defconfig; do
+        TMP_FILE="`basename ${j}`"
+        TMP_FILE="`echo "${TMP_FILE}" | cut -d- -f2 | cut -d_ -f1`"
+        printf "%s " "`basename ${TMP_FILE}`"
+      done
+    done
+  fi
 }
 
 # usage checkConfig 

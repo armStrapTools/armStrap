@@ -49,12 +49,26 @@ function installOS {
   
   rm -f "${BUILD_BOOT_CMD}"
   touch "${BUILD_BOOT_CMD}"
+
+  for i in "${BUILD_UBOOT_BOOTCMD[@]}"; do
+    local TMP_KND=""
+    local TMP_VST=""
+    local TMP_POS=$(echo `expr index "$i" =`)
+    local TMP_LEN=$(echo `expr length "$i"`)
+    let "TMP_KND=${TMP_POS} -1"
+    let "TMP_VST=${TMP_POS} +1"
+    local TMP_VAL=$(echo `expr substr "$i" $TMP_VST $TMP_LEN`)
+    local TMP_KEY=$(echo `expr substr "$i" 1 $TMP_KND`)
+    ubootSetEnv "${BUILD_BOOT_CMD}" "${TMP_KEY}" "${TMP_VAL}"
+  done
   
-  ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
-  ubootSetEnv "${BUILD_BOOT_CMD}" "machid" "0xf35"
-  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_BIN_LOAD}"
-  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_KERNEL_LOAD}"
-  ubootSetCMD "${BUILD_BOOT_CMD}" "bootm" "${BUILD_BOOT_KERNEL_ADDR}"
+#  ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
+  for key in ${!BUILD_UBUILDER_EXTRACMD[@]}; do
+    ubootSetEnv "${BUILD_BOOT_CMD}" "${key}" "${BUILD_UBUILDER_EXTRACMD[${key}]}"
+  done
+#  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_BIN_LOAD}"
+#  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_KERNEL_LOAD}"
+#  ubootSetCMD "${BUILD_BOOT_CMD}" "bootm" "${BUILD_BOOT_KERNEL_ADDR}"
   
   ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
 

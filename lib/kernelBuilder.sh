@@ -146,6 +146,9 @@ function kernelConf {
   printStatus "kernelBuilder" "----------------------------------------"
   printStatus "kernelBuilder" "-         Board : ${1}"
   printStatus "kernelBuilder" "-          Type : ${2}"
+  if [ ! -z "${4}" ]; then
+    printStatus "kernelBuilder" "-        Kernel : ${4}"
+  fi
   printStatus "kernelBuilder" "- Configuration : ${3}"
   printStatus "kernelBuilder" "----------------------------------------"
 }
