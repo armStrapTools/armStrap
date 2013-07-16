@@ -449,22 +449,23 @@ function boardConfigs {
 
 # usage kernelConfigs <BOARD_NAME>
 function kernelConfigs {
-  local TMP_DIRLST="${ARMSTRAP_BOARDS}/${1}/kernels/*_defconfig"
   local TMP_FILE=""
+  local TMP_I=""
+  local TMP_J=""
   
   if [ -d "${ARMSTRAP_BOARDS}/${1}/kernel/" ]; then
-    for j in ${ARMSTRAP_BOARDS}/${1}/kernel/*_defconfig; do
-      TMP_FILE="`echo "${j}" | cut -d- -f2 | cut -d_ -f1`"
+    for TMP_J in ${ARMSTRAP_BOARDS}/${1}/kernel/*_defconfig; do
+      TMP_FILE="`echo "${TMP_J}" | cut -d- -f2 | cut -d_ -f1`"
       printf "%s " ${TMP_FILE}
     done
   else
-    for i in ${ARMSTRAP_BOARDS}/${1}/kernel*; do
+    for TMP_I in ${ARMSTRAP_BOARDS}/${1}/kernel*; do
       if [ ! -z "${TMP_FILE}" ]; then
         printf "\n                          "
       fi
-      printf "%s : " "`basename ${i}`"
-      for j in ${ARMSTRAP_BOARDS}/${1}/`basename ${i}`/*_defconfig; do
-        TMP_FILE="`basename ${j}`"
+      printf "%s : " "`basename ${TMP_I}`"
+      for TMP_J in ${ARMSTRAP_BOARDS}/${1}/`basename ${TMP_I}`/*_defconfig; do
+        TMP_FILE="`basename ${TMP_J}`"
         TMP_FILE="`echo "${TMP_FILE}" | cut -d- -f2 | cut -d_ -f1`"
         printf "%s " "`basename ${TMP_FILE}`"
       done
@@ -474,17 +475,17 @@ function kernelConfigs {
 
 # usage checkConfig 
 function checkConfig {
-  local TMP_CFG="$(kernelConfigs ${ARMSTRAP_CONFIG})"
   local TMP_FND=""
+  local TMP_I=""
   
   if [ ! -d "${ARMSTRAP_BOARD_CONFIG}" ]; then
     $(exit 1)
     checkStatus "Board configuration ${ARMSTRAP_CONFIG} not found"
   fi
   
-  for i in ${TMP_CFG}; do
-    case ${i} in
-      ${BUILD_KBUILDER_CONF})
+  for TMP_I in ${BUILD_KBUILDER_CONFIG}/*; do
+    case `basename ${TMP_I}` in
+      *${BUILD_KBUILDER_CONF}*)
         TMP_FND="Yes"
         ;;
     esac

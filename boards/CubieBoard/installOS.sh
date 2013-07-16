@@ -12,7 +12,7 @@ function installOS {
   if [ -n "${BUILD_DPKG_EXTRAPACKAGES}" ]; then
     chrootInstall "${BUILD_MNT_ROOT}" "${BUILD_DPKG_EXTRAPACKAGES}"
   fi
-
+  
   isTrue "${ARMSTRAP_SWAP}"  
   if [ $? -ne 0 ]; then
     printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
@@ -44,16 +44,24 @@ function installOS {
   done
 
   addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
-  
+    
   httpExtract "${BUILD_MNT_ROOT}/boot" "${BUILD_ARMBIAN_UBOOT}" "${BUILD_ARMBIAN_EXTRACT}"
   
   rm -f "${BUILD_BOOT_CMD}"
   touch "${BUILD_BOOT_CMD}"
-  
-  ubootSetEnv "${BUILD_BOOT_CMD}" "bootargs" "${BUILD_CONFIG_CMDLINE}"
-  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_BIN_LOAD}"
-  ubootSetCMD "${BUILD_BOOT_CMD}" "ext2load" "${BUILD_BOOT_KERNEL_LOAD}"
-  ubootSetCMD "${BUILD_BOOT_CMD}" "bootm" "${BUILD_BOOT_KERNEL_ADDR}"
+
+  for i in "${BUILD_UBUILDER_BOOTCMD[@]}"; do
+    local TMP_KND=""
+    local TMP_VST=""
+    local TMP_POS=$(echo `expr index "$i" =`)
+    local TMP_LEN=$(echo `expr length "$i"`)
+    let "TMP_KND=${TMP_POS} -1"
+    let "TMP_VST=${TMP_POS} +1"
+    local TMP_VAL=$(echo `expr substr "$i" $TMP_VST $TMP_LEN`)
+    local TMP_KEY=$(echo `expr substr "$i" 1 $TMP_KND`)
+    printStatus "UBOOT" "${TMP_KEY} : ${TMP_VAL}"
+    ubootSetEnv "${BUILD_BOOT_CMD}" "${TMP_KEY}" "${TMP_VAL}"
+  done
   
   ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
 
