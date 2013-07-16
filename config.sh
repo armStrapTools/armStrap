@@ -41,7 +41,13 @@ ARMSTRAP_SWAP_SIZE="256"
 ##############################################################################
 # Kernel Sections
 #
-# There are many default configuration for the kernel avalable.
+# Some board can use many kernels, the stable one is the default but you can
+# try an alternate version if you wish.
+#
+#ARMSTRAP_KBUILDER_VERSION="3.4"
+#
+# There are many default configuration for the kernel avalable. If you use the
+# "mega" kernel, be advised than a 2gb sd card may not be enough...
 #
 #  For Cubieboard :
 #         default : Build the stock configuration
@@ -49,15 +55,19 @@ ARMSTRAP_SWAP_SIZE="256"
 #         desktop : Graphics and multimedia, no cedar acceleration
 #           video : Graphics and multimedia, cedar acceleration
 #
-# For Cubieboard2 :
+# For Cubieboard2 (Kernel 3.3):
 #         default : Build the stock configuration.
 #         desktop : Some graphics (since it's not completly done in kernel 3.3)
 #            mega : Every modules that compile on 3.3 are included.
+#
+# For Cubieboard2 (Kernel 3.4):
+#         megak34 : Every modules that compile on 3.4 are included.
 #
 #ARMSTRAP_KBUILDER_CONF="desktop"
 #
 # If you want to change the kernel root device (like for installing on NAND)
 # change it there... Default is to boot from first partition of SD card.
+#
 #ARMSTRAP_ROOT_DEV="/dev/mmcblk0p1"
 
 ##############################################################################
