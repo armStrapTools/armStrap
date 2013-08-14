@@ -7,15 +7,6 @@
 ARMSTRAP_VERSION="0.65"
 ARMSTRAP_NAME=`basename ${0}`
 
-if [ "`id -u`" -ne "0" ]; then
-  . ./lib/utils.sh
-  detectAnsi
-  showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
-  showUsage
-  printf "${ANS_BLD}${ANF_RED}This utility must be run as root. Try again with \"sudo ${ARMSTRAP_NAME}\"${ANF_DEF}${ANS_RST}\n\n"
-  exit 1
-fi
-
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
 ARMSTRAP_ROOT=`pwd`
 
@@ -27,6 +18,15 @@ ARMSTRAP_PKG="${ARMSTRAP_ROOT}/pkg"
 ARMSTRAP_CFG="${ARMSTRAP_ROOT}/cfg"
 
 ARMSTRAP_BOARDS="${ARMSTRAP_ROOT}/boards"
+
+if [ "`id -u`" -ne "0" ]; then
+  . ./lib/utils.sh
+  detectAnsi
+  showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
+  showUsage
+  printf "${ANS_BLD}${ANF_RED}This utility must be run as root. Try again with \"sudo ${ARMSTRAP_NAME}\"${ANF_DEF}${ANS_RST}\n\n"
+  exit 1
+fi
 
 if [ ! -d "${ARMSTRAP_LOG}" ]; then
   mkdir -p ${ARMSTRAP_LOG}
