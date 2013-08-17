@@ -140,7 +140,7 @@ BUILD_UBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_UBUILDER_GITSRC="https://github.com/hno/u-boot.git"
 BUILD_UBUILDER_GITBRN="wip/a20"
 BUILD_UBUILDER_SOURCE=""${ARMSTRAP_SRC}/${BUILD_CONFIG}/uboot-hno
-BUILD_UBUILDER_BOOTCMD=("bootargs=${BUILD_CONFIG_CMDLINE}" "machid=0xf35" "ext2load=${BUILD_BOOT_BIN_LOAD}" "ext2load=${BUILD_BOOT_KERNEL_LOAD}" "bootm=${BUILD_BOOT_KERNEL_ADDR}")
+BUILD_UBUILDER_BOOTCMD=("bootargs=${BUILD_CONFIG_CMDLINE}" "machid=0xf35" "root=${BUILD_ROOT_DEV} rootwait" "kernel=/boot/${BUILD_KERNEL_NAME}" "ext2load=${BUILD_BOOT_BIN_LOAD}" "ext2load=${BUILD_BOOT_KERNEL_LOAD}" "bootm=${BUILD_BOOT_KERNEL_ADDR}")
 #############################################################################
 #
 # Sunxi-Boards Stuff

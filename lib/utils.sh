@@ -306,7 +306,8 @@ function ubootSetEnv {
       printStatus "ubootSetEnv" "Setting variable ${TMP_VAR} to ${@}"
       echo "setenv ${TMP_VAR} ${@}" >> ${TMP_CFG}
     else
-      printStatus "ubootSetEnv" "WARNING: No value to set variable ${TMP_VAR}"
+      printStatus "ubootSetEnv" "Setting command ${TMP_VAR}"
+      echo "${TMP_VAR}" >> ${TMP_CFG}
     fi
   else
     printStatus "ubootSetEnv" "WARNING: File ${TMP_CFG} not found"

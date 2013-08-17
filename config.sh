@@ -63,7 +63,7 @@ ARMSTRAP_SWAP_SIZE="256"
 # For Cubieboard2 (Kernel 3.4):
 #            mega : Every modules that compile on 3.4 are included.
 #
-#ARMSTRAP_KBUILDER_CONF="mega"
+#ARMSTRAP_KBUILDER_CONF="desktop"
 #
 # If you want to change the kernel root device (like for installing on NAND)
 # change it there... Default is to boot from first partition of SD card.

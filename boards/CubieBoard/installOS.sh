@@ -54,12 +54,18 @@ function installOS {
     local TMP_KND=""
     local TMP_VST=""
     local TMP_POS=$(echo `expr index "$i" =`)
-    local TMP_LEN=$(echo `expr length "$i"`)
-    let "TMP_KND=${TMP_POS} -1"
-    let "TMP_VST=${TMP_POS} +1"
-    local TMP_VAL=$(echo `expr substr "$i" $TMP_VST $TMP_LEN`)
-    local TMP_KEY=$(echo `expr substr "$i" 1 $TMP_KND`)
-    printStatus "UBOOT" "${TMP_KEY} : ${TMP_VAL}"
+    if [ $TMP_POS -ne 0 ]; then
+      local TMP_LEN=$(echo `expr length "$i"`)
+      let "TMP_KND=${TMP_POS} -1"
+      let "TMP_VST=${TMP_POS} +1"
+      local TMP_VAL=$(echo `expr substr "$i" $TMP_VST $TMP_LEN`)
+      local TMP_KEY=$(echo `expr substr "$i" 1 $TMP_KND`)
+      printStatus "UBOOT" "${TMP_KEY} : ${TMP_VAL}"
+    else
+      local TMP_KEY="$i"
+      local TMP_VAL=""
+      printStatus "UBOOT" "${TMP_KEY}"
+    fi
     ubootSetEnv "${BUILD_BOOT_CMD}" "${TMP_KEY}" "${TMP_VAL}"
   done
   
