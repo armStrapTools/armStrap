@@ -260,6 +260,15 @@ if [ $? -ne 0 ]; then
     
     if [ -d "${ARMSTRAP_BOARD_CONFIG}/kernel/" ]; then
       for j in `echo ${ARMSTRAP_BOARD_CONFIG}/kernel/*_defconfig`; do
+        BUILD_KBUILDER_SOURCE="" 
+        BUILD_KBUILDER_CONFIG=""
+        BUILD_KBUILDER_FAMILLY=""
+        BUILD_KBUILDER_ARCH=""
+        BUILD_KBUILDER_TYPE=""
+        BUILD_KBUILDER_CONF=""
+        BUILD_KBUILDER_VERSION=""
+        BUILD_KBUILDER_GITSRC=""
+        BUILD_KBUILDER_GITBRN=""
         ARMSTRAP_KBUILDER_VERSION=""
         ARMSTRAP_KBUILDER_CONF="`echo ${j} | cut -d- -f2 | cut -d_ -f1`"
         source ${ARMSTRAP_BOARD_CONFIG}/config.sh
@@ -269,8 +278,16 @@ if [ $? -ne 0 ]; then
       done
     else
       for k in ${ARMSTRAP_BOARD_CONFIG}/kernel*; do
-        echo "Parsing config directory ${k}"
         for j in ${k}/*_defconfig; do
+          BUILD_KBUILDER_SOURCE="" 
+          BUILD_KBUILDER_CONFIG=""
+          BUILD_KBUILDER_FAMILLY=""
+          BUILD_KBUILDER_ARCH=""
+          BUILD_KBUILDER_TYPE=""
+          BUILD_KBUILDER_CONF=""
+          BUILD_KBUILDER_VERSION=""
+          BUILD_KBUILDER_GITSRC=""
+          BUILD_KBUILDER_GITBRN=""
           TMP_KERNEL="`basename ${k}`"
           TMP_CONFIG="`basename ${j}`"
           ARMSTRAP_KBUILDER_VERSION="`echo ${TMP_KERNEL} | cut -d- -f2`"
