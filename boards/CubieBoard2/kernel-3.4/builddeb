@@ -79,9 +79,9 @@ fwdir="$objtree/debian/fwtmp"
 kernel_headers_dir="$objtree/debian/hdrtmp"
 libc_headers_dir="$objtree/debian/headertmp"
 packagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-image-$version
-fwpackagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-firmware-image
+fwpackagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-firmware-image-$version
 kernel_headers_packagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-headers-$version
-libc_headers_packagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-libc-dev
+libc_headers_packagename=${EXPORT_ARMSTRAP_TARGET}linux${EXPORT_ARMSTRAP_RELEASE}-libc-dev-$version
 
 if [ "$ARCH" = "um" ] ; then
 	packagename=user-mode-linux-$version
@@ -185,7 +185,7 @@ function updateBoot {
   echo "kernel=uImage-\${2}" >> \${1}
 }
 
-updateBoot "/boot/uEnv.txt" "3.4.43+"
+updateBoot "/boot/uEnv.txt" ${version}
 
 EOF
 

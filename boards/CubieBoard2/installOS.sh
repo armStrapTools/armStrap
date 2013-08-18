@@ -69,6 +69,13 @@ function installOS {
     ubootSetEnv "${BUILD_BOOT_CMD}" "${TMP_KEY}" "${TMP_VAL}"
   done
   
+  rm -f "${BUILD_BOOT_UENV}"
+  touch "${BUILD_BOOT_UENV}"
+
+  for i in "${BUILD_UBUILDER_BOOTUENV[@]}"; do
+    ubootSetEnv "${BUILD_BOOT_UENV}" "${i}"
+  done
+  
   ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
 
   chrootKernel "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"

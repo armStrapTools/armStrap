@@ -70,6 +70,7 @@ BUILD_MAC_VENDOR=0x000246
   
 BUILD_BOOT_CMD="${BUILD_MNT_ROOT}/boot/boot.cmd"
 BUILD_BOOT_SCR="${BUILD_MNT_ROOT}/boot/boot.scr"
+BUILD_BOOT_UENV="${BUILD_MNT_ROOT}/boot/uEnv.txt"
   
 BUILD_CONFIG_CMDLINE="console=tty0 console=${BUILD_SERIALCON_TERM},${BUILD_SERIALCON_SPEED} hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BUILD_ROOT_DEV} rootwait panic=10"
   
@@ -143,7 +144,8 @@ BUILD_UBUILDER_SOURCE=""${ARMSTRAP_SRC}/${BUILD_CONFIG}/uboot-hno
 #
 # Theses are defaults values that can be overwritten by uEnv.txt
 #
-BUILD_UBUILDER_BOOTCMD=("bootargs=${BUILD_CONFIG_CMDLINE}" "machid=0xf35" "root=${BUILD_ROOT_DEV} rootwait" "kernel=/boot/${BUILD_KERNEL_NAME}")
+BUILD_UBUILDER_BOOTCMD=("machid=0xf35" "root=${BUILD_ROOT_DEV} rootwait")
+BUILD_UBUILDER_BOOTUENV=("bootargs=${BUILD_CONFIG_CMDLINE}")
 
 #############################################################################
 #
