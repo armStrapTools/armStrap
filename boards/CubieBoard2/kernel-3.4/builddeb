@@ -186,13 +186,15 @@ function updateBoot {
 }
 
 updateBoot "/boot/uEnv.txt" "3.4.43+"
+
 EOF
 
-cat <<EOF > "$tmpdir$debhookdir/prerm.d/cleanBoot
+cat <<EOF > "$tmpdir$debhookdir/prerm.d/cleanBoot"
 #!/bin/bash
 
 rm -f /etc/kernel/postinst.d/updateBoot
 rm -f /etc/kernel/prerm.d/cleanBoot
+
 EOF
 
 chmod 755 "$tmpdir$debhookdir/postinst.d/updateBoot"
