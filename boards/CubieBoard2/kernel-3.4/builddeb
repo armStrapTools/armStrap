@@ -161,28 +161,28 @@ cat <<EOF > "$tmpdir$debhookdir/postinst.d/updateBoot"
 # Usage updateBoot <UENV_PATH> <KERNEL_VERSION>
 function updateBoot {
 
-  local TMP_TXTD="`mktemp uEnv.XXXXXX`"
+  local TMP_TXTD="\`mktemp uEnv.XXXXXX\`"
 
-  if [ -f "${1}" ]; then
-    while read i; do
-      case "${i}" in
+  if [ -f "\${1}" ]; then
+    while read i; do  
+      case "\${i}" in
         kernel=*)
         ;;
       *)
-        echo "${i}" >> "${TMP_TXTD}"
+        echo "\${i}" >> "\${TMP_TXTD}"
         ;;
       esac
-    done < "${1}"
+    done < "\${1}"
 
-    if [ -f "${1}.old" ]; then
-      rm -f "${1}.old"
+    if [ -f "\${1}.old" ]; then
+      rm -f "\${1}.old"
     fi
 
-    mv "${1}" "${1}.old"
-    mv "${TMP_TXTD}" "${1}"
+    mv "\${1}" "\${1}.old"   
+    mv "\${TMP_TXTD}" "\${1}"
   fi
   
-  echo "kernel=uImage-${2}" >> ${1}
+  echo "kernel=uImage-\${2}" >> \${1}
 }
 
 updateBoot "/boot/uEnv.txt" "3.4.43+"

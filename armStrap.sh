@@ -219,7 +219,7 @@ if [ $? -ne 0 ]; then
         ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
       else
         printStatus "rootfsUpdater" "----------------------------------------"
-        printStatus "rootfsUpdater" "rootFS ${TMP_ROOTFS} is up to date."
+        printStatus "rootfsUpdater" "rootFS ${k} is up to date."
         printStatus "rootfsUpdater" "----------------------------------------"
       fi
     done
