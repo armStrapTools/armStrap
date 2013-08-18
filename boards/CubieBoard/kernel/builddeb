@@ -158,53 +158,45 @@ done
 cat <<EOF > "$tmpdir$debhookdir/postinst.d/updateBoot"
 #!/bin/bash
 
-# Usage updateBoot <BOOT_SCR> <KERNEL_VERSION> <ARCH>
+# Usage updateBoot <UENV_PATH> <KERNEL_VERSION>
 function updateBoot {
 
-  local TMP_TXTS="\`mktemp boot.XXXXXX\`"
-  local TMP_TXTD="\`mktemp boot.XXXXXX\`"
-  
-  if [ -f "\${1}" ]; then
-    local TMP_SIZE=\$(du -sb \${1} | awk '{ print \$1 }')
-    local TMP_DATA=\$(mkimage -l \${1} | grep "Image 0" | cut -d: -f 2 | cut -dB -f 1)
-    local TMP_HDRS=\$(expr \${TMP_SIZE} - \${TMP_DATA})
-    
-    dd if=\${1} of=\${TMP_TXTS} bs=\${TMP_HDRS} skip=1
+  local TMP_TXTD="`mktemp uEnv.XXXXXX`"
 
+  if [ -f "${1}" ]; then
     while read i; do
-      case "\${i}" in
-        *uImage*)
-        local TMP_LINE=\$(echo "\${i}" | cut -d/ -f1)
-        echo "\${TMP_LINE}/uImage-\${2}" >> "\${TMP_TXTD}"
+      case "${i}" in
+        kernel=*)
         ;;
       *)
-        echo "\${i}" >> "\${TMP_TXTD}"
+        echo "${i}" >> "${TMP_TXTD}"
         ;;
       esac
-    done < \${TMP_TXTS}
-  
-    if [ -f "\${1}.old" ]; then
-      rm -f "\${1}.old"
+    done < "${1}"
+
+    if [ -f "${1}.old" ]; then
+      rm -f "${1}.old"
     fi
-    
-    mv "\${1}" "\${1}.old"
-  else
-    echo "setenv bootargs console=tty0 console=ttyS0,115200 hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=/dev/mmcblk0p1 rootwait panic=10" >> \${TMP_TXTD}
-    echo "ext2load mmc 0 0x43000000 boot/script.bin" >> \${TMP_TXTD}
-    echo "ext2load mmc 0 0x48000000 boot/uImage-\${2}" >> \${TMP_TXTD}
-    echo "bootm 0x48000000" >> \${TMP_TXTD}    
+
+    mv "${1}" "${1}.old"
+    mv "${TMP_TXTD}" "${1}"
   fi
   
-  mkimage -C none -A \${3} -T script -d \${TMP_TXTD} \${1}
-  
-  rm -f \${TMP_TXTS}
-  rm -f \${TMP_TXTD}
+  echo "kernel=uImage-${2}" >> ${1}
 }
 
-updateBoot "/boot/boot.scr" "$version" "arm"
+updateBoot "/boot/uEnv.txt" "3.4.43+"
+EOF
+
+cat <<EOF > "$tmpdir$debhookdir/prerm.d/cleanBoot
+#!/bin/bash
+
+rm -f /etc/kernel/postinst.d/updateBoot
+rm -f /etc/kernel/prerm.d/cleanBoot
 EOF
 
 chmod 755 "$tmpdir$debhookdir/postinst.d/updateBoot"
+chmod 755 "$tmpdir$debhookdir/prerm.d/cleanBoot"
 
 # Try to determine maintainer and email values
 if [ -n "$DEBEMAIL" ]; then
