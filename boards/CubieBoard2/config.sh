@@ -114,6 +114,8 @@ case ${ARMSTRAP_KBUILDER_VERSION} in
     BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel-3.4"
     BUILD_KBUILDER_GITSRC="https://github.com/jwrdegoede/linux-sunxi.git"
     BUILD_KBUILDER_GITBRN="sunxi-3.4"
+
+    BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.4.43.sun7i+_3.4.43.sun7i+-1_armhf.sh"
     ;;
   *)
     BUILD_KBUILDER_VERSION="3.3"
@@ -129,6 +131,8 @@ case ${ARMSTRAP_KBUILDER_VERSION} in
     BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel-3.3"
     BUILD_KBUILDER_GITSRC="https://github.com/jwrdegoede/linux-sunxi.git"
     BUILD_KBUILDER_GITBRN="sunxi-3.3-cubieboard2"
+
+    BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.3.0+_3.3.0+-1_armhf.sh"
     ;;
 esac
 
@@ -174,7 +178,6 @@ BUILD_TBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/sunxi-tools"
 
 BUILD_ARMBIAN_EXTRACT="tar -xJ"
 BUILD_ARMBIAN_COMPRESS="tar -cJvf"
-BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.3.0+_3.3.0+-1_armhf.sh"
 BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
 
 BUILD_SCRIPTS="installOS.sh"
