@@ -13,7 +13,7 @@ fi
 # Variables that should never be changed
 #
 
-ARMSTRAP_VERSION="0.70"
+ARMSTRAP_VERSION="0.70 (RC1)"
 ARMSTRAP_NAME=`basename ${0}`
 
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
