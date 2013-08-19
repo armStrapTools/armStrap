@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard2"
+ARMSTRAP_CONFIG="CubieBoard"
 
 ##############################################################################
 # Basic configuration
@@ -44,7 +44,7 @@ ARMSTRAP_OS="ubuntu"
 # Some board can use many kernels, the stable one is the default but you can
 # try an alternate version if you wish.
 #
-ARMSTRAP_KBUILDER_VERSION="3.4"
+#ARMSTRAP_KBUILDER_VERSION="3.4"
 #
 # There are many default configuration for the kernel avalable. If you use the
 # "mega" kernel, be advised than a 2gb sd card may not be enough...
@@ -63,7 +63,7 @@ ARMSTRAP_KBUILDER_VERSION="3.4"
 # For Cubieboard2 (Kernel 3.4):
 #         default : Every modules that compile on 3.4 are included.
 #
-ARMSTRAP_KBUILDER_CONF="default"
+#ARMSTRAP_KBUILDER_CONF="default"
 #
 # If you want to change the kernel root device (like for installing on NAND)
 # change it there... Default is to boot from first partition of SD card.
@@ -101,7 +101,7 @@ ARMSTRAP_ETH0_MODE="dhcp"
 #
 # If you want to install directly into your SD card, put the device here. If
 # it's not defined, an image will be generated.
-ARMSTRAP_DEVICE="/dev/sdc"
+#ARMSTRAP_DEVICE="/dev/sdc"
 # If you want to name your image something else than the generated name
 #ARMSTRAP_IMAGE_NAME="wathever_you_want_to_name_your_image.img"
 # Specify the size of the image to be build in MB
