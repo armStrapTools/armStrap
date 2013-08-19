@@ -13,7 +13,7 @@ fi
 # Variables that should never be changed
 #
 
-ARMSTRAP_VERSION="0.67"
+ARMSTRAP_VERSION="0.70"
 ARMSTRAP_NAME=`basename ${0}`
 
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
@@ -188,65 +188,65 @@ if [ $? -ne 0 ]; then
   printStatus "rootfsUpdater" "- Stage 1 - Updating rootFS"
   printStatus "rootfsUpdater" "----------------------------------------"
 
-#  for i in $(boardConfigs); do
-#    ARMSTRAP_CONFIG="${i}"
-#    ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
-#    source ${ARMSTRAP_BOARD_CONFIG}/config.sh
-#    
-#    printStatus "rootfsUpdater" "Searching for rootFS in ${ARMSTRAP_CONFIG}"
-#    
-#    for k in ${BUILD_ARMBIAN_ROOTFS_LIST}; do
-#      if [[ ${TMP_ROOTFS_LIST} != *!${k}!* ]]; then
-#        TMP_ROOTFS_LIST="${TMP_ROOTFS_LIST} !${k}!"
-#        ARMSTRAP_OS="${k}"
-#        source ${ARMSTRAP_BOARD_CONFIG}/config.sh
-#        TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
-#        TMP_ROOTFS="${TMP_ROOTFS%.txz}"
-#       
-#        printStatus "rootfsUpdater" "----------------------------------------"
-#        printStatus "rootfsUpdater" "- Updating rootFS ${TMP_ROOTFS}"
-#        printStatus "rootfsUpdater" "----------------------------------------"
-#        
-#        if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
-#          checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-#          httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
-#        fi
-#        
-#        shellRun "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "apt-get update && apt-get -y dist-upgrade"
-#        
-#        printStatus "rootfsUpdater" "Compressing rootFS ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
-#        rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
-#        ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
-#      else
-#        printStatus "rootfsUpdater" "----------------------------------------"
-#        printStatus "rootfsUpdater" "rootFS ${k} is up to date."
-#        printStatus "rootfsUpdater" "----------------------------------------"
-#      fi
-#    done
-#  done
+  for i in $(boardConfigs); do
+    ARMSTRAP_CONFIG="${i}"
+    ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
+    source ${ARMSTRAP_BOARD_CONFIG}/config.sh
+    
+    printStatus "rootfsUpdater" "Searching for rootFS in ${ARMSTRAP_CONFIG}"
+    
+    for k in ${BUILD_ARMBIAN_ROOTFS_LIST}; do
+      if [[ ${TMP_ROOTFS_LIST} != *!${k}!* ]]; then
+        TMP_ROOTFS_LIST="${TMP_ROOTFS_LIST} !${k}!"
+        ARMSTRAP_OS="${k}"
+        source ${ARMSTRAP_BOARD_CONFIG}/config.sh
+        TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
+        TMP_ROOTFS="${TMP_ROOTFS%.txz}"
+       
+        printStatus "rootfsUpdater" "----------------------------------------"
+        printStatus "rootfsUpdater" "- Updating rootFS ${TMP_ROOTFS}"
+        printStatus "rootfsUpdater" "----------------------------------------"
+        
+        if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
+          checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+          httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
+        fi
+        
+        shellRun "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "apt-get update && apt-get -y dist-upgrade"
+        
+        printStatus "rootfsUpdater" "Compressing rootFS ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
+        rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
+        ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+      else
+        printStatus "rootfsUpdater" "----------------------------------------"
+        printStatus "rootfsUpdater" "rootFS ${k} is up to date."
+        printStatus "rootfsUpdater" "----------------------------------------"
+      fi
+    done
+  done
   
-#  printStatus "ubootUpdater" "----------------------------------------"
-#  printStatus "ubootUpdater" "- Stage 2 - Updating U-Boot"
-#  printStatus "ubootUpdater" "----------------------------------------"
+  printStatus "ubootUpdater" "----------------------------------------"
+  printStatus "ubootUpdater" "- Stage 2 - Updating U-Boot"
+  printStatus "ubootUpdater" "----------------------------------------"
   
-#  for i in $(boardConfigs); do
-#    ARMSTRAP_CONFIG="${i}"
-#    ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
-#    source ${ARMSTRAP_BOARD_CONFIG}/config.sh
-#  
-#    if [[ ${TMP_UBOOT_LIST} != *!${i}!* ]]; then
-#      TMP_UBOOT_LIST="${TMP_UBOOT_LIST} !${i}!"
-#      makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-#      makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-#      printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
-#      ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
-#      rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
-#    else
-#      printStatus "ubootUpdater" "----------------------------------------"
-#      printStatus "ubootUpdater" "- U-Boot for ${ARMSTRAP_CONFIG} is up to date"
-#      printStatus "ubootUpdater" "----------------------------------------"
-#    fi
-#  done
+  for i in $(boardConfigs); do
+    ARMSTRAP_CONFIG="${i}"
+    ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
+    source ${ARMSTRAP_BOARD_CONFIG}/config.sh
+  
+    if [[ ${TMP_UBOOT_LIST} != *!${i}!* ]]; then
+      TMP_UBOOT_LIST="${TMP_UBOOT_LIST} !${i}!"
+      makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
+      makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
+      printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
+      ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
+      rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
+    else
+      printStatus "ubootUpdater" "----------------------------------------"
+      printStatus "ubootUpdater" "- U-Boot for ${ARMSTRAP_CONFIG} is up to date"
+      printStatus "ubootUpdater" "----------------------------------------"
+    fi
+  done
 
   printStatus "ubootUpdater" "----------------------------------------"
   printStatus "ubootUpdater" "- Stage 3 - Kernels"
