@@ -12,9 +12,9 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.65
+    armStrap.sh version 0.70 (RC1)
     Copyright (C) 2013 Eddy Beaupre
-    
+
     Usage : sudo armStrap.sh [PARAMETERS]
     
     Image/SD Builder:
@@ -34,6 +34,7 @@ You need to be root to run this script. You have two options:
     
     Kernel Builder:
       -K                      Build Kernel (debian packages).
+      -V <version>            Select an alternate kernel version (if avalable).
       -C <CONFIG>             Select a different kernel configuration.
       -I                      Call menuconfig before building Kernel.
     
@@ -51,8 +52,9 @@ You need to be root to run this script. You have two options:
                               as parameters
     
     Supported boards and kernel configurations:
-      CubieBoard              custom default desktop server video 
-      CubieBoard2             default desktop mega 
+      CubieBoard              default desktop server video 
+      CubieBoard2             kernel-3.3 : default desktop mega 
+                              kernel-3.4 : default 
     
     With no parameter, create an image using values found in config.sh.
 
