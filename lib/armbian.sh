@@ -467,8 +467,8 @@ function makeUBoot {
   printStatus "makeUBoot" "Copying sunxi-spl.bin to ${3}/${2}"
   cp "${1}/spl/sunxi-spl.bin" "${3}/${2}"
   
-  printStatus "makeUBoot" "Copying u-boot.bin to ${3}/${2}"
-  cp "${1}/u-boot.bin" "${3}/${2}"
+  printStatus "makeUBoot" "Copying u-boot.img to ${3}/${2}"
+  cp "${1}/u-boot.img" "${3}/${2}"
 }
 
 
