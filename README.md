@@ -12,9 +12,9 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.70 (RC1)
+    armStrap.sh version 0.71
     Copyright (C) 2013 Eddy Beaupre
-
+    
     Usage : sudo armStrap.sh [PARAMETERS]
     
     Image/SD Builder:
@@ -55,6 +55,7 @@ You need to be root to run this script. You have two options:
       CubieBoard              default desktop server video 
       CubieBoard2             kernel-3.3 : default desktop mega 
                               kernel-3.4 : default 
+      HackBerry               default desktop server video 
     
     With no parameter, create an image using values found in config.sh.
 
