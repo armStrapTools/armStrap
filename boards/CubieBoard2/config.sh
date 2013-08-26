@@ -87,7 +87,7 @@ BUILD_BOOT_SPL="${BUILD_MNT_ROOT}/boot/sunxi-spl.bin"
 BUILD_BOOT_SPL_SIZE="1024"
 BUILD_BOOT_SPL_SEEK="8"
 
-BUILD_BOOT_UBOOT="${BUILD_MNT_ROOT}/boot/u-boot.bin"
+BUILD_BOOT_UBOOT="${BUILD_MNT_ROOT}/boot/u-boot.img"
 BUILD_BOOT_UBOOT_SIZE="1024"
 BUILD_BOOT_UBOOT_SEEK="32"
   
@@ -142,8 +142,6 @@ esac
 # U-Boot Stuff
 #
 BUILD_UBUILDER_FAMILLY="${BUILD_CONFIG}"
-#BUILD_UBUILDER_GITSRC="https://github.com/hno/u-boot.git"
-#BUILD_UBUILDER_GITBRN="wip/a20"
 BUILD_UBUILDER_GITSRC="https://github.com/linux-sunxi/u-boot-sunxi.git"
 BUILD_UBUILDER_GITBRN=""
 BUILD_UBUILDER_SOURCE=""${ARMSTRAP_SRC}/${BUILD_CONFIG}/uboot-sunxi
