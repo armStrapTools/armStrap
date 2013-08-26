@@ -26,8 +26,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 EOF
 }
 
-
-
 function showUsage {
   local TMP_BOARDS="$(boardConfigs)"
   printf "Usage : ${ANS_BLD}sudo %s${ANS_RST} [PARAMETERS]\n" "${ARMSTRAP_NAME}"
@@ -126,6 +124,11 @@ function isRoot {
 
 # Usage: installPrereq <PREREQ1> [<PREREQ2> ... ]
 function installPrereqs {
+
+  printStatus "installPrereqs" "Updating installed packages"
+  /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y update 2>> ${ARMSTRAP_LOG_FILE}
+  /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y dist-upgrade 2>> ${ARMSTRAP_LOG_FILE}
+
   for i in ${@}; do 
     testInstall ${i}; 
   done
@@ -135,8 +138,8 @@ function installPrereqs {
 function testInstall {
   local IN=(`dpkg-query -W -f='${Status} ${Version}\n' ${1} 2> /dev/null`)
   if [ "${IN[0]}" != "install" ]; then
-    printStatus "testInstall" "Installing ${1}"
-    apt-get --quiet -y install ${1} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    printStatus "testInstall" "Prerequisition ${1} not found, Installing..."
+    /usr/bin/debconf-apt-progress --logstderr -- apt-get --quiet -y install ${1} 2>> ${ARMSTRAP_LOG_FILE}
   fi
 }
 
@@ -215,6 +218,10 @@ function macAddress {
 }
 
 function funExist {
+  if [ -z "${1}" ]; then
+    return 1
+  fi
+
   declare -f -F ${1} > /dev/null
 }
 
@@ -516,4 +523,16 @@ function checkRootFS {
     $(exit 1)
     checkStatus "rootFS ${ARMSTRAP_OS} not found for this board, valid choices are : ${BUILD_ARMBIAN_ROOTFS_LIST}"
   fi
+}
+
+# usage loadLibrary <LIBPATH> <LIB1> [<LIB2> ...]
+function loadLibrary {
+  local TMP_PATH="${1}"
+  shift
+  for i in $@; do
+    if [ -f ${TMP_PATH}/${i} ]; then
+      printStatus "loadLibrary" "Loading `basename ${i}`"
+      source ${TMP_PATH}/${i}
+    fi
+  done
 }

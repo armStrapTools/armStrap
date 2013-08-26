@@ -180,5 +180,26 @@ BUILD_ARMBIAN_EXTRACT="tar -xJ"
 BUILD_ARMBIAN_COMPRESS="tar -cJvf"
 BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
 
-BUILD_SCRIPTS="installOS.sh"
+#############################################################################
+#
+# Script Add-Ons
+#
+# if not empty, theses scripts will be sourced at initialisation. Useful to 
+# replace or add functions.
+BUILD_INIT_SCRIPTS=""
+# if not empty, this function will be called before building the board.
+# No parameters will be passed to the funtion.
+BUILD_INIT_FUNCTION=""
+# if not empty, theses scripts will be sources before building the board.
+# Useful to provide a custom build function.
+BUILD_INSTALL_SCRIPTS=""
+# if not empty, this function will be call to build the board instead of the
+# default one. No parameters will be passed to the funtion.
+BUILD_INSTALL_FUNCTION=""
+
+#############################################################################
+#
+# Host configuration
+#
+# Add any prerequisition the board need to be build. 
 BUILD_PREREQ="u-boot-tools qemu qemu-user-static parted kpartx lvm2 binfmt-support libusb-1.0-0-dev dosfstools libncurses5-dev"

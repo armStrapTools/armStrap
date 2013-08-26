@@ -47,10 +47,6 @@ ARMSTRAP_DEVICE_MAPS=("")
 # ARMSTRAP default distribution
 ARMSTRAP_OS="debian"
 
-# Theses can be modified by the board's config file
-ARMSTRAP_INIT_SCRIPTS="initBuilder.sh"
-ARMSTRAP_INIT_FUNCTION="initBuilder"
-
 ARMSTRAP_KBUILDER=""
 ARMSTRAP_RUPDATER=""
 ARMSTRAP_UBUILDER=""
@@ -313,11 +309,7 @@ source ${ARMSTRAP_BOARD_CONFIG}/config.sh
 checkConfig
 checkRootFS
 
-for i in ${ARMSTRAP_INIT_SCRIPTS}; do
-  if [ -f "${ARMSTRAP_BOARD_CONFIG}/${i}" ]; then
-    source "${ARMSTRAP_BOARD_CONFIG}/${i}"
-  fi
-done
+loadLibrary "${ARMSTRAP_BOARD_CONFIG}" ${BUILD_INIT_SCRIPTS}
 
 rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
 mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
@@ -378,9 +370,19 @@ fi
 
 showConfig
 
-funExist ${ARMSTRAP_INIT_FUNCTION}
+loadLibrary "${ARMSTRAP_BOARD_CONFIG}" ${BUILD_INSTALL_SCRIPTS}
+
+if [ ! -z "${BUILD_PREREQ}" ]; then
+  installPrereqs ${BUILD_PREREQ}
+fi
+
+if [ ! -z "${BUILD_MAC_VENDOR}" ]; then
+  macAddress "${BUILD_MAC_VENDOR}"
+fi
+
+funExist ${BOARD_INIT_FUNCTION}
 if [ ${?} -eq 0 ]; then
-  ${ARMSTRAP_INIT_FUNCTION} "${ARMSTRAP_CONFIG}" "${ARMSTRAP_BOARD_CONFIG}"
+  ${BOARD_INIT_FUNCTION}
 fi
 
 if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
@@ -389,7 +391,12 @@ else
   setupSD ${BUILD_DISK_LAYOUT[@]}
 fi
 
-installOS
+funExist ${BUILD_INSTALL_FUNCTION}
+if [ ${?} -eq 0 ]; then
+  ${BUILD_INSTALL_FUNCTION}
+else
+  default_installOS
+fi
 
 if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
   finishImg ${BUILD_DISK_LAYOUT[@]}
