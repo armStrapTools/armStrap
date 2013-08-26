@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="HackBerry"
+ARMSTRAP_CONFIG="CubieBoard"
 
 ##############################################################################
 # Basic configuration
@@ -101,7 +101,7 @@ ARMSTRAP_ETH0_MODE="dhcp"
 #
 # If you want to install directly into your SD card, put the device here. If
 # it's not defined, an image will be generated.
-ARMSTRAP_DEVICE="/dev/sdc"
+#ARMSTRAP_DEVICE="/dev/sdc"
 # If you want to name your image something else than the generated name
 #ARMSTRAP_IMAGE_NAME="wathever_you_want_to_name_your_image.img"
 # Specify the size of the image to be build in MB
