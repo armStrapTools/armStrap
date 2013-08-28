@@ -97,6 +97,7 @@ BUILD_DISK_LAYOUT=("1:/:ext4:-1")
 #
 # Kernel builder stuff
 #
+BUILD_KBUILDER="Yes"
 BUILD_KBUILDER_TYPE="sun4i"
 if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
   BUILD_KBUILDER_CONF="desktop"
@@ -114,6 +115,7 @@ BUILD_KBUILDER_GITBRN="sunxi-3.4"
 #
 # U-Boot Stuff
 #
+BUILD_UBUILDER="Yes"
 BUILD_UBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_UBUILDER_GITSRC="https://github.com/linux-sunxi/u-boot-sunxi.git"
 BUILD_UBUILDER_GITBRN=""
@@ -129,6 +131,7 @@ BUILD_UBUILDER_BOOTUENV=("bootargs=${BUILD_CONFIG_CMDLINE}")
 #
 # Sunxi-Boards Stuff
 #
+BUILD_SBUILDER="Yes"
 BUILD_SBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_SBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-boards.git"
 BUILD_SBUILDER_GITBRN=""
@@ -144,6 +147,7 @@ fi
 #
 # Sunxi-Tools Stuff
 #
+BUILD_TBUILDER="Yes"
 BUILD_TBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_TBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-tools.git"
 BUILD_TBUILDER_GITBRN=""

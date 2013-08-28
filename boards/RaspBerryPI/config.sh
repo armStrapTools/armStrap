@@ -97,7 +97,8 @@ BUILD_DISK_LAYOUT=("2:/:fat:128" "1:/:ext4:-1")
 #
 # Kernel builder stuff
 #
-BUILD_KBUILDER_TYPE="bcm2835"
+BUILD_KBUILDER="Yes"
+BUILD_KBUILDER_TYPE="bcmrpi"
 if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
   BUILD_KBUILDER_CONF="default"
 else
@@ -114,6 +115,7 @@ BUILD_KBUILDER_GITBRN="rpi-3.6.y"
 #
 # U-Boot Stuff
 #
+BUILD_UBUILDER="No"
 BUILD_UBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_UBUILDER_GITSRC="https://github.com/linux-sunxi/u-boot-sunxi.git"
 BUILD_UBUILDER_GITBRN=""
@@ -129,6 +131,7 @@ BUILD_UBUILDER_BOOTUENV=("bootargs=${BUILD_CONFIG_CMDLINE}")
 #
 # Sunxi-Boards Stuff
 #
+BUILD_SBUILDER="No"
 BUILD_SBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_SBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-boards.git"
 BUILD_SBUILDER_GITBRN=""
@@ -144,6 +147,7 @@ fi
 #
 # Sunxi-Tools Stuff
 #
+BUILD_TBUILDER="No"
 BUILD_TBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_TBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-tools.git"
 BUILD_TBUILDER_GITBRN=""

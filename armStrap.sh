@@ -229,18 +229,21 @@ if [ $? -ne 0 ]; then
     ARMSTRAP_CONFIG="${i}"
     ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
     source ${ARMSTRAP_BOARD_CONFIG}/config.sh
-  
-    if [[ ${TMP_UBOOT_LIST} != *!${i}!* ]]; then
-      TMP_UBOOT_LIST="${TMP_UBOOT_LIST} !${i}!"
-      makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-      makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-      printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
-      ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
-      rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
-    else
-      printStatus "ubootUpdater" "----------------------------------------"
-      printStatus "ubootUpdater" "- U-Boot for ${ARMSTRAP_CONFIG} is up to date"
-      printStatus "ubootUpdater" "----------------------------------------"
+    
+    isTrue "${BUILD_UBUILDER}"
+    if [ $? -ne 0 ]; then
+      if [[ ${TMP_UBOOT_LIST} != *!${i}!* ]]; then
+        TMP_UBOOT_LIST="${TMP_UBOOT_LIST} !${i}!"
+        makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
+        makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
+        printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
+        ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
+        rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
+      else
+        printStatus "ubootUpdater" "----------------------------------------"
+        printStatus "ubootUpdater" "- U-Boot for ${ARMSTRAP_CONFIG} is up to date"
+        printStatus "ubootUpdater" "----------------------------------------"
+      fi
     fi
   done
 
@@ -268,9 +271,12 @@ if [ $? -ne 0 ]; then
         ARMSTRAP_KBUILDER_VERSION=""
         ARMSTRAP_KBUILDER_CONF="`echo ${j} | cut -d- -f2 | cut -d_ -f1`"
         source ${ARMSTRAP_BOARD_CONFIG}/config.sh
-        kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
-        gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
-        kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"    
+        isTrue "${BUILD_KBUILDER}"
+        if [ $? -ne 0 ]; then
+          kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
+          gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
+          kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"    
+        fi
       done
     else
       for k in ${ARMSTRAP_BOARD_CONFIG}/kernel*; do
@@ -289,9 +295,12 @@ if [ $? -ne 0 ]; then
           ARMSTRAP_KBUILDER_VERSION="`echo ${TMP_KERNEL} | cut -d- -f2`"
           ARMSTRAP_KBUILDER_CONF="`echo ${TMP_CONFIG} | cut -d- -f2 | cut -d_ -f1`"
           source ${ARMSTRAP_BOARD_CONFIG}/config.sh
-          kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
-          gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
-          kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"    
+          isTrue "${BUILD_KBUILDER}"
+          if [ $? -ne 0 ]; then
+            kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
+            gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
+            kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"    
+          fi
         done
       done
     fi
@@ -317,10 +326,15 @@ ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${A
 
 isTrue "${ARMSTRAP_KBUILDER}"
 if [ $? -ne 0 ]; then
-  printStatus "armStrap" "Kernel Builder"
-  kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
-  gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
-  kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
+  isTrue "${BUILD_KBUILDER}"
+  if [ $? -ne 0 ]; then
+    printStatus "armStrap" "Kernel Builder"
+    kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
+    gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
+    kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
+  else
+    printStatus "armStrap" "Kernel Builder is not avalable for ${ARMSTRAP_CONFIG}"
+  fi
   ARMSTRAP_EXIT="Yes"
 fi
 
@@ -349,12 +363,17 @@ fi
 
 isTrue "${ARMSTRAP_UBUILDER}"
 if [ $? -ne 0 ]; then
-  printStatus "armStrap" "U-Boot Builder"
-  makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-  makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-  printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
-  ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
-  rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
+  isTrue "${BUILD_UBUILDER}"
+  if [ $? -ne 0 ]; then
+    printStatus "armStrap" "U-Boot Builder"
+    makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
+    makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
+    printStatus "armStrap" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
+    ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
+    rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
+  else
+    printStatus "armStrap" "U-Boot Builder is not avalable for ${ARMSTRAP_CONFIG}"
+  fi
   ARMSTRAP_EXIT="Yes"
 fi
 
