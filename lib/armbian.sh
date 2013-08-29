@@ -492,8 +492,8 @@ function makeFex {
   cp "${1}" "${3}/${2}"
 }
 
-#usage default_installOS
-function default_installOS {
+# Usage : default_installRoot
+function default_installRoot {
   httpExtract "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
 
   chrootLocales "${BUILD_MNT_ROOT}" "${BUILD_LANG}" "${BUILD_LANG_EXTRA}"
@@ -538,7 +538,11 @@ function default_installOS {
   done
 
   addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
-    
+  
+}
+
+# usage : default_installBoot
+function default_installBoot {
   httpExtract "${BUILD_MNT_ROOT}/boot" "${BUILD_ARMBIAN_UBOOT}" "${BUILD_ARMBIAN_EXTRACT}"
   
   rm -f "${BUILD_BOOT_CMD}"
@@ -571,17 +575,31 @@ function default_installOS {
   done
   
   ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
-
-  chrootKernel "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"
+  
+  gitClone "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_GITSRC}" "${BUILD_TBUILDER_GITBRN}"
+  makeFEXC "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_FAMILLY}"
   
   if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
     fexMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
   fi
   
-  gitClone "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_GITSRC}" "${BUILD_TBUILDER_GITBRN}"
-  makeFEXC "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_FAMILLY}"
   fex2bin "${BUILD_TBUILDER_SOURCE}" ${BUILD_BOOT_FEX} ${BUILD_BOOT_BIN}
-  
+
   ubootDDLoader "${BUILD_BOOT_SPL}" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"
   ubootDDLoader "${BUILD_BOOT_UBOOT}" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"
+}
+
+# Usage : default_installKernel
+function default_installKernel {
+  chrootKernel "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"
+}
+
+#usage default_installOS
+function default_installOS {
+
+  default_installRoot
+  
+  default_installBoot
+  
+  default_installKernel
 }

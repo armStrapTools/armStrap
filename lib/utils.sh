@@ -53,12 +53,12 @@ function showUsage {
   printf "\n${ANS_BLD}RootFS updater${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "" "Update RootFS (txz package)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "" "Select which RootFS to update."
+  printf "\n${ANS_BLD}All Builder${ANS_RST}:\n"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-H" "<hookscript>" "Script to execute after building everything with"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "" "<PKG_PATH> and <LOGFILE> as parameters"
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Show licence."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "<hookscript>" "Build Kernel/RootFS/U-Boot for all boards/configurations"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "" "Once done, execute <hookscript> with <PKG_PATH> and <LOGFILE>"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "" "as parameters"
-  
   printf "\n${ANS_BLD}Supported boards and kernel configurations:${ANS_RST}\n"
   for i in ${TMP_BOARDS}; do
     local TMP_BRDCFG="$(kernelConfigs ${i})"
@@ -535,4 +535,21 @@ function loadLibrary {
       source ${TMP_PATH}/${i}
     fi
   done
+}
+
+# usage resetEnv
+function resetEnv {
+  local TMP_I=""
+  local TMP_LST=""
+  
+  printStatus "resetEnv" "Resetting environment"
+  for TMP_I in `set`; do
+    local TMP_ENV="`echo "${TMP_I}" | cut -d "_" -f 1`"
+    local TMP_VAR="`echo "${TMP_I}" | cut -d "=" -f 1`"
+    if [ "${TMP_ENV}" == "BUILD" ]; then
+      TMP_LST="${TMP_VAR} ${TMP_LST}"
+    fi
+  done
+  
+  unset ${TMP_LST}
 }

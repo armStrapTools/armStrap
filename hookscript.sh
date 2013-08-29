@@ -20,7 +20,8 @@ TMP_LOG="/var/www/armstrap/log"
 
 if [ ! -z "${2}" ]; then
   if [ -f "${2}" ]; then
-    cp ${2} /${TMP_LOG}/armStrap-builder.log
+    rm -f "${TMP_LOG}/*"
+    cp "${2}*" "${TMP_LOG}/"
   fi
 fi
 
@@ -35,7 +36,6 @@ if [ -d "${1}" ]; then
   for i in *.deb; do
     TMP_TYPE="`echo ${i} | cut -d- -f1`"
     TMP_OLD="`echo ${i} | cut -d'_' -f1`"
-    echo "${TMP_TYPE} : ${TMP_OLD}"
     REPREPRO_BASE_DIR="/var/www/packages/apt/armstrap" reprepro -C main remove ${TMP_TYPE} ${TMP_OLD}
     REPREPRO_BASE_DIR="/var/www/packages/apt/armstrap" reprepro -C main includedeb ${TMP_TYPE} ${i}    
   done

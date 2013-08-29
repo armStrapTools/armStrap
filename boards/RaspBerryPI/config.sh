@@ -58,7 +58,7 @@ BUILD_FSTAB_ROOTOPT="defaults"
 BUILD_FSTAB_ROOTDMP="0"
 BUILD_FSTAB_ROOTPSS="1"
  
-BUILD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
+BUILD_KERNEL_MODULES=""
   
 if [ -z ${ARMSTRAP_ROOT_DEV} ]; then
   BUILD_ROOT_DEV="/dev/mmcblk0p1"
@@ -66,30 +66,9 @@ else
   BUILD_ROOT_DEV="${ARMSTRAP_ROOT_DEV}"
 fi
 
-BUILD_MAC_VENDOR=0x000246
-  
-BUILD_BOOT_CMD="${BUILD_MNT_ROOT}/boot/boot.cmd"
-BUILD_BOOT_SCR="${BUILD_MNT_ROOT}/boot/boot.scr"
-BUILD_BOOT_UENV="${BUILD_MNT_ROOT}/boot/uEnv.txt"
+#BUILD_MAC_VENDOR=0x000246
   
 BUILD_CONFIG_CMDLINE="console=tty0 console=${BUILD_SERIALCON_TERM},${BUILD_SERIALCON_SPEED} hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BUILD_ROOT_DEV} rootwait panic=10"
-  
-BUILD_KERNEL_NAME="uImage"
-
-BUILD_BOOT_FEX="${BUILD_MNT_ROOT}/boot/${BUILD_CONFIG}.fex"
-BUILD_BOOT_BIN="${BUILD_MNT_ROOT}/boot/script.bin"
-
-BUILD_BOOT_BIN_LOAD="mmc 0 0x43000000 boot/script.bin"
-BUILD_BOOT_KERNEL_LOAD="mmc 0 0x48000000 boot/${BUILD_KERNEL_NAME}"
-BUILD_BOOT_KERNEL_ADDR="0x48000000"
-
-BUILD_BOOT_SPL="${BUILD_MNT_ROOT}/boot/sunxi-spl.bin"
-BUILD_BOOT_SPL_SIZE="1024"
-BUILD_BOOT_SPL_SEEK="8"
-
-BUILD_BOOT_UBOOT="${BUILD_MNT_ROOT}/boot/u-boot.img"
-BUILD_BOOT_UBOOT_SIZE="1024"
-BUILD_BOOT_UBOOT_SEEK="32"
   
 BUILD_DISK_LAYOUT=("2:/:fat:128" "1:/:ext4:-1")
 
@@ -113,51 +92,30 @@ BUILD_KBUILDER_GITBRN="rpi-3.6.y"
 
 #############################################################################
 #
-# U-Boot Stuff
+# Raspberry Firmware
 #
-BUILD_UBUILDER="No"
-BUILD_UBUILDER_FAMILLY="${BUILD_CONFIG}"
-BUILD_UBUILDER_GITSRC="https://github.com/linux-sunxi/u-boot-sunxi.git"
-BUILD_UBUILDER_GITBRN=""
-BUILD_UBUILDER_SOURCE=""${ARMSTRAP_SRC}/${BUILD_CONFIG}/uboot-sunxi
-
-#
-# Theses are defaults values that can be overwritten by uEnv.txt
-#
-BUILD_UBUILDER_BOOTCMD=("root=${BUILD_ROOT_DEV} rootwait")
-BUILD_UBUILDER_BOOTUENV=("bootargs=${BUILD_CONFIG_CMDLINE}")
+BUILD_UBUILDER="Yes"
+BUILD_UBUILDER_ALT="rpi_fBuilder"
+BUILD_RPI_FIRMWARE_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/firmware"
+BUILD_RPI_FIRMWARE_GITSRC="https://github.com/raspberrypi/firmware.git"
+BUILD_RPI_FIRMWARE_GITBRN=""
 
 #############################################################################
 #
 # Sunxi-Boards Stuff
 #
 BUILD_SBUILDER="No"
-BUILD_SBUILDER_FAMILLY="${BUILD_CONFIG}"
-BUILD_SBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-boards.git"
-BUILD_SBUILDER_GITBRN=""
-BUILD_SBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/sunxi-boards"
 
-if [ -f "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/sunxi-boards/sys_config/${BUILD_CPU}/${BUILD_SBUILDER_FAMILLY}.fex" ]; then
-  BUILD_SBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/sunxi-boards/sys_config/${BUILD_CPU}/${BUILD_SBUILDER_FAMILLY}.fex"
-else
-  BUILD_SBUILDER_CONFIG="${BUILD_SBUILDER_SOURCE}/sys_config/${BUILD_CPU}/${BUILD_SBUILDER_FAMILLY}.fex"
-fi
+BUILD_ARMBIAN_EXTRACT="tar -xJ"
+BUILD_ARMBIAN_COMPRESS="tar -cJvf"
+BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.4.43+_3.4.43+-1_armhf.sh"
+BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
 
 #############################################################################
 #
 # Sunxi-Tools Stuff
 #
 BUILD_TBUILDER="No"
-BUILD_TBUILDER_FAMILLY="${BUILD_CONFIG}"
-BUILD_TBUILDER_GITSRC="https://github.com/linux-sunxi/sunxi-tools.git"
-BUILD_TBUILDER_GITBRN=""
-BUILD_TBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/sunxi-tools"
-
-BUILD_ARMBIAN_EXTRACT="tar -xJ"
-BUILD_ARMBIAN_COMPRESS="tar -cJvf"
-
-BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.4.43+_3.4.43+-1_armhf.sh"
-BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
 
 #############################################################################
 #
@@ -165,7 +123,7 @@ BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boo
 #
 # if not empty, theses scripts will be sourced at initialisation. Useful to 
 # replace or add functions.
-BUILD_INIT_SCRIPTS=""
+BUILD_INIT_SCRIPTS="rpi.sh"
 # if not empty, this function will be called before building the board.
 # No parameters will be passed to the funtion.
 BUILD_INIT_FUNCTION=""
