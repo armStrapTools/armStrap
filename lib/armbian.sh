@@ -597,9 +597,23 @@ function default_installKernel {
 #usage default_installOS
 function default_installOS {
 
-  default_installRoot
+  funExist ${BUILD_CONFIG}_installRoot
+  if [ ${?} -eq 0 ]; then
+    ${BUILD_CONFIG}_installRoot
+  else
+    default_installRoot
+  fi
   
-  default_installBoot
+  funExist ${BUILD_CONFIG}_installBoot
+    ${BUILD_CONFIG}_installBoot
+  else
+    default_installBoot
+  fi
   
-  default_installKernel
+  funExist ${BUILD_CONFIG}_installKernel
+    ${BUILD_CONFIG}_installKernel
+  else
+    default_installKernel
+  fi
+  
 }

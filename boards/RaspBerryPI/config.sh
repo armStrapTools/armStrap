@@ -22,16 +22,11 @@ else
   BUILD_TIMEZONE="${ARMSTRAP_TIMEZONE}"
 fi
 
-BUILD_ARMBIAN_ROOTFS_LIST="debian ubuntu"
+BUILD_ARMBIAN_ROOTFS_LIST="raspbian"
 
 case "${ARMSTRAP_OS}" in
-  "ubuntu")  
-    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.04-armv7l-hf.txz"
-    BUILD_ARMBIAN_SUITE="rarring"
-    BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
-    ;;
   *)
-    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/debian-wheezy-armv7l-hf.txz"
+    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/raspbian-wheezy-armv6l-hf.txz"
     BUILD_ARMBIAN_SUITE="wheezy"
     BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
     ;;
@@ -61,7 +56,7 @@ BUILD_FSTAB_ROOTPSS="1"
 BUILD_KERNEL_MODULES=""
   
 if [ -z ${ARMSTRAP_ROOT_DEV} ]; then
-  BUILD_ROOT_DEV="/dev/mmcblk0p1"
+  BUILD_ROOT_DEV="/dev/mmcblk0p2"
 else
   BUILD_ROOT_DEV="${ARMSTRAP_ROOT_DEV}"
 fi
@@ -76,29 +71,29 @@ BUILD_DISK_LAYOUT=("2:/:fat:128" "1:/:ext4:-1")
 #
 # Kernel builder stuff
 #
-BUILD_KBUILDER="Yes"
-BUILD_KBUILDER_TYPE="bcmrpi"
-if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
-  BUILD_KBUILDER_CONF="default"
-else
-  BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
-fi
-BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
-BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
-BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-rpi"
-BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
-BUILD_KBUILDER_GITSRC="https://github.com/raspberrypi/linux.git"
-BUILD_KBUILDER_GITBRN="rpi-3.6.y"
+BUILD_KBUILDER="No"
+#BUILD_KBUILDER_TYPE="bcmrpi"
+#if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
+#  BUILD_KBUILDER_CONF="default"
+#else
+#  BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
+#fi
+#BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
+#BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
+#BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-rpi"
+#BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
+#BUILD_KBUILDER_GITSRC="https://github.com/raspberrypi/linux.git"
+#BUILD_KBUILDER_GITBRN="rpi-3.6.y"
 
 #############################################################################
 #
 # Raspberry Firmware
 #
-BUILD_UBUILDER="Yes"
-BUILD_UBUILDER_ALT="rpi_fBuilder"
-BUILD_RPI_FIRMWARE_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/firmware"
-BUILD_RPI_FIRMWARE_GITSRC="https://github.com/raspberrypi/firmware.git"
-BUILD_RPI_FIRMWARE_GITBRN=""
+BUILD_UBUILDER="No"
+#BUILD_UBUILDER_ALT="rpi_fBuilder"
+#BUILD_RPI_FIRMWARE_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/firmware"
+#BUILD_RPI_FIRMWARE_GITSRC="https://github.com/raspberrypi/firmware.git"
+#BUILD_RPI_FIRMWARE_GITBRN=""
 
 #############################################################################
 #
@@ -108,8 +103,8 @@ BUILD_SBUILDER="No"
 
 BUILD_ARMBIAN_EXTRACT="tar -xJ"
 BUILD_ARMBIAN_COMPRESS="tar -cJvf"
-BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.4.43+_3.4.43+-1_armhf.sh"
-BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
+#BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.4.43+_3.4.43+-1_armhf.sh"
+#BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
 
 #############################################################################
 #

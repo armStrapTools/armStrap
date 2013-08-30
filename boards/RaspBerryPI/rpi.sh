@@ -1,11 +1,14 @@
 function rpi_fBuilder {
   local TMP_PKG="${BUILD_CONFIG}-firmware"
   local TMP_PKG_MAN="${TMP_PKG^^}"
-  local TMP_VER="1.0-1"
+  local TMP_VER=""
   local TMP_ARCH="armhf"
   local TMP_DATE="`date --rfc-3339=date`"
   local TMP_RFCD="`date --rfc-2822`"
   
+  cd "${BUILD_RPI_FIRMWARE_SOURCE}"
+  TMP_VER="1.`git log -1 --format="%cd" --date=raw | cut -d " " -f 1`"
+  cd "${ARMSTRAP_ROOT}"
   
   printStatus "rpi_fBuilder" "----------------------------------------"
   printStatus "rpi_fBuilder" "- Board : ${ARMSTRAP_CONFIG}"
@@ -113,7 +116,7 @@ EOF
   
   printStatus "rpi_fBuilder" "Generating changelog.Debian"
   cat > "${ARMSTRAP_PKG}/${TMP_PKG}/usr/share/doc/${TMP_PKG}/changelog.Debian" <<EOF
-${TMP_PKG} (${TMP_VER}_${TMP_ARCH}) ${TMP_PKG}; urgency=low
+${TMP_PKG} (${TMP_VER}) ${TMP_PKG}; urgency=low
 
   * Rebuild Debian package from ${TMP_PKG} firmware repository.
     See https://github.com/raspberrypi/firmware for more information
@@ -126,11 +129,20 @@ EOF
 
   cd ${ARMSTRAP_PKG}
   rm -f "${ARMSTRAP_PKG}/${TMP_PKG}.deb"
-  rm -f "${ARMSTRAP_PKG}/${TMP_PKG}_${TMP_VER}_${TMP_ARCH}.deb"
-  printStatus "rpi_fBuilder" "Building ${TMP_PKG}_${TMP_VER}_${TMP_ARCH}.deb"
+  rm -f "${ARMSTRAP_PKG}/${TMP_PKG}_${TMP_VER}-1_${TMP_ARCH}.deb"
+  printStatus "rpi_fBuilder" "Building ${TMP_PKG}_${TMP_VER}-1_${TMP_ARCH}.deb"
   dpkg-deb --build "${TMP_PKG}" >> ${ARMSTRAP_LOG_FILE} 2>&1
-  mv "${TMP_PKG}.deb" "${TMP_PKG}_${TMP_VER}_${TMP_ARCH}.deb"  
+  mv "${TMP_PKG}.deb" "${TMP_PKG}_${TMP_VER}-1_${TMP_ARCH}.deb"  
   rm -rf "${ARMSTRAP_PKG}/${TMP_PKG}"
+  cd "${ARMSTRAP_ROOT}"
   printStatus "rpi_fBuilder" "Firmware Builder Done"
 }
 
+function raspberrypi_installRoot {
+}
+
+function raspberrypi_installBoot {
+}
+
+function raspberrypi_installKernel {
+}
