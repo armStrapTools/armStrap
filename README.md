@@ -12,7 +12,7 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.71
+    armStrap.sh version 0.72
     Copyright (C) 2013 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
@@ -45,17 +45,20 @@ You need to be root to run this script. You have two options:
       -R                      Update RootFS (txz package).
       -F                      Select which RootFS to update.
     
+    All Builder:
+      -A                      Build Kernel/RootFS/U-Boot for all boards/configurations
+      -H <hookscript>         Script to execute after building everything with
+                              <PKG_PATH> and <LOGFILE> as parameters
+    
     Utilities:
       -c                      Show licence.
-      -A <hookscript>         Build Kernel/RootFS/U-Boot for all boards/configurations
-                              Once done, execute <hookscript> with <PKG_PATH> and <LOGFILE>
-                              as parameters
     
     Supported boards and kernel configurations:
       CubieBoard              default desktop server video 
       CubieBoard2             kernel-3.3 : default desktop mega 
                               kernel-3.4 : default 
       HackBerry               default desktop server video 
+      RaspBerryPI             default 
     
     With no parameter, create an image using values found in config.sh.
 

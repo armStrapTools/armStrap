@@ -138,11 +138,18 @@ EOF
   printStatus "rpi_fBuilder" "Firmware Builder Done"
 }
 
-function raspberrypi_installRoot {
-}
+#
+# We use default_installRoot
+#
+
+#
+# Two dummy functions to disable the default ones.
+#
 
 function raspberrypi_installBoot {
+  printStatus "installBoot" "Not needed for ${ARMSTRAP_CONFIG}"
 }
 
 function raspberrypi_installKernel {
+  printStatus "installKernel" "Not needed for ${ARMSTRAP_CONFIG}"
 }

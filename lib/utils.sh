@@ -125,10 +125,6 @@ function isRoot {
 # Usage: installPrereq <PREREQ1> [<PREREQ2> ... ]
 function installPrereqs {
 
-  printStatus "installPrereqs" "Updating installed packages"
-  /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y update 2>> ${ARMSTRAP_LOG_FILE}
-  /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y dist-upgrade 2>> ${ARMSTRAP_LOG_FILE}
-
   for i in ${@}; do 
     testInstall ${i}; 
   done
@@ -138,6 +134,11 @@ function installPrereqs {
 function testInstall {
   local IN=(`dpkg-query -W -f='${Status} ${Version}\n' ${1} 2> /dev/null`)
   if [ "${IN[0]}" != "install" ]; then
+    if [ -z "${ARMSTRAP_UPDATE}" ]; then
+      /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y update 2>> ${ARMSTRAP_LOG_FILE}
+      /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y dist-upgrade 2>> ${ARMSTRAP_LOG_FILE}
+      ARMSTRAP_UPDATE="Done"
+    fi
     printStatus "testInstall" "Prerequisition ${1} not found, Installing..."
     /usr/bin/debconf-apt-progress --logstderr -- apt-get --quiet -y install ${1} 2>> ${ARMSTRAP_LOG_FILE}
   fi
@@ -237,7 +238,9 @@ function showConfig {
   printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "CONFIGURATION"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Board" "${ARMSTRAP_CONFIG}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Distribution" "${ARMSTRAP_OS}"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Kernel Config" "${BUILD_KBUILDER_CONF}"
+  if [ ! -z "${BUILD_KBUILDER_CONF}" ]; then
+    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Kernel Config" "${BUILD_KBUILDER_CONF}"
+  fi
 
   printf "\n${ANF_GRN}% 20s${ANS_RST}: %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
   printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Root Password" "${ARMSTRAP_PASSWORD}"

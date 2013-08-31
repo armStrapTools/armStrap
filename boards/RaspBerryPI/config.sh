@@ -26,6 +26,7 @@ BUILD_ARMBIAN_ROOTFS_LIST="raspbian"
 
 case "${ARMSTRAP_OS}" in
   *)
+    ARMSTRAP_OS="raspbian"
     BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/raspbian-wheezy-armv6l-hf.txz"
     BUILD_ARMBIAN_SUITE="wheezy"
     BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
@@ -42,16 +43,12 @@ BUILD_DPKG_LOCALPACKAGES=""
   
 BUILD_SERIALCON_ID="T0"
 BUILD_SERIALCON_RUNLEVEL="2345"
-BUILD_SERIALCON_TERM="ttyS0"
+BUILD_SERIALCON_TERM="ttyAMA0"
 BUILD_SERIALCON_SPEED="115200"
 BUILD_SERIALCON_TYPE="vt100"
 
-BUILD_FSTAB_ROOTDEV="/dev/root"
-BUILD_FSTAB_ROOTMNT="/"
-BUILD_FSTAB_ROOTFST="ext4"
-BUILD_FSTAB_ROOTOPT="defaults"
-BUILD_FSTAB_ROOTDMP="0"
-BUILD_FSTAB_ROOTPSS="1"
+#No spaces allowed in each definitions...
+BUILD_FSTAB=("proc:/proc:proc:defaults:0:0" "/dev/mmcblk0p1:/boot:vfat:defaults:0:2" "/dev/mmcblk0p2:/:ext4:defaults,noatime:0:1")
  
 BUILD_KERNEL_MODULES=""
   
@@ -65,7 +62,7 @@ fi
   
 BUILD_CONFIG_CMDLINE="console=tty0 console=${BUILD_SERIALCON_TERM},${BUILD_SERIALCON_SPEED} hdmi.audio=EDID:0 disp.screen0_output_mode=EDID:1280x720p60 root=${BUILD_ROOT_DEV} rootwait panic=10"
   
-BUILD_DISK_LAYOUT=("2:/:fat:128" "1:/:ext4:-1")
+BUILD_DISK_LAYOUT=("2:/boot:fat32:128" "1:/:ext4:-1")
 
 #############################################################################
 #

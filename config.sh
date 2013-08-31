@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="RaspBerryPI"
+ARMSTRAP_CONFIG="CubieBoard"
 
 ##############################################################################
 # Basic configuration
@@ -36,7 +36,7 @@ ARMSTRAP_SWAP_SIZE="256"
 # OS Sections
 #
 # Currently we support ubuntu and debian. Default choice is debian
-ARMSTRAP_OS="ubuntu"
+#ARMSTRAP_OS="ubuntu"
 
 ##############################################################################
 # Kernel Sections
