@@ -13,7 +13,7 @@ fi
 # Variables that should never be changed
 #
 
-ARMSTRAP_VERSION="0.71"
+ARMSTRAP_VERSION="0.72"
 ARMSTRAP_NAME=`basename ${0}`
 
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
@@ -44,14 +44,17 @@ ARMSTRAP_DEVICE=""
 ARMSTRAP_IMAGE_DEVICE=""
 ARMSTRAP_DEVICE_MAPS=("")
 
-# ARMSTRAP default distribution
+# ARMSTRAP default distribution, board may override this.
 ARMSTRAP_OS="debian"
 
+# Theses are internal values that should not be changed unless you understand
+# exactly what they are doing.
 ARMSTRAP_KBUILDER=""
 ARMSTRAP_RUPDATER=""
 ARMSTRAP_UBUILDER=""
 ARMSTRAP_ABUILDER=""
 ARMSTRAP_ABUILDER_HOOK=""
+ARMSTRAP_UPDATE=""
 ARMSTRAP_EXIT=""
 
 #

@@ -345,13 +345,21 @@ function addTTY {
 # Usage : initFSTab <ARMSTRAP_ROOT>
 function initFSTab {
   printStatus "initFSTab" "Initializing fstab"
-  printf "%- 20s% -15s%- 10s%- 15s%- 8s%- 8s\n" "#<file system>" "<mount point>" "<type>" "<options>" "<dump>" "<pass>" > ${1}/etc/fstab
+  printf "%- 20s % -15s %- 10s %- 15s %- 8s %- 8s\n" "#<file system>" "<mount point>" "<type>" "<options>" "<dump>" "<pass>" > ${1}/etc/fstab
 }
 
 # Usage : addFSTab <ARMSTRAP_ROOT> <file system> <mount point> <type> <options> <dump> <pass>
 function addFSTab {
-  printStatus "addFSTab" "Device ${2} will be mount as ${3}"
-  printf "%- 20s% -15s%- 10s%- 15s%- 8s%- 8s\n" ${2} ${3} ${4} ${5} ${6} ${7} >>${1}/etc/fstab
+  local TMP_ROOT="${1}"
+  shift
+  
+  local TMP_I=""
+  
+  for TMP_I in "$@"; do
+    local TMP_ARR=(${TMP_I//:/ })  
+    printStatus "addFSTab" "Device ${TMP_ARR[0]} will be mount as ${TMP_ARR[1]}"
+    printf "%- 20s % -15s %- 10s %- 15s %- 8s %- 8s\n" ${TMP_ARR[0]} ${TMP_ARR[1]} ${TMP_ARR[2]} ${TMP_ARR[3]} ${TMP_ARR[4]} ${TMP_ARR[5]} >>${TMP_ROOT}/etc/fstab
+  done
 }
 
 # Usage : addKernelModules <ARMSTRAP_ROOT> <KERNEL MODULE> [<COMMENT>]
@@ -406,7 +414,10 @@ function addIface {
   else
     printStatus "addIface" "IP address : DHCP"
   fi  
-  printf "hwaddress ether %s:%s:%s:%s:%s:%s\n\n" "${TMP_MACA:0:2}" "${TMP_MACA:2:2}" "${TMP_MACA:4:2}" "${TMP_MACA:6:2}" "${TMP_MACA:8:2}" "${TMP_MACA:10:2}" >> ${TMP_ROOT}/etc/network/interfaces
+  
+  if [ ! -z "${TMP_MACA}" ]; then
+    printf "hwaddress ether %s:%s:%s:%s:%s:%s\n\n" "${TMP_MACA:0:2}" "${TMP_MACA:2:2}" "${TMP_MACA:4:2}" "${TMP_MACA:6:2}" "${TMP_MACA:8:2}" "${TMP_MACA:10:2}" >> ${TMP_ROOT}/etc/network/interfaces
+  fi
 }
 
 function trapError {
@@ -517,8 +528,10 @@ function default_installRoot {
   if [ ! -z "${BUILD_ARMBIAN_RECONFIG}" ]; then
     chrootReconfig "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_RECONFIG}"
   fi
-  
-  BUILD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BUILD_DPKG_LOCALPACKAGES}"
+
+  if [ -d "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg" ]; then
+    BUILD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BUILD_DPKG_LOCALPACKAGES}"
+  fi
 
   if [ ! -z "${BUILD_DPKG_LOCALPACKAGES}" ]; then
     for i in ${BUILD_DPKG_LOCALPACKAGES}; do
@@ -531,7 +544,8 @@ function default_installRoot {
   addTTY "${BUILD_MNT_ROOT}" "${BUILD_SERIALCON_ID}" "${BUILD_SERIALCON_RUNLEVEL}" "${BUILD_SERIALCON_TERM}" "${BUILD_SERIALCON_SPEED}" "${BUILD_SERIALCON_TYPE}"
 
   initFSTab "${BUILD_MNT_ROOT}" 
-  addFSTab "${BUILD_MNT_ROOT}" "${BUILD_FSTAB_ROOTDEV}" "${BUILD_FSTAB_ROOTMNT}" "${BUILD_FSTAB_ROOTFST}" "${BUILD_FSTAB_ROOTOPT}" "${BUILD_FSTAB_ROOTDMP}" "${BUILD_FSTAB_ROOTPSS}"
+  addFSTab "${BUILD_MNT_ROOT}" ${BUILD_FSTAB[@]}
+  #"${BUILD_FSTAB_ROOTDEV}" "${BUILD_FSTAB_ROOTMNT}" "${BUILD_FSTAB_ROOTFST}" "${BUILD_FSTAB_ROOTOPT}" "${BUILD_FSTAB_ROOTDMP}" "${BUILD_FSTAB_ROOTPSS}"
 
   for i in "${BUILD_KERNEL_MODULES}"; do
     addKernelModule "${BUILD_MNT_ROOT}" "${i}"
@@ -605,12 +619,14 @@ function default_installOS {
   fi
   
   funExist ${BUILD_CONFIG}_installBoot
+  if [ ${?} -eq 0 ]; then
     ${BUILD_CONFIG}_installBoot
   else
     default_installBoot
   fi
   
   funExist ${BUILD_CONFIG}_installKernel
+  if [ ${?} -eq 0 ]; then
     ${BUILD_CONFIG}_installKernel
   else
     default_installKernel
