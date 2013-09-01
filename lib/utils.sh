@@ -350,12 +350,72 @@ function ubootDDLoader {
 function fexMac {
   if [ -f "${1}" ]; then
     printStatus "fexMac" "Configuring board mac address to ${2}"
-    printf "\n[dynamic]\nMAC = \"%s\"\n" "${2}" >> ${1}
+    editIni ${1} "dynamic" "MAC" "${2}"
   else
     printStatus "fexMac" "WARNING: ${1} not found. Cannot add Mac Address."
   fi
 }
 
+# Usage <TARGET_FILE> <SECTION> <PARAMETER> <VALUE>
+function editIni {
+  local TMP_TEMP="`mktemp $1.XXXXXX`"
+  local TMP_FILE="$1"
+  local TMP_SECTION="$2"
+  local TMP_PARAM="$3"
+  shift
+  shift
+  shift
+  
+  local TMP_I
+  
+  printStatus "editIni" "Configuring [${TMP_SECTION}]/${TMP_PARAM} to '${@}' in `basename ${TMP_FILE}`"
+  
+  while read TMP_I; do
+    if [[ ${TMP_I} == *]* ]]; then
+      if [[ ${TMP_SEC} == ${TMP_SECTION,,} ]] && [ -z "${TMP_FOUND}" ]; then
+        echo "${TMP_PARAM} = ${@}"
+        local TMP_FOUND=1
+      fi
+      if [ ! -z "${TMP_SEC}" ]; then
+        echo ""
+      fi
+      local TMP_SEC=$(echo ${TMP_I,,} | cut -d "]" -f 1)
+      TMP_SEC="${TMP_SEC/[}"
+    elif [[ ${TMP_I} == *=* ]]; then
+      local TMP_PAR=($(echo ${TMP_I,,} | cut -d "=" -f 1))
+      local TMP_PAR="${TMP_PAR[0]}"
+    fi
+    
+    if [[ ${TMP_SEC} == ${TMP_SECTION,,} ]] && [[ ${TMP_PAR} == ${TMP_PARAM,,} ]]; then
+      echo "${TMP_PARAM} = ${@}"
+      local TMP_FOUND="1"
+    else
+      if [ ! -z "${TMP_I}" ]; then
+        echo "${TMP_I}"
+      fi
+    fi
+  done < ${TMP_FILE} > ${TMP_TEMP}
+  
+  if [[ ${TMP_SEC} == ${TMP_SECTION,,} ]] && [ -z "${TMP_FOUND}" ]; then
+    printStatus "editIni" "${TMP_PARAM} not found in [${TMP_SECTION}], added."
+    echo "${TMP_PARAM} = ${@}" >> ${TMP_TEMP}
+    local TMP_FOUND=1
+  fi
+  
+  if [ -z ${TMP_FOUND} ]; then
+    printStatus "editIni" "[${TMP_SECTION}] not found, added."
+    echo "" >> ${TMP_TEMP}
+    echo "[${TMP_SECTION}]" >> ${TMP_TEMP}
+    printStatus "editIni" "${TMP_PARAM} not found in [${TMP_SECTION}], added."
+    echo "${TMP_PARAM} = ${@}" >> ${TMP_TEMP}
+  fi
+  
+  printStatus "editIni" "All done."
+
+  rm -f ${TMP_FILE}.bak    
+  mv ${TMP_FILE} ${TMP_FILE}.bak
+  mv ${TMP_TEMP} ${TMP_FILE}
+}
 
 ANS_BLD=""
 ANS_DIM=""
