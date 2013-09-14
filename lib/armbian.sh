@@ -475,11 +475,8 @@ function makeUBoot {
   
   checkDirectory "${3}/${2}"
   
-  printStatus "makeUBoot" "Copying sunxi-spl.bin to ${3}/${2}"
-  cp "${1}/spl/sunxi-spl.bin" "${3}/${2}"
-  
-  printStatus "makeUBoot" "Copying u-boot.img to ${3}/${2}"
-  cp "${1}/u-boot.img" "${3}/${2}"
+  printStatus "makeUBoot" "Copying u-boot-sunxi-with-spl.bin to ${3}/${2}"
+  cp "${1}/u-boot-sunxi-with-spl.bin" "${3}/${2}"
 }
 
 
@@ -599,8 +596,7 @@ function default_installBoot {
   
   fex2bin "${BUILD_TBUILDER_SOURCE}" ${BUILD_BOOT_FEX} ${BUILD_BOOT_BIN}
 
-  ubootDDLoader "${BUILD_BOOT_SPL}" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_SPL_SIZE}" "${BUILD_BOOT_SPL_SEEK}"
-  ubootDDLoader "${BUILD_BOOT_UBOOT}" "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT_SIZE}" "${BUILD_BOOT_UBOOT_SEEK}"
+  ddLoader "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT[@]}" 
 }
 
 # Usage : default_installKernel

@@ -343,10 +343,16 @@ function ubootSetCMD {
   fi
 }
 
-# Usage ubootDDLoader <FILE> <DEVICE> <BS> <SEEK>
-function ubootDDLoader {
-  printStatus "ubootDDLoader" "Installing ${1} to ${2}, block size ${3}, seek ${4}"
-  dd if=${1} of=${2} bs=${3} seek=${4} >> ${ARMSTRAP_LOG_FILE} 2>&1
+# Usage ddLoader <DEVICE> <FILE:BS:SEEK> [<FILE:BS:SEEK> ...]
+function ddLoader {
+  local TMP_DEV="${1}"
+  shift
+  
+  for i in "$@"; do
+    local TMP_ARR=(${i//:/ })
+    printStatus "ddLoader" "Installing ${TMP_ARR[0]} to ${TMP_DEV}, block size ${TMP_ARR[1]}, seek ${TMP_ARR[2]}"
+    dd if=${TMP_ARR[0]} of=${TMP_DEV} bs=${TMP_ARR[1]} seek=${TMP_ARR[2]} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  done
 }
 
 # Usage fexMac <TARGET_FILE> <MAC_ADDRESS>
