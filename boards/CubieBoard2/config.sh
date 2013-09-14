@@ -53,7 +53,7 @@ BUILD_SERIALCON_TYPE="vt100"
 
 BUILD_FSTAB=("/dev/root:/:ext4:defaults:0:1")
 
-BUILD_KERNEL_MODULES="sun7i_wemac sun7i_ir 8192cu sw_ahci_platform"
+BUILD_KERNEL_MODULES="sw_ahci_platform"
   
 if [ -z ${ARMSTRAP_ROOT_DEV} ]; then
   BUILD_ROOT_DEV="/dev/mmcblk0p1"
@@ -71,8 +71,8 @@ BUILD_CONFIG_CMDLINE="console=tty0 console=${BUILD_SERIALCON_TERM},${BUILD_SERIA
   
 BUILD_KERNEL_NAME="uImage"
 
-BUILD_BOOT_FEX="${BUILD_MNT_ROOT}/boot/${BUILD_CONFIG}.fex"
-BUILD_BOOT_BIN="${BUILD_MNT_ROOT}/boot/script.bin"
+BUILD_BOOT_FEX="/boot/${BUILD_CONFIG}.fex"
+BUILD_BOOT_BIN="/boot/script.bin"
 
 BUILD_BOOT_BIN_LOAD="mmc 0 0x43000000 boot/script.bin"
 BUILD_BOOT_KERNEL_LOAD="mmc 0 0x48000000 boot/${BUILD_KERNEL_NAME}"

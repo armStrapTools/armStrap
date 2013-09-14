@@ -44,7 +44,7 @@ ARMSTRAP_SWAP_SIZE="256"
 # Some board can use many kernels, the stable one is the default but you can
 # try an alternate version if you wish.
 #
-#ARMSTRAP_KBUILDER_VERSION="3.3"
+#ARMSTRAP_KBUILDER_VERSION="3.4"
 #
 # There are many default configuration for the kernel avalable. If you use the
 # "mega" kernel, be advised than a 2gb sd card may not be enough...
@@ -63,7 +63,7 @@ ARMSTRAP_SWAP_SIZE="256"
 # For Cubieboard2 (Kernel 3.4):
 #         default : Every modules that compile on 3.4 are included.
 #
-#ARMSTRAP_KBUILDER_CONF="mega"
+#ARMSTRAP_KBUILDER_CONF="default"
 #
 # If you want to change the kernel root device (like for installing on NAND)
 # change it there... Default is to boot from first partition of SD card.

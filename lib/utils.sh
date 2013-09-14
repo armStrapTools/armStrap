@@ -359,7 +359,7 @@ function ddLoader {
 function fexMac {
   if [ -f "${1}" ]; then
     printStatus "fexMac" "Configuring board mac address to ${2}"
-    editIni ${1} "dynamic" "MAC" "${2}"
+    editIni ${1} "dynamic" "MAC" "\"${2}\""
   else
     printStatus "fexMac" "WARNING: ${1} not found. Cannot add Mac Address."
   fi

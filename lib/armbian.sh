@@ -445,7 +445,7 @@ function shellRun {
     echo "${@}" > "${TMP_DIR}/armstrap-run.sh"
     chmod +x "${TMP_DIR}/armstrap-run.sh"
     trap "trapError ${TMP_DIR}" INT TERM EXIT
-      debian_chroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login -c /armstrap-run.sh  >> ${ARMSTRAP_LOG_FILE} 2>&1
+      debian_chBUILD_BOOT_BINroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login -c /armstrap-run.sh  >> ${ARMSTRAP_LOG_FILE} 2>&1
     trap - INT TERM EXIT
     rm -f "${TMP_DIR}/armstrap-run.sh"
   else
@@ -487,10 +487,11 @@ function makeFEXC {
   make -C "${1}" fexc >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
-#usage fex2bin <BUILD_TBUILDER_SOURCE> <src_fex> <dst_bin>
+#usage fex2bin <BUILD_MNT_ROOT> <src_fex> <dst_bin>
 function fex2bin {
   printStatus "fex2bin" "Compilling `basename ${3}`"
-  ${1}/fexc -v -I fex -O bin ${2} ${3} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  shellRun ${1} /usr/bin/fexc -v -I fex -O bin ${2} ${3} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #${1}/fexc -v -I fex -O bin ${2} ${3} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 function makeFex {
@@ -587,14 +588,14 @@ function default_installBoot {
   
   ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
   
-  gitClone "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_GITSRC}" "${BUILD_TBUILDER_GITBRN}"
-  makeFEXC "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_FAMILLY}"
+  #gitClone "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_GITSRC}" "${BUILD_TBUILDER_GITBRN}"
+  #makeFEXC "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_FAMILLY}"
   
   if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
-    fexMac "${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
+    fexMac "${BUILD_MNT_ROOT}/${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
   fi
   
-  fex2bin "${BUILD_TBUILDER_SOURCE}" ${BUILD_BOOT_FEX} ${BUILD_BOOT_BIN}
+  fex2bin "${BUILD_MNT_ROOT}" "${BUILD_BOOT_FEX}" "${BUILD_BOOT_BIN}"
 
   ddLoader "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT[@]}" 
 }
