@@ -59,7 +59,7 @@ if [ -d "${1}" ]; then
       esac
   done
 else
- echo "Usage $0 <PKG_DIRECTORY> <LOGFILE>"
+ echo "Usage $0 <PKG_DIRECTORY> [<LOGFILE>]"
 fi
 
 cd ${TMP_DIR}

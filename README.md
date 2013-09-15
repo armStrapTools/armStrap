@@ -55,8 +55,7 @@ You need to be root to run this script. You have two options:
     
     Supported boards and kernel configurations:
       CubieBoard              default desktop server video 
-      CubieBoard2             kernel-3.3 : default desktop mega 
-                              kernel-3.4 : default 
+      CubieBoard2             default 
       HackBerry               default desktop server video 
       RaspBerryPI             default 
     
