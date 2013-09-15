@@ -188,12 +188,39 @@ EOF
   enableServices "${TMP_CHROOT}"
 }
 
+
+# Usage : chrootKernel <ARMSTRAP_ROOT>
 function chrootKernel {
   local TMP_CHROOT="${1}"
-  local TMP_KERNEL="`basename ${2}`"
+  local TMP_KERNEL="install-linux-kernel.sh"
+  
+  cat >> "${TMP_CHROOT}/${TMP_KERNEL}" <<EOF  
+#!/bin/sh
 
-  printStatus "chrootKernel" "Downloading ${TMP_KERNEL} script to `basename ${TMP_CHROOT}`"
-  wget --append-output="${ARMSTRAP_LOG_FILE}" --directory-prefix="${TMP_CHROOT}/" "${2}"
+KERNEL_TYPE="${BUILD_CONFIG}"
+KERNEL_VERSION="${BUILD_KBUILDER_VERSION}"
+
+echo "deb http://packages.vls.beaupre.biz/apt/armstrap/ \${KERNEL_TYPE} main" > /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
+echo "deb-src http://packages.vls.beaupre.biz/apt/armstrap/ \${KERNEL_TYPE} main" >> /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
+TMP_GNUPGHOME="\${GNUPGHOME}"
+export GNUPGHOME="\$(mktemp -d)" 1>&2
+chown \${USER}:\${USER} \${GNUPGHOME} 1>&2
+chmod 0700 \${GNUPGHOME} 1>&2
+gpg --keyserver pgpkeys.mit.edu --recv-key 1F7F94D7A99BC726 1>&2
+gpg --armor --export 1F7F94D7A99BC726 | apt-key add - 1>&2
+rm -rf \${GNUPGHOME} 1>&2
+GNUPGHOME="\${TMP_GNUPGHOME}"
+
+/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true update
+
+KERNEL_IMG="\$(apt-cache search \${KERNEL_TYPE}-linux-default-image-\${KERNEL_VERSION} | sort | tail -n 1 | cut -f 1 -d ' ')"
+KERNEL_VERSION="\$(echo \${KERNEL_IMG} | cut -f 5- -d '-')"
+KERNEL_HDR="\${KERNEL_TYPE}-linux-default-headers-\${KERNEL_VERSION}"
+KERNEL_LBC="\${KERNEL_TYPE}-linux-default-libc-\${KERNEL_VERSION}"
+KERNEL_FWR="\${KERNEL_TYPE}-linux-default-firmware-image-\${KERNEL_VERSION}"
+
+/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR} \${KERNEL_FWR}
+EOF
 
   chmod +x "${TMP_CHROOT}/${TMP_KERNEL}"
   
@@ -208,7 +235,7 @@ function chrootKernel {
   removeQEMU "${TMP_CHROOT}"
   enableServices "${TMP_CHROOT}"
 
-  rm -f "${TMP_CHROOT}/${TMP_KERNEL}"
+#  rm -f "${TMP_CHROOT}/${TMP_KERNEL}"
 }
 
 function chrootLocales {
@@ -602,7 +629,7 @@ function default_installBoot {
 
 # Usage : default_installKernel
 function default_installKernel {
-  chrootKernel "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_KERNEL}"
+  chrootKernel "${BUILD_MNT_ROOT}"
 }
 
 #usage default_installOS

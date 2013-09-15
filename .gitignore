@@ -19,4 +19,5 @@ img/
 # Misc
 buildall.sh
 boards/*/kernel/*custom_defconfig
+sdchroot
 

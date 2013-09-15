@@ -53,7 +53,7 @@ BUILD_SERIALCON_TYPE="vt100"
 
 BUILD_FSTAB=("/dev/root:/:ext4:defaults:0:1")
 
-BUILD_KERNEL_MODULES="sw_ahci_platform"
+BUILD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
   
 if [ -z ${ARMSTRAP_ROOT_DEV} ]; then
   BUILD_ROOT_DEV="/dev/mmcblk0p1"
@@ -116,7 +116,8 @@ BUILD_UBUILDER_SOURCE=""${ARMSTRAP_SRC}/${BUILD_CONFIG}/uboot-sunxi
 #
 # Theses are defaults values that can be overwritten by uEnv.txt
 #
-BUILD_UBUILDER_BOOTCMD=("machid=0xf35" "root=${BUILD_ROOT_DEV} rootwait")
+#BUILD_UBUILDER_BOOTCMD=("machid=0xf35" "root=${BUILD_ROOT_DEV} rootwait")
+BUILD_UBUILDER_BOOTCMD=("root=${BUILD_ROOT_DEV} rootwait")
 BUILD_UBUILDER_BOOTUENV=("bootargs=${BUILD_CONFIG_CMDLINE}")
 
 #############################################################################
