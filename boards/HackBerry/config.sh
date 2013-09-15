@@ -89,7 +89,7 @@ BUILD_DISK_LAYOUT=("1:/:ext4:-1")
 BUILD_KBUILDER="Yes"
 BUILD_KBUILDER_TYPE="sun4i"
 if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
-  BUILD_KBUILDER_CONF="desktop"
+  BUILD_KBUILDER_CONF="default"
 else
   BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
 fi
@@ -98,7 +98,9 @@ BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi"
 BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
 BUILD_KBUILDER_GITSRC="https://github.com/linux-sunxi/linux-sunxi.git"
-BUILD_KBUILDER_GITBRN="sunxi-3.4"
+#BUILD_KBUILDER_GITBRN="sunxi-3.4"
+BUILD_KBUILDER_GITBRN=""
+BUILD_KBUILDER_DEFAULT="sun4i_defconfig"
 
 #############################################################################
 #

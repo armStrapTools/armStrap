@@ -2,7 +2,7 @@
 function installQEMU {
   if [ ! -f "${1}/usr/bin/qemu-arm-static" ]; then
     printStatus "installQEMU" "Installing QEMU Arm Emulator in `basename ${1}`."
-    cp "/usr/bin/qemu-arm-static" "${1}/usr/bin" >> ${ARMSTRAP_LOG_FILE} 2>&1
+    cp -v "/usr/bin/qemu-arm-static" "${1}/usr/bin" >> ${ARMSTRAP_LOG_FILE} 2>&1
   fi
 }
 
@@ -142,7 +142,7 @@ function chrootDPKG {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootDPKG" "Installing package ${TMP_DEB} in `basename ${TMP_CHROOT}`"
-  cp ${2} ${TMP_DIR}/${TMP_DEB}
+  cp -v ${2} ${TMP_DIR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
   LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
   rm -rf ${TMP_DIR}
     
@@ -476,7 +476,7 @@ function makeUBoot {
   checkDirectory "${3}/${2}"
   
   printStatus "makeUBoot" "Copying u-boot-sunxi-with-spl.bin to ${3}/${2}"
-  cp "${1}/u-boot-sunxi-with-spl.bin" "${3}/${2}"
+  cp -v "${1}/u-boot-sunxi-with-spl.bin" "${3}/${2}" >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 
@@ -498,7 +498,7 @@ function makeFex {
   gitClone "${BUILD_SBUILDER_SOURCE}" "${BUILD_SBUILDER_GITSRC}" "${BUILD_SBUILDER_GITBRN}"
   printStatus "makeFex" "Copying `basename ${1}` for ${2}"
   checkDirectory "${3}/${2}"
-  cp "${1}" "${3}/${2}"
+  cp -v "${1}" "${3}/${2}" >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : default_installRoot

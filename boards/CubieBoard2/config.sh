@@ -88,45 +88,21 @@ BUILD_DISK_LAYOUT=("1:/:ext4:-1")
 # Kernel builder stuff
 #
 BUILD_KBUILDER="Yes"
-BUILD_KBUILDER_VERSION_LIST="3.3 3.4"
+BUILD_KBUILDER_TYPE="sun7i"
 
-case ${ARMSTRAP_KBUILDER_VERSION} in
-  3.4)
-    BUILD_KBUILDER_VERSION="3.4"
-    BUILD_KBUILDER_TYPE="${BUILD_CONFIG}"
-    if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
-      BUILD_KBUILDER_CONF="mega"
-    else
-      BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
-    fi
-    BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
-    BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
-    BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi-3.4"
-    BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel-3.4"
-    BUILD_KBUILDER_GITSRC="https://github.com/jwrdegoede/linux-sunxi.git"
-    BUILD_KBUILDER_GITBRN="sunxi-3.4"
-
-    BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.4.43.sun7i+_3.4.43.sun7i+-1_armhf.sh"
-    ;;
-  *)
-    BUILD_KBUILDER_VERSION="3.3"
-    BUILD_KBUILDER_TYPE="${BUILD_CONFIG}"
-    if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
-      BUILD_KBUILDER_CONF="desktop"
-    else
-      BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
-    fi
-    BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
-    BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
-    BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi-3.3"
-    BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel-3.3"
-    BUILD_KBUILDER_GITSRC="https://github.com/jwrdegoede/linux-sunxi.git"
-    BUILD_KBUILDER_GITBRN="sunxi-3.3-cubieboard2"
-
-    BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.3.0+_3.3.0+-1_armhf.sh"
-    ;;
-esac
-
+if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
+  BUILD_KBUILDER_CONF="default"
+else
+  BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
+fi
+BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
+BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
+BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi"
+BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
+BUILD_KBUILDER_GITSRC="https://github.com/linux-sunxi/linux-sunxi.git"
+#BUILD_KBUILDER_GITBRN="sunxi-3.4"
+BUILD_KBUILDER_GITBRN=""
+BUILD_KBUILDER_DEFAULT="sun7i_defconfig"
 
 #############################################################################
 #

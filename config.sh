@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard"
+ARMSTRAP_CONFIG="CubieBoard2"
 
 ##############################################################################
 # Basic configuration
@@ -49,20 +49,21 @@ ARMSTRAP_SWAP_SIZE="256"
 # There are many default configuration for the kernel avalable. If you use the
 # "mega" kernel, be advised than a 2gb sd card may not be enough...
 #
-#  For Cubieboard :
+#  For CubieBoard
 #         default : Build the stock configuration
 #          server : Most network modules, no graphics
 #         desktop : Graphics and multimedia, no cedar acceleration
 #           video : Graphics and multimedia, cedar acceleration
 #
-# For Cubieboard2 (Kernel 3.3):
-#         default : Build the stock configuration.
-#         desktop : Some graphics (since it's not completly done in kernel 3.3)
-#            mega : Every modules that compile on 3.3 are included.
+# For CubieBoard2
+#         default : Build the stock configuration
 #
-# For Cubieboard2 (Kernel 3.4):
-#         default : Every modules that compile on 3.4 are included.
-#
+#   For HackBerry
+#         default : Build the stock configuration
+#          server : Most network modules, no graphics
+#         desktop : Graphics and multimedia, no cedar acceleration
+#           video : Graphics and multimedia, cedar acceleration
+
 #ARMSTRAP_KBUILDER_CONF="default"
 #
 # If you want to change the kernel root device (like for installing on NAND)
