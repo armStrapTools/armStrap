@@ -198,6 +198,7 @@ function chrootKernel {
 #!/bin/sh
 
 KERNEL_TYPE="${BUILD_CONFIG}"
+KERNEL_CONFIG="${BUILD_KBUILDER_CONF}"
 KERNEL_VERSION="${BUILD_KBUILDER_VERSION}"
 
 echo "deb http://packages.vls.beaupre.biz/apt/armstrap/ \${KERNEL_TYPE} main" > /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
@@ -211,13 +212,13 @@ gpg --armor --export 1F7F94D7A99BC726 | apt-key add - 1>&2
 rm -rf \${GNUPGHOME} 1>&2
 GNUPGHOME="\${TMP_GNUPGHOME}"
 
-/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true update
+/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
 
-KERNEL_IMG="\$(apt-cache search \${KERNEL_TYPE}-linux-default-image-\${KERNEL_VERSION} | sort | tail -n 1 | cut -f 1 -d ' ')"
+KERNEL_IMG="\$(apt-cache search \${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION} | sort | tail -n 1 | cut -f 1 -d ' ')"
 KERNEL_VERSION="\$(echo \${KERNEL_IMG} | cut -f 5- -d '-')"
-KERNEL_HDR="\${KERNEL_TYPE}-linux-default-headers-\${KERNEL_VERSION}"
+KERNEL_HDR="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-headers-\${KERNEL_VERSION}"
 
-/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Install-Suggests=true -o APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
+/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
 EOF
 
   chmod +x "${TMP_CHROOT}/${TMP_KERNEL}"
@@ -233,7 +234,7 @@ EOF
   removeQEMU "${TMP_CHROOT}"
   enableServices "${TMP_CHROOT}"
 
-#  rm -f "${TMP_CHROOT}/${TMP_KERNEL}"
+  rm -f "${TMP_CHROOT}/${TMP_KERNEL}"
 }
 
 function chrootLocales {
