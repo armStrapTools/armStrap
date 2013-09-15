@@ -216,10 +216,8 @@ GNUPGHOME="\${TMP_GNUPGHOME}"
 KERNEL_IMG="\$(apt-cache search \${KERNEL_TYPE}-linux-default-image-\${KERNEL_VERSION} | sort | tail -n 1 | cut -f 1 -d ' ')"
 KERNEL_VERSION="\$(echo \${KERNEL_IMG} | cut -f 5- -d '-')"
 KERNEL_HDR="\${KERNEL_TYPE}-linux-default-headers-\${KERNEL_VERSION}"
-KERNEL_LBC="\${KERNEL_TYPE}-linux-default-libc-\${KERNEL_VERSION}"
-KERNEL_FWR="\${KERNEL_TYPE}-linux-default-firmware-image-\${KERNEL_VERSION}"
 
-/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR} \${KERNEL_FWR}
+/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Install-Suggests=true -o APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
 EOF
 
   chmod +x "${TMP_CHROOT}/${TMP_KERNEL}"
