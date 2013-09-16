@@ -8,9 +8,9 @@ ARMSTRAP_CONFIG="CubieBoard"
 # Basic configuration
 #
 # Set this to the hostname you want for the board
-ARMSTRAP_HOSTNAME="CubieDebian"
+ARMSTRAP_HOSTNAME="armstrap"
 # Set this to the password you want for the root user
-ARMSTRAP_PASSWORD="debian"
+ARMSTRAP_PASSWORD="armstrap"
 
 ##############################################################################
 # TimeZone and Locales
@@ -30,7 +30,7 @@ ARMSTRAP_PASSWORD="debian"
 # If you want a swapfile, uncomment this.
 ARMSTRAP_SWAP="yes"
 # If you want a fixed size swapfile, set this (in MB).
-ARMSTRAP_SWAP_SIZE="256"
+ARMSTRAP_SWAP_SIZE="1024"
 
 ##############################################################################
 # OS Sections
@@ -64,7 +64,7 @@ ARMSTRAP_SWAP_SIZE="256"
 #         desktop : Graphics and multimedia, no cedar acceleration
 #           video : Graphics and multimedia, cedar acceleration
 
-#ARMSTRAP_KBUILDER_CONF="default"
+#ARMSTRAP_KBUILDER_CONF="server"
 #
 # If you want to change the kernel root device (like for installing on NAND)
 # change it there... Default is to boot from first partition of SD card.
