@@ -12,7 +12,7 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.72
+    armStrap.sh version 0.75
     Copyright (C) 2013 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
