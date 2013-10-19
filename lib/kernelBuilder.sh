@@ -21,22 +21,37 @@ function kernelBuilder {
   export EXPORT_ARMSTRAP_TARGET="${TMP_BUILD_DEBREP}-"
   export EXPORT_ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
   export EXPORT_ARMSTRAP_REPOS="${TMP_BUILD_DEBREP}"
+  if [ ! -z "${BUILD_KBUILDER_MKIMAGE}" ]; then 
+    export EXPORT_ARMSTRAP_MKIMAGE="${BUILD_KBUILDER_MKIMAGE}"
+  fi
+  if [ ! -z "${BUILD_FIRMWARE_SOURCE}" ]; then 
+    export EXPORT_ARMSTRAP_FIRMWARE="${BUILD_FIRMWARE_SOURCE}"
+  fi
   
+  
+  funExist ${BUILD_KBUILDER_PREHOOK}
+  if [ ${?} -eq 0 ]; then
+    ${BUILD_KBUILDER_PREHOOK}
+  fi
+
   printStatus "kernelBuilder" "Configuring for ${TMP_BUILD_DEBREP} (${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG})"
   cp -v "${TMP_BUILD_CFGDEF}" "${TMP_BUILD_CFGDST}/" >> ${ARMSTRAP_LOG_FILE} 2>&1
   cp -v "${TMP_BUILD_SCRSRC}" "${TMP_BUILD_SCRDST}/" >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   printStatus "kernelBuilder" "Cleaning Kernel source directory"
-  CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" distclean >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" distclean >> ${ARMSTRAP_LOG_FILE} 2>&1
+  kernelMakeCommand distclean
   checkStatus "Cannot clean kernel source directory."
 
   printStatus "kernelBuilder" "Configuring Kernel"
-  CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" "`basename ${TMP_BUILD_CFGDEF}`" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" "`basename ${TMP_BUILD_CFGDEF}`" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  kernelMakeCommand "`basename ${TMP_BUILD_CFGDEF}`"
   checkStatus "Error while configuring Kernel"
   
   isTrue "${ARMSTRAP_KBUILDER_MENUCONFIG}"
   if [ $? -ne 0 ]; then
-    CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" menuconfig
+    #CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" menuconfig
+    kernelMakeCommand menuconfig
     TMP_BUILD_CONFIG="custom"
     TMP_BUILD_CFGDEF="${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}_defconfig"
     export EXPORT_ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
@@ -49,15 +64,18 @@ function kernelBuilder {
   fi
   
   printStatus "kernelBuilder" "Building Kernel image"
-  CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ${ARMSTRAP_CFLAGS} ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" uImage >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" ${ARMSTRAP_MFLAGS} uImage >> ${ARMSTRAP_LOG_FILE} 2>&1
+  kernelMakeCommand uImage
   checkStatus "Error while building kernel image"
   
   printStatus "kernelBuilder" "Building Kernel Modules"
-  CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ${ARMSTRAP_CFLAGS} ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" modules >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" ${ARMSTRAP_MFLAGS} modules >> ${ARMSTRAP_LOG_FILE} 2>&1
+  kernelMakeCommand modules
   checkStatus "Error while building Kernel Modules"
   
   printStatus "kernelBuilder" "Creating Debian packages"
-  CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" deb-pkg >> ${ARMSTRAP_LOG_FILE} 2>&1
+  #CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" deb-pkg >> ${ARMSTRAP_LOG_FILE} 2>&1
+  kernelMakeCommand deb-pkg
   checkStatus "Error while creating Debian packages"
   
   cd "${TMP_BUILD_WRKDIR}/.."
@@ -139,7 +157,21 @@ function kernelBuilder {
   unset EXPORT_ARMSTRAP_TARGET
   unset EXPORT_ARMSTRAP_RELEASE
   unset EXPORT_ARMSTRAP_REPOS
+  if [ ! -z "${EXPORT_ARMSTRAP_MKIMAGE}" ]; then 
+    unset EXPORT_ARMSTRAP_MKIMAGE
+  fi
+  if [ ! -z "${EXPORT_ARMSTRAP_FIRMWARE}" ]; then 
+    unset EXPORT_ARMSTRAP_FIRMWARE
+  fi
   
+}
+
+function kernelMakeCommand {
+  if [ -z "${BUILD_KBUILDER_CFLAGS}" ]; then
+    CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  else
+    CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make CFLAGS="${BUILD_KBUILDER_CFLAGS}" CXXFLAGS="${BUILD_KBUILDER_CFLAGS}" ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
 }
 
 function kernelConf {

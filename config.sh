@@ -2,15 +2,15 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard"
+ARMSTRAP_CONFIG="RaspBerryPI"
 
 ##############################################################################
 # Basic configuration
 #
 # Set this to the hostname you want for the board
-ARMSTRAP_HOSTNAME="armstrap"
+ARMSTRAP_HOSTNAME="rpi-chambre"
 # Set this to the password you want for the root user
-ARMSTRAP_PASSWORD="armstrap"
+ARMSTRAP_PASSWORD="rpi-chambre"
 
 ##############################################################################
 # TimeZone and Locales
@@ -28,9 +28,9 @@ ARMSTRAP_PASSWORD="armstrap"
 # Swapfile configuration
 #
 # If you want a swapfile, uncomment this.
-ARMSTRAP_SWAP="yes"
+#ARMSTRAP_SWAP="yes"
 # If you want a fixed size swapfile, set this (in MB).
-ARMSTRAP_SWAP_SIZE="1024"
+#ARMSTRAP_SWAP_SIZE="1024"
 
 ##############################################################################
 # OS Sections

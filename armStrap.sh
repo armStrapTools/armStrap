@@ -47,7 +47,7 @@ ARMSTRAP_DEVICE_MAPS=("")
 # ARMSTRAP default distribution, board may override this.
 ARMSTRAP_OS="debian"
 
-ARMSTRAP_CFLAGS="-j16"
+ARMSTRAP_MFLAGS="-j16"
 
 # Theses are internal values that should not be changed unless you understand
 # exactly what they are doing.

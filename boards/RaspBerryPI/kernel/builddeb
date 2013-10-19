@@ -116,7 +116,14 @@ else
 	if [ -e $KBUILD_IMAGE ]; then
 		cp $KBUILD_IMAGE "$tmpdir/boot/vmlinuz-$version"
 	else
-		cp arch/$ARCH/boot/uImage "$tmpdir/boot/uImage-$version"
+		${EXPORT_ARMSTRAP_MKIMAGE}/imagetool-uncompressed.py arch/$ARCH/boot/zImage $tmpdir/boot/kernel.img ${EXPORT_ARMSTRAP_MKIMAGE}
+		for i in bootcode.bin COPYING.linux fixup_cd.dat fixup.dat  fixup_x.dat  LICENCE.broadcom  start_cd.elf  start.elf  start_x.elf; do
+		  cp ${EXPORT_ARMSTRAP_FIRMWARE}/boot/${i} $tmpdir/boot
+		done
+		mkdir -p $tmpdir/usr/share/doc
+		cp -R ${EXPORT_ARMSTRAP_FIRMWARE}/documentation $tmpdir/usr/share/doc/raspi-kernel
+		cp -R ${EXPORT_ARMSTRAP_FIRMWARE}/hardfp/opt $tmpdir/opt
+		#cp arch/$ARCH/boot/uImage "$tmpdir/boot/uImage-$version"
 	fi
 fi
 

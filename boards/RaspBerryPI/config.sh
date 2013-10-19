@@ -1,5 +1,5 @@
 BUILD_CONFIG="${ARMSTRAP_CONFIG,,}"
-BUILD_CPU="a10"
+BUILD_CPU="armv6"
 BUILD_ARCH="arm"
 
 if [ -z "${ARMSTRAP_LANG}" ]; then
@@ -68,29 +68,31 @@ BUILD_DISK_LAYOUT=("2:/boot:fat32:128" "1:/:ext4:-1")
 #
 # Kernel builder stuff
 #
-BUILD_KBUILDER="No"
-#BUILD_KBUILDER_TYPE="bcmrpi"
-#if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
-#  BUILD_KBUILDER_CONF="default"
-#else
-#  BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
-#fi
-#BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
-#BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
-#BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-rpi"
-#BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
-#BUILD_KBUILDER_GITSRC="https://github.com/raspberrypi/linux.git"
-#BUILD_KBUILDER_GITBRN="rpi-3.6.y"
+BUILD_KBUILDER="Yes"
+BUILD_KBUILDER_TYPE="bcmrpi"
+if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
+  BUILD_KBUILDER_CONF="default"
+else
+  BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
+fi
+BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
+BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
+BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-rpi"
+BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
+BUILD_KBUILDER_GITSRC="https://github.com/raspberrypi/linux.git"
+BUILD_KBUILDER_GITBRN="rpi-3.6.y"
+BUILD_KBUILDER_CFLAGS="-march=armv6 -mfpu=vfp -mfloat-abi=hard"
+BUILD_KBUILDER_MKIMAGE="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/tools/mkimage"
+BUILD_KBUILDER_PREHOOK="rpiFirmware"
 
 #############################################################################
 #
 # Raspberry Firmware
 #
-BUILD_UBUILDER="No"
-#BUILD_UBUILDER_ALT="rpi_fBuilder"
-#BUILD_RPI_FIRMWARE_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/firmware"
-#BUILD_RPI_FIRMWARE_GITSRC="https://github.com/raspberrypi/firmware.git"
-#BUILD_RPI_FIRMWARE_GITBRN=""
+BUILD_FIRMWARE="Yes"
+BUILD_FIRMWARE_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/firmware"
+BUILD_FIRMWARE_GITSRC="https://github.com/raspberrypi/firmware.git"
+BUILD_FIRMWARE_GITBRN=""
 
 #############################################################################
 #
