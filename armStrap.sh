@@ -13,7 +13,7 @@ fi
 # Variables that should never be changed
 #
 
-ARMSTRAP_VERSION="0.75"
+ARMSTRAP_VERSION="0.76"
 ARMSTRAP_NAME=`basename ${0}`
 
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
@@ -47,7 +47,7 @@ ARMSTRAP_DEVICE_MAPS=("")
 # ARMSTRAP default distribution, board may override this.
 ARMSTRAP_OS="debian"
 
-ARMSTRAP_MFLAGS="-j16"
+ARMSTRAP_MFLAGS="-j8"
 
 # Theses are internal values that should not be changed unless you understand
 # exactly what they are doing.
@@ -73,7 +73,7 @@ detectAnsi
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:cWNKRUIA" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:cWNKRUIAM" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -135,6 +135,9 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:cWNKRUIA" opt; do
     R)
       ARMSTRAP_RUPDATER="Yes"
       ;;
+    M)
+      ARMSTRAP_RMOUNT="Yes"
+      ;;
     F)
       ARMSTRAP_OS="${OPTARG}"
       ;;
@@ -164,6 +167,11 @@ if [ $? -ne 0 ]; then
   exit 0
 fi
 
+isTrue "${ARMSTRAP_RMOUNT}"
+if [ $? -ne 0 ]; then
+  ARMSTRAP_RUPDATER="No"
+fi
+
 ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
 
 checkDirectory ${ARMSTRAP_MNT}
@@ -191,6 +199,12 @@ ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${A
 isTrue "${ARMSTRAP_KBUILDER}"
 if [ $? -ne 0 ]; then
   kBuilder
+  ARMSTRAP_EXIT="Yes"
+fi
+
+isTrue "${ARMSTRAP_RMOUNT}"
+if [ $? -ne 0 ]; then
+  rMount
   ARMSTRAP_EXIT="Yes"
 fi
 

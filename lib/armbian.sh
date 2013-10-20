@@ -53,10 +53,23 @@ function httpExtract {
   shift
   shift
   
-  printStatus "bootStrap" "Fetching and extracting `basename ${TMP_URL}`"
+  printStatus "httpExtract" "Fetching and extracting `basename ${TMP_URL}`"
   checkDirectory "${TMP_DIR}/"
   wget -q -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
   checkStatus "Error while downloading/extracting ${TMP_URL}"
+}
+
+# usage pkgExtract <DESTINATION> <FILE> <EXTRACTOR_CMD>
+function pkgExtract {
+  local TMP_DIR="${1}"
+  local TMP_PKG="${2}"
+  shift
+  shift
+  
+  printStatus "pkgExtract" "Extracting `basename ${TMP_PKG}`"
+  checkDirectory "${TMP_DIR}/"
+  cat ${TMP_PKG} | ${@} -C "${TMP_DIR}/"
+  checkStatus "Error while downloading/extracting ${TMP_PKG}"
 }
 
 function chrootRun {
@@ -77,24 +90,19 @@ function chrootRun {
 
 function chrootShell {
   local TMP_CHROOT=${1}
-  local TMP_SHELL="${1}/armstrap.shell"
-  
-  printf "#!/bin/sh\n\ndebian_chroot=\"${TMP_CHROOT}\" /bin/bash\n" >> "${TMP_SHELL}"
-  
-  chmod +x "${TMP_SHELL}"
+  local TMP_FSNAME="`basename ${TMP_CHROOT}`"
   
   disableServices "${TMP_CHROOT}"
   installQEMU "${TMP_CHROOT}"
   mountPFS "${TMP_CHROOT}"
   
-  printStatus "chrootRun" "Executing '/bin/bash' in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot "${TMP_CHROOT}" ${@}
+  printStatus "chrootRun" "Executing '/bin/bash' in ${TMP_FSNAME}"
+  # We don't want anything fancy in the chroot environment
+  PROMPT_COMMAND="" debian_chroot="armStrap@${TMP_FSNAME}" PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ ' LC_ALL="" LANGUAGE="en_US:us" LANG="en_US.UTF-8" chroot "${TMP_CHROOT}" "/bin/bash"
   
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
   enableServices "${TMP_CHROOT}"
-  
-  rm -f "${TMP_SHELL}"
 }
 
 function chrootUpgrade {

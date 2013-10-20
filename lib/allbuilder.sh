@@ -192,3 +192,36 @@ function rBuilder {
   ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
   printStatus "rBuilder" "rootFS Updater Done"
 }
+
+
+function rMount {
+  local TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
+  local TMP_ROOTFS="${TMP_ROOTFS%.txz}"
+  
+  printStatus "rMount" "----------------------------------------"
+  printStatus "rMount" "- Entering rootFS ${TMP_ROOTFS}"
+  printStatus "rMount" "----------------------------------------"
+
+  if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
+    printStatus "rMount" "Creating work directory ${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+    checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+  else
+    printStatus "rMount" "Cleaning work directory ${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+    rm -rf "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+    checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+  fi
+  
+  if [ -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" ]; then
+    printStatus "rMount" "Using local copy found in ${ARMSTRAP_PKG}"
+    pkgExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" "${BUILD_ARMBIAN_EXTRACT}"
+  else
+    httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
+  fi
+  
+  chrootShell "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+  
+  printStatus "rMount" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
+  rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
+  ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+  printStatus "rMount" "rootFS mount Done"
+}
