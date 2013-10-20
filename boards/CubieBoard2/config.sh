@@ -22,12 +22,22 @@ else
   BUILD_TIMEZONE="${ARMSTRAP_TIMEZONE}"
 fi
 
-BUILD_ARMBIAN_ROOTFS_LIST="debian ubuntu"
+BUILD_ARMBIAN_ROOTFS_LIST="debian ubuntu rarring saucy"
 
 case "${ARMSTRAP_OS}" in
   "ubuntu")  
     BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.04-armv7l-hf.txz"
     BUILD_ARMBIAN_SUITE="rarring"
+    BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
+    ;;
+  "rarring")
+    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.04-armv7l-hf.txz"
+    BUILD_ARMBIAN_SUITE="rarring"
+    BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
+    ;;
+  "saucy")
+    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.10-armv7l-hf.txz"
+    BUILD_ARMBIAN_SUITE="saucy"
     BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
     ;;
   *)

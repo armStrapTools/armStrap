@@ -2,15 +2,15 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="RaspBerryPI"
+ARMSTRAP_CONFIG="CubieBoard"
 
 ##############################################################################
 # Basic configuration
 #
 # Set this to the hostname you want for the board
-ARMSTRAP_HOSTNAME="rpi-chambre"
+ARMSTRAP_HOSTNAME="armStrap"
 # Set this to the password you want for the root user
-ARMSTRAP_PASSWORD="rpi-chambre"
+ARMSTRAP_PASSWORD="armStrap"
 
 ##############################################################################
 # TimeZone and Locales
@@ -35,8 +35,12 @@ ARMSTRAP_PASSWORD="rpi-chambre"
 ##############################################################################
 # OS Sections
 #
-# Currently we support ubuntu and debian. Default choice is debian
-#ARMSTRAP_OS="ubuntu"
+# Currently we support ubuntu and debian for CubieBoards/Hackberry, or
+# Raspibian for Raspberry PI. Default choice is debian or Raspibian.
+#
+# For ubuntu, you can select a specific release (wheezy, saucy) instead of
+# the generic target "ubuntu"
+#ARMSTRAP_OS="saucy"
 
 ##############################################################################
 # Kernel Sections
