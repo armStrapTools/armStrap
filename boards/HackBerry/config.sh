@@ -146,7 +146,6 @@ BUILD_TBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/sunxi-tools"
 
 BUILD_ARMBIAN_EXTRACT="tar -xJ"
 BUILD_ARMBIAN_COMPRESS="tar -cJvf"
-BUILD_ARMBIAN_KERNEL="http://armstrap.vls.beaupre.biz/kernel/${BUILD_CONFIG}/install-${BUILD_CONFIG}-linux-${BUILD_KBUILDER_CONF}-kernel-3.4.43+_3.4.43+-1_armhf.sh"
 BUILD_ARMBIAN_UBOOT="http://armstrap.vls.beaupre.biz/uboot/${BUILD_CONFIG}-u-boot.txz"
 
 #############################################################################
