@@ -18,6 +18,6 @@ function raspberrypi_installBoot {
   printStatus "installBoot" "Not needed for ${ARMSTRAP_CONFIG}"
 }
 
-function raspberrypi_installKernel {
-  printStatus "installKernel" "Not needed for ${ARMSTRAP_CONFIG}"
-}
+#function raspberrypi_installKernel {
+#  printStatus "installKernel" "Not needed for ${ARMSTRAP_CONFIG}"
+#}
