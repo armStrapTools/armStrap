@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard"
+ARMSTRAP_CONFIG="CubieBoard2"
 
 ##############################################################################
 # Basic configuration
@@ -36,11 +36,13 @@ ARMSTRAP_PASSWORD="armStrap"
 # OS Sections
 #
 # Currently we support ubuntu and debian for CubieBoards/Hackberry, or
-# Raspibian for Raspberry PI. Default choice is debian or Raspibian.
+# Raspbian for Raspberry PI. Valid targets are:
 #
-# For ubuntu, you can select a specific release (wheezy, saucy) instead of
-# the generic target "ubuntu"
-#ARMSTRAP_OS="saucy"
+# Debian: wheezy, jessie, sid
+# Ubuntu: rarring, saucy
+# Raspbian : rpi-wheezy
+#
+ARMSTRAP_OS="sid"
 
 ##############################################################################
 # Kernel Sections

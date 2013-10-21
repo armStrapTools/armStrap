@@ -51,7 +51,7 @@ function kernelBuilder {
   isTrue "${ARMSTRAP_KBUILDER_MENUCONFIG}"
   if [ $? -ne 0 ]; then
     #CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" menuconfig
-    kernelMakeCommand menuconfig
+    kernelMakeCommandNoLog menuconfig
     TMP_BUILD_CONFIG="custom"
     TMP_BUILD_CFGDEF="${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}_defconfig"
     export EXPORT_ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
@@ -171,6 +171,14 @@ function kernelMakeCommand {
     CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
   else
     CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make CFLAGS="${BUILD_KBUILDER_CFLAGS}" CXXFLAGS="${BUILD_KBUILDER_CFLAGS}" ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
+}
+
+function kernelMakeCommandNoLog {
+  if [ -z "${BUILD_KBUILDER_CFLAGS}" ]; then
+    CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" ${@}
+  else
+    CC=arm-linux-gnueabihf-gcc dpkg-architecture -aarmhf -tarm-linux-gnueabihf -c make CFLAGS="${BUILD_KBUILDER_CFLAGS}" CXXFLAGS="${BUILD_KBUILDER_CFLAGS}" ARCH="arm" CROSS_COMPILE="arm-linux-gnueabihf-" -C "${TMP_BUILD_WRKDIR}" ${@}
   fi
 }
 

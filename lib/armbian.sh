@@ -479,13 +479,13 @@ function shellRun {
     echo "${@}" > "${TMP_DIR}/armstrap-run.sh"
     chmod +x "${TMP_DIR}/armstrap-run.sh"
     trap "trapError ${TMP_DIR}" INT TERM EXIT
-      debian_chBUILD_BOOT_BINroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login -c /armstrap-run.sh  >> ${ARMSTRAP_LOG_FILE} 2>&1
+      debian_chroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login -c /armstrap-run.sh  >> ${ARMSTRAP_LOG_FILE} 2>&1
     trap - INT TERM EXIT
     rm -f "${TMP_DIR}/armstrap-run.sh"
   else
     printStatus "shellRun" "Entering `basename ${TMP_DIR}`."
     trap "trapError ${TMP_DIR}" INT TERM EXIT
-      debian_chroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login
+      PROMPT_COMMAND="" debian_chroot="${ANF_RED}`basename ${TMP_DIR}`${ANF_DEF}" PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ ' LC_ALL="" LANGUAGE="en_US:en" LANG="en_US.UTF-8" chroot "${TMP_DIR}" /bin/bash --login
     trap - INT TERM EXIT
   fi
   printStatus "shellRun" "Exiting from `basename ${TMP_DIR}`."

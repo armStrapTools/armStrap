@@ -13,7 +13,7 @@ fi
 # Variables that should never be changed
 #
 
-ARMSTRAP_VERSION="0.76"
+ARMSTRAP_VERSION="0.77"
 ARMSTRAP_NAME=`basename ${0}`
 
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
@@ -45,7 +45,7 @@ ARMSTRAP_IMAGE_DEVICE=""
 ARMSTRAP_DEVICE_MAPS=("")
 
 # ARMSTRAP default distribution, board may override this.
-ARMSTRAP_OS="debian"
+ARMSTRAP_OS="wheezy"
 
 ARMSTRAP_MFLAGS="-j8"
 

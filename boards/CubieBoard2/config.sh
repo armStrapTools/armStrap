@@ -22,14 +22,9 @@ else
   BUILD_TIMEZONE="${ARMSTRAP_TIMEZONE}"
 fi
 
-BUILD_ARMBIAN_ROOTFS_LIST="debian ubuntu rarring saucy"
+BUILD_ARMBIAN_ROOTFS_LIST="wheezy jessie sid rarring saucy"
 
 case "${ARMSTRAP_OS}" in
-  "ubuntu")  
-    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.04-armv7l-hf.txz"
-    BUILD_ARMBIAN_SUITE="rarring"
-    BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
-    ;;
   "rarring")
     BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.04-armv7l-hf.txz"
     BUILD_ARMBIAN_SUITE="rarring"
@@ -38,6 +33,16 @@ case "${ARMSTRAP_OS}" in
   "saucy")
     BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/ubuntu-13.10-armv7l-hf.txz"
     BUILD_ARMBIAN_SUITE="saucy"
+    BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
+    ;;
+  "jessie")
+    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/debian-jessie-armv7l-hf.txz"
+    BUILD_ARMBIAN_SUITE="jessie"
+    BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
+    ;;
+  "sid")
+    BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/debian-sid-armv7l-hf.txz"
+    BUILD_ARMBIAN_SUITE="sid"
     BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
     ;;
   *)
@@ -110,7 +115,6 @@ BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
 BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi"
 BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
 BUILD_KBUILDER_GITSRC="https://github.com/linux-sunxi/linux-sunxi.git"
-#BUILD_KBUILDER_GITBRN="sunxi-3.4"
 BUILD_KBUILDER_GITBRN=""
 BUILD_KBUILDER_DEFAULT="sun7i_defconfig"
 
