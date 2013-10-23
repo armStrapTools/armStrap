@@ -22,13 +22,13 @@ else
   BUILD_TIMEZONE="${ARMSTRAP_TIMEZONE}"
 fi
 
-BUILD_ARMBIAN_ROOTFS_LIST="raspbian"
+BUILD_ARMBIAN_ROOTFS_LIST="rpi-wheezy"
 
 case "${ARMSTRAP_OS}" in
   *)
-    ARMSTRAP_OS="raspbian"
+    ARMSTRAP_OS="rpi-wheezy"
     BUILD_ARMBIAN_ROOTFS="http://armstrap.vls.beaupre.biz/rootfs/raspbian-wheezy-armv6l-hf.txz"
-    BUILD_ARMBIAN_SUITE="wheezy"
+    BUILD_ARMBIAN_SUITE="rpi-wheezy"
     BUILD_ARMBIAN_RECONFIG="${ARMSTRAP_DPKG_RECONFIG}"
     ;;
 esac

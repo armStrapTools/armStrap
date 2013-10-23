@@ -217,8 +217,9 @@ function rMount {
   else
     httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
   fi
-  
-  chrootShell "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+
+  shellRun "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+  #chrootShell "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
   
   printStatus "rMount" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
   rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
