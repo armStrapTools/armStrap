@@ -36,39 +36,24 @@ ARMSTRAP_PASSWORD="armStrap"
 # OS Sections
 #
 # Currently we support ubuntu and debian for CubieBoards/Hackberry, or
-# Raspibian for Raspberry PI. Default choice is debian or Raspibian.
+# Raspbian for Raspberry PI. Valid targets are:
 #
-# For ubuntu, you can select a specific release (wheezy, saucy) instead of
-# the generic target "ubuntu"
-#ARMSTRAP_OS="saucy"
+# Debian: wheezy, jessie, sid
+# Ubuntu: rarring, saucy
+# Raspbian : rpi-wheezy
+#
+#ARMSTRAP_OS="rarring"
 
 ##############################################################################
 # Kernel Sections
 #
 # Some board can use many kernels, the stable one is the default but you can
-# try an alternate version if you wish.
+# try an alternate version if you wish. Right now, only kernel 3.4 is supported
+# for CubieBoard/HackBerry and 3.6 for Raspberry PI. The default kernel is a
+# general purpose kernel good for most situations.
 #
 #ARMSTRAP_KBUILDER_VERSION="3.4"
-#
-# There are many default configuration for the kernel avalable. If you use the
-# "mega" kernel, be advised than a 2gb sd card may not be enough...
-#
-#  For CubieBoard
-#         default : Build the stock configuration
-#          server : Most network modules, no graphics
-#         desktop : Graphics and multimedia, no cedar acceleration
-#           video : Graphics and multimedia, cedar acceleration
-#
-# For CubieBoard2
-#         default : Build the stock configuration
-#
-#   For HackBerry
-#         default : Build the stock configuration
-#          server : Most network modules, no graphics
-#         desktop : Graphics and multimedia, no cedar acceleration
-#           video : Graphics and multimedia, cedar acceleration
-
-#ARMSTRAP_KBUILDER_CONF="server"
+#ARMSTRAP_KBUILDER_CONF="default"
 #
 # If you want to change the kernel root device (like for installing on NAND)
 # change it there... Default is to boot from first partition of SD card.
