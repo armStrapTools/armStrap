@@ -137,7 +137,7 @@ function testInstall {
   if [ "${IN[0]}" != "install" ]; then
     if [ -z "${ARMSTRAP_UPDATE}" ]; then
       /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y update 2>> ${ARMSTRAP_LOG_FILE}
-      /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y dist-upgrade 2>> ${ARMSTRAP_LOG_FILE}
+      #/usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y dist-upgrade 2>> ${ARMSTRAP_LOG_FILE}
       ARMSTRAP_UPDATE="Done"
     fi
     printStatus "testInstall" "Prerequisition ${1} not found, Installing..."

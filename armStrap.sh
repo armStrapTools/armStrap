@@ -35,6 +35,10 @@ fi
 # The logfile will be renamed to the real log file later
 ARMSTRAP_LOG_FILE=`mktemp ${ARMSTRAP_LOG}/armStrap.XXXXXXXX`
 
+# Theses are our control for the UI.
+ARMSTRAP_GUI_FILE="`mktemp --tmpdir armStrap_UI.XXXXXXXX`"
+ARMSTRAP_GUI_LOCK="`mktemp --tmpdir armStrap_LK.XXXXXXXX`"
+
 # The image name is defined later.
 ARMSTRAP_IMAGE_NAME=""
 
@@ -59,6 +63,19 @@ ARMSTRAP_ABUILDER_HOOK=""
 ARMSTRAP_UPDATE=""
 ARMSTRAP_EXIT=""
 
+# Theses are packages that armStrap need for itself.
+ARMSTRAP_PREREQ="dialog inotify-tools"
+
+# Our cleanup function
+trap on_exit EXIT
+
+# There are still much more stuff to cleanup on fail (Mounts)...
+function on_exit()
+{
+  rm -f ${ARMSTRAP_GUI_LOCK}
+  rm -f ${ARMSTRAP_GUI_FILE}
+}
+
 #
 # Here we go...
 #
@@ -68,6 +85,10 @@ source ./config.sh
 for i in ./lib/*.sh; do
   source ${i}
 done
+
+if [ ! -z "${ARMSTRAP_PREREQ}" ]; then
+  installPrereqs ${ARMSTRAP_PREREQ}
+fi
 
 detectAnsi
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
