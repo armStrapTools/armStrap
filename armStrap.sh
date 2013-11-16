@@ -138,7 +138,8 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:clWNKRUIAM" opt; do
       ;;
     c)
       cleanDirectory
-      ARMSTAP_EXIT="Yes"
+      ARMSTRAP_EXIT="Yes"
+      ;;
     l)
       showLicence
       ARMSTRAP_EXIT="Yes"
