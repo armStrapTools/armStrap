@@ -24,7 +24,6 @@ ARMSTRAP_LOG="${ARMSTRAP_ROOT}/log"
 ARMSTRAP_IMG="${ARMSTRAP_ROOT}/img"
 ARMSTRAP_SRC="${ARMSTRAP_ROOT}/src"
 ARMSTRAP_PKG="${ARMSTRAP_ROOT}/pkg"
-ARMSTRAP_CFG="${ARMSTRAP_ROOT}/cfg"
 
 ARMSTRAP_BOARDS="${ARMSTRAP_ROOT}/boards"
 
@@ -94,7 +93,7 @@ detectAnsi
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:cWNKRUIAM" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:clWNKRUIAM" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -138,6 +137,9 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:cWNKRUIAM" opt; do
       ARMSTRAP_ETH0_DOMAIN="${OPTARG}"
       ;;
     c)
+      cleanDirectory
+      ARMSTAP_EXIT="Yes"
+    l)
       showLicence
       ARMSTRAP_EXIT="Yes"
       ;;

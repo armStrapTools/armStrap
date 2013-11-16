@@ -59,7 +59,8 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-H" "<hookscript>" "Script to execute after building everything with"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "" "<PKG_PATH> and <LOGFILE> as parameters"
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Show licence."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Directory Cleanup."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-l" "" "Show licence."
   printf "\n${ANS_BLD}Supported boards and kernel configurations:${ANS_RST}\n"
   for i in ${TMP_BOARDS}; do
     local TMP_BRDCFG="$(kernelConfigs ${i})"
@@ -622,4 +623,20 @@ function resetEnv {
   done
   
   unset ${TMP_LST}
+}
+
+function cleanDirectory {
+  ARMSTRAP_LOG_FILE="`mktemp --tmpdir armStrap_Log.XXXXXXXX`"
+  openUI "armStrap" "Cleaning Directories"
+
+  for i in ${ARMSTRAP_MNT} ${ARMSTRAP_LOG} ${ARMSTRAP_IMG} ${ARMSTRAP_SRC} ${ARMSTRAP_PKG}; do
+    rm -rf $i
+    checkDirectory $i
+    updateUI +20
+  done
+
+  closeUI
+
+  pauseUI "armStrap" "Cleaning Directories" "All done." 10
+  rm -f "${ARMSTRAP_LOG_FILE}"  
 }
