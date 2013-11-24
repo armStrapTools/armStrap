@@ -101,7 +101,13 @@ function printStatus {
 
 function checkStatus {
   if [ $? -ne 0 ]; then
-    printStatus "checkStatus" "${@}"
+    /usr/bin/dialog --backtitle "armStrap" --title "Abort" --msgbox "${@}" 0 0
+
+  if [ -f "${ARMSTRAP_LOG_FILE}" ]; then
+  local TMP_TIME="`date '+%y/%m/%d %H:%M:%S'`"
+    printf "[${TMP_TIME} %.15s] %s\n" "checkStatus" "$@" >> ${ARMSTRAP_LOG_FILE}
+  fi
+    
     exit 1
   fi
 }
@@ -188,24 +194,8 @@ function partSync {
 
 # Usage: promptYN "<question>"
 function promptYN {
-  echo ""
-  while true; do
-    read -n 1 -p "$1 " yn
-    case $yn in
-      [Yy]* ) 
-        printf "\n\n"
-        return 0
-        ;;
-      [Nn]* ) 
-        printf "\n\n"
-        return 1
-        ;;
-      * ) 
-        printf "\nPlease answer ${ANS_BLD}${ANF_RED}Y${ANF_DEF}${ANS_RST}es or ${ANS_BLD}${ANF_RED}N${ANF_DEF}${ANS_RST}o.\n"
-        ;;
-    esac
-  done
-  echo ""
+  /usr/bin/dialog --yesno "${1}" 0 0
+  return $?
 }
 
 function isTrue {
@@ -248,48 +238,54 @@ function fixSymLink {
 }
 
 function showConfig {
-  printf "\n${ANS_BLD}${ANS_SUL}${ANF_CYN}% 20s${ANS_RST}\n\n" "CONFIGURATION"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Board" "${ARMSTRAP_CONFIG}"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Distribution" "${ARMSTRAP_OS}"
+  local TMP_INFO="${TMP_INFO}        Board : ${ARMSTRAP_CONFIG}\n"
+        TMP_INFO="${TMP_INFO} Distribution : ${ARMSTRAP_OS}\n"
   if [ ! -z "${BUILD_KBUILDER_CONF}" ]; then
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Kernel Config" "${BUILD_KBUILDER_CONF}"
+        TMP_INFO="${TMP_INFO}Kernel Config : ${BUILD_KBUILDER_CONF}\n"
   fi
 
-  printf "\n${ANF_GRN}% 20s${ANS_RST}: %s\n" "Hostname" "${ARMSTRAP_HOSTNAME}"
-  printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Root Password" "${ARMSTRAP_PASSWORD}"
+        TMP_INFO="${TMP_INFO}     Hostname : ${ARMSTRAP_HOSTNAME}\n"
+        TMP_INFO="${TMP_INFO}Root Password : ${ARMSTRAP_PASSWORD}\n"
   if [ ! -z "${ARMSTRAP_SWAP}" ]; then
-    printf "${ANF_GRN}% 20s${ANS_RST}: %sMB\n" "Swapfile Size" "${ARMSTRAP_SWAP_SIZE}"
+        TMP_INFO="${TMP_INFO}Swapfile Size : ${ARMSTRAP_SWAP_SIZE}\n"
   fi
 
   if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Mac Address" "${ARMSTRAP_MAC_ADDRESS}"
+        TMP_INFO="${TMP_INFO}  Mac Address : ${ARMSTRAP_MAC_ADDRESS}\n"
   fi
   if [ "${ARMSTRAP_ETH0_MODE}" == "dhcp" ]; then
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "IP Address" "${ARMSTRAP_ETH0_MODE}"
+        TMP_INFO="${TMP_INFO}   IP Address : ${ARMSTRAP_ETH0_MODE}\n"
   else
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "IP Address" "${ARMSTRAP_ETH0_IP}"
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Mask" "${ARMSTRAP_ETH0_MASK}"
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Gateway" "${ARMSTRAP_ETH0_GW}"
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Search Domain" "${ARMSTRAP_ETH0_DOMAIN}"
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "DNS" "${ARMSTRAP_ETH0_DNS}"
+        TMP_INFO="${TMP_INFO}   IP Address : ${ARMSTRAP_ETH0_IP}\n"
+        TMP_INFO="${TMP_INFO}         Mask : ${ARMSTRAP_ETH0_MASK}\n"
+        TMP_INFO="${TMP_INFO}      Gateway : ${ARMSTRAP_ETH0_GW}\n"
+        TMP_INFO="${TMP_INFO}Search Domain : ${ARMSTRAP_ETH0_DOMAIN}\n"
+        TMP_INFO="${TMP_INFO}          DNS : ${ARMSTRAP_ETH0_DNS}\n"
   fi
-  printf "\n${ANF_GRN}% 20s${ANS_RST}: %s\n" "Log File" "${ARMSTRAP_LOG_FILE}"
+        TMP_INFO="${TMP_INFO}     Log File : ${ARMSTRAP_LOG_FILE}\n"
   if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Image File" "${ARMSTRAP_IMAGE_NAME}"
+        TMP_INFO="${TMP_INFO}   Image File : ${ARMSTRAP_IMAGE_NAME}"
     if [ -e "${ARMSTRAP_IMAGE_NAME}" ]; then
-      printf "\n% 20s : %s\n" "${ANS_BLD}${ANF_YEL}!!! Warning !!!${ANF_DEF}${ANS_RST}" "Image file exists, will be overwritten"
+        TMP_INFO="${TMP_INFO}(Image file exists, will be overwritten)\n"
+    else
+        TMP_INFO="${TMP_INFO}\n"
     fi
-    printf "${ANF_GRN}% 20s${ANS_RST}: %sMB\n" "Image Size" "${ARMSTRAP_IMAGE_SIZE}"
+        TMP_INFO="${TMP_INFO}   Image Size : ${ARMSTRAP_IMAGE_SIZE}\n"
   else
-    printf "${ANF_GRN}% 20s${ANS_RST}: %s\n" "Content of" "${ARMSTRAP_DEVICE}"
+        TMP_INFO="${TMP_INFO}\nContent of ${ARMSTRAP_DEVICE} :\n"
+        
+        while read -r i; do
+          TMP_INFO="${TMP_INFO}${i}\n"
+        done <<< "`/sbin/fdisk -l ${ARMSTRAP_DEVICE}`"
     isBlockDev ${ARMSTRAP_DEVICE}
     checkStatus "${ARMSTRAP_DEVICE} is not a block device"
     isRemDevice ${ARMSTRAP_DEVICE}
     checkStatus "${ARMSTRAP_DEVICE} is not a removable device"
-    fdisk -l ${ARMSTRAP_DEVICE}
   fi
+
+  dialog --backtitle "armStrap" --title "Configuration summary" --yesno "${TMP_INFO}" 0 0
   
-  promptYN "OK to proceed?"
+#  promptYN "OK to proceed?"
   checkStatus "Not ok to proceed."    
     
 }
