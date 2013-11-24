@@ -10,7 +10,12 @@ function kernelBuilder {
   local TMP_BUILD_CONFIG="${6}"
 
   local TMP_BUILD_CFGDEF="${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}_defconfig"
-  local TMP_BUILD_SCRSRC="${TMP_BUILD_CFGDIR}/builddeb"
+
+  if [ -f "${TMP_BUILD_CFGDIR}/builddeb" ]; then
+    local TMP_BUILD_SCRSRC="${TMP_BUILD_CFGDIR}/builddeb"
+  else
+    local TMP_BUILD_SCRSRC="${ARMSTRAP_BOARDS}/.defaults/kernel/builddeb"
+  fi
   
   local TMP_BUILD_CFGDST="${TMP_BUILD_WRKDIR}/arch/${TMP_BUILD_CFGARC}/configs"
   local TMP_BUILD_SCRDST="${TMP_BUILD_WRKDIR}/scripts/package/"

@@ -88,17 +88,14 @@ function guiWorker {
        add)  TMP_VAL=$(expr ${TMP_VAL} + ${TMP_DTA})
              printf "XXX\n%d\n%s\nXXX\n" ${TMP_VAL} "${TMP_EXT}" >> ${TMP_GUI}
              printf "%d:%s@%d" "${TMP_STP}" "${TMP_CMD}" ${TMP_VAL} >${ARMSTRAP_GUI_FF2}
-             printStatus "guiWriter" "--- CHECKPOINT ---"
              ;;
        sub)  TMP_VAL=$(expr ${TMP_VAL} - ${TMP_DTA})
              printf "XXX\n%d\n%s\nXXX\n" ${TMP_VAL} "${TMP_EXT}" >> ${TMP_GUI}
              printf "%d:%s@%d" "${TMP_STP}" "${TMP_CMD}" ${TMP_VAL} >${ARMSTRAP_GUI_FF2}
-             printStatus "guiWriter" "--- CHECKPOINT ---"
              ;;
        set)  TMP_VAL=${TMP_DTA}
              printf "XXX\n%d\n%s\nXXX\n" ${TMP_VAL} "${TMP_EXT}" >> ${TMP_GUI}
              printf "%d:%s@%d" "${TMP_STP}" "${TMP_CMD}" ${TMP_VAL} >${ARMSTRAP_GUI_FF2}
-             printStatus "guiWriter" "--- CHECKPOINT ---"
              ;;
        get)  printf "%d:%s@%d" "${TMP_STP}" "${TMP_CMD}" ${TMP_VAL} >${ARMSTRAP_GUI_FF2}
              ;;
