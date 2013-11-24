@@ -96,7 +96,7 @@ function formatParts {
     if [[ ${TMP_ARR[1]} = fat* ]]; then
       mkfs.vfat ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
     else
-      mkfs.${TMP_ARR[1]} ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
+      mkfs.${TMP_ARR[1]} -q ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
     fi
     checkStatus "mkfs.${TMP_ARR[1]} exit with status $?"
   done
@@ -141,9 +141,13 @@ function setupImg {
   local TMP_MT=""
   local TMP_SORT=("")
   local TMP_CNT=0
+  local TMP_GUI
   
+  guiStart
+  TMP_GUI=$(guiWriter "start" "Setting up disk image" "Progress")
+
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Creating disk image ${ARMSTRAP_IMAGE_NAME}")
   makeImg "${ARMSTRAP_IMAGE_NAME}" "${ARMSTRAP_IMAGE_SIZE}"
-  
   loopImg "${ARMSTRAP_IMAGE_NAME}"
   
   for i in "$@"; do
@@ -160,7 +164,7 @@ function setupImg {
   done
   TMP_FST=(${TMP_FST})
   TMP_MNT=(${TMP_MNT})
-  
+
   partDevice "${ARMSTRAP_DEVICE}" ${TMP_PARTS}
   
   uloopImg
@@ -176,6 +180,7 @@ function setupImg {
     (( TMP_COUNT++ ))
   done
   
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 5 "Formating partitions")
   formatParts ${TMP_FS}
   
   TMP_COUNT=0
@@ -204,12 +209,20 @@ function setupImg {
   
   ARMSTRAP_MOUNT_MAP=(${ARMSTRAP_MOUNT_MAP})
   
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 4 "Mounting partitions")
   mountParts ${ARMSTRAP_MOUNT_MAP[@]}
+  
+  guiStop
 }
 
 function finishImg {
   local TMP_RMAP=""
+  local TMP_GUI
   
+  guiStart
+  TMP_GUI=$(guiWriter "start" "Finishing disk image" "Progress")
+
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 3 "Flushing buffers")
   partSync
 
   for i in ${ARMSTRAP_MOUNT_MAP[@]}; do
@@ -223,9 +236,11 @@ function finishImg {
   
   TMP_RMAP=(${TMP_RMAP})
   
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Unmounting image")
   umountParts ${TMP_RMAP[@]}
-  
   umapImg "${ARMSTRAP_IMAGE_NAME}" "${ARMSTRAP_DEVICE}"
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Done")
+  guiStop
 }
 
 # Usage setupSD <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
@@ -237,7 +252,12 @@ function setupSD {
   local TMP_MT=""
   local TMP_SORT=("")
   local TMP_CNT=0
+  local TMP_GUI
   
+  guiStart
+  TMP_GUI=$(guiWriter "start" "Setting up SD card" "Progress")
+  
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Cleaning device ${ARMSTRAP_DEVICE}")
   cleanDev ${ARMSTRAP_DEVICE}
   
   for i in "$@"; do
@@ -254,7 +274,8 @@ function setupSD {
   done
   TMP_FST=(${TMP_FST})
   TMP_MNT=(${TMP_MNT})
-  
+
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 4 "Creating partitions")
   partDevice "${ARMSTRAP_DEVICE}" ${TMP_PARTS}
 
   ARMSTRAP_DEVICE_MAPS=""
@@ -279,6 +300,7 @@ function setupSD {
     (( TMP_COUNT++ ))
   done
   
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 4 "Formating partitions")
   formatParts ${TMP_FS}
   
   TMP_COUNT=0
@@ -307,11 +329,20 @@ function setupSD {
   
   ARMSTRAP_MOUNT_MAP=(${ARMSTRAP_MOUNT_MAP})
   
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Mounting partitions")
   mountParts ${ARMSTRAP_MOUNT_MAP[@]}
+  
+  guiStop
 }
 
 function finishSD {
   local TMP_RMAP=""
+    local TMP_GUI
+  
+  guiStart
+  TMP_GUI=$(guiWriter "start" "Finishing SD" "Progress")
+
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 3 "Flushing buffers")
   
   partSync
 
@@ -325,7 +356,9 @@ function finishSD {
   done
   
   TMP_RMAP=(${TMP_RMAP})
-  
-  umountParts ${TMP_RMAP[@]}
-  
+
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Unmounting SD")  
+  umountParts ${TMP_RMAP[@]}  
+  ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Done")
+  guiStop
 }

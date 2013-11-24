@@ -106,6 +106,17 @@ function checkStatus {
   fi
 }
 
+# Usage: rmDirectory <path>
+function rmDirectory {
+  if [ ! -d "${1}" ]; then
+    printStatus "rmDirectory" "Directory ${1} does not exist"
+  else
+    rm -rf "${1}"
+    checkStatus "rmDirectory" "Removal of ${1} failed"
+    printStatus "rmDirectory" "Directory ${1} removed"
+  fi
+}
+
 # Usage: checkDirectory <path>
 function checkDirectory {
   if [ ! -d "${1}" ]; then
@@ -457,6 +468,9 @@ ANB_CYN=""
 ANB_GRA=""
 ANB_DEF=""
 
+ANC_LIN="24"
+ANC_COL="80"
+
 function detectAnsi {
   local TMP_TPUT="`/bin/which tput`"
 
@@ -491,6 +505,9 @@ function detectAnsi {
       ANB_CYN="`${TMP_TPUT} setab 6`"
       ANB_GRA="`${TMP_TPUT} setab 7`"
       ANB_DEF="`${TMP_TPUT} setab 9`"
+      
+      ANC_COL="`${TMP_TPUT} cols`"
+      ANC_LIN="`${TMP_TPUT} lines`"
     fi
   fi
 }
@@ -627,16 +644,21 @@ function resetEnv {
 
 function cleanDirectory {
   ARMSTRAP_LOG_FILE="`mktemp --tmpdir armStrap_Log.XXXXXXXX`"
-  openUI "armStrap" "Cleaning Directories"
+  local TMP_GUI
+  guiStart
+  TMP_GUI=$(guiWriter "name" "armStrap")
+  TMP_GUI=$(guiWriter "start" "Cleaning up" "Progress")
+  
 
   for i in ${ARMSTRAP_MNT} ${ARMSTRAP_LOG} ${ARMSTRAP_IMG} ${ARMSTRAP_SRC} ${ARMSTRAP_PKG}; do
-    rm -rf $i
+    TMP_GUI=$(guiWriter "add" 19 "Cleaning directory ${i}")
+    rmDirectory $i
     checkDirectory $i
-    updateUI +20
   done
+  
+  TMP_GUI=$(guiWriter "set" 100 "All done.")
 
-  closeUI
-
-  pauseUI "armStrap" "Cleaning Directories" "All done." 10
+  guiStop
+  
   rm -f "${ARMSTRAP_LOG_FILE}"  
 }

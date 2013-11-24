@@ -5,7 +5,7 @@
 #
 
 if [ "`id -u`" -ne "0" ]; then
-  sudo -p "`basename $0` must be run as root, please enter your sudo password : " $0 $@
+  sudo -p "`basename $0` must be run as root, please enter your sudo password : " $0 $@ 
   exit 0
 fi
 
@@ -32,11 +32,12 @@ if [ ! -d "${ARMSTRAP_LOG}" ]; then
 fi
 
 # The logfile will be renamed to the real log file later
-ARMSTRAP_LOG_FILE=`mktemp ${ARMSTRAP_LOG}/armStrap.XXXXXXXX`
+ARMSTRAP_LOG_FILE="`mktemp ${ARMSTRAP_LOG}/armStrap.XXXXXXXX`"
 
 # Theses are our control for the UI.
-ARMSTRAP_GUI_FILE="`mktemp --tmpdir armStrap_UI.XXXXXXXX`"
-ARMSTRAP_GUI_LOCK="`mktemp --tmpdir armStrap_LK.XXXXXXXX`"
+ARMSTRAP_GUI_FF1=$(mktemp --tmpdir armStrap_UI.XXXXXXXX)
+ARMSTRAP_GUI_FF2=$(mktemp --tmpdir armStrap_UI.XXXXXXXX)
+ARMSTRAP_GUI_PCT=0
 
 # The image name is defined later.
 ARMSTRAP_IMAGE_NAME=""
@@ -63,7 +64,7 @@ ARMSTRAP_UPDATE=""
 ARMSTRAP_EXIT=""
 
 # Theses are packages that armStrap need for itself.
-ARMSTRAP_PREREQ="dialog inotify-tools"
+ARMSTRAP_PREREQ="dialog"
 
 # Our cleanup function
 trap on_exit EXIT
@@ -71,8 +72,9 @@ trap on_exit EXIT
 # There are still much more stuff to cleanup on fail (Mounts)...
 function on_exit()
 {
-  rm -f ${ARMSTRAP_GUI_LOCK}
-  rm -f ${ARMSTRAP_GUI_FILE}
+  if [ -p "${ARMSTRAP_GUI_FF1}" ]; then
+    guiStop
+  fi
 }
 
 #

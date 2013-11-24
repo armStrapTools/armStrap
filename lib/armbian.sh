@@ -55,7 +55,7 @@ function httpExtract {
   
   printStatus "httpExtract" "Fetching and extracting `basename ${TMP_URL}`"
   checkDirectory "${TMP_DIR}/"
-  wget -q -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
+  wget --progress=dot:mega -a ${ARMSTRAP_LOG_FILE} -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
   checkStatus "Error while downloading/extracting ${TMP_URL}"
 }
 
@@ -114,8 +114,8 @@ function chrootUpgrade {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootUpgrade" "Updating packages in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y update ${@} 2>> ${ARMSTRAP_LOG_FILE}
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y dist-upgrade ${@} 2>> ${ARMSTRAP_LOG_FILE}
+  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y update ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y dist-upgrade ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
     
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -131,7 +131,7 @@ function chrootInstall {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootInstall" "Installing packages in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/debconf-apt-progress --logstderr -- /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@} 2>> ${ARMSTRAP_LOG_FILE}
+  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
     
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -220,13 +220,13 @@ gpg --armor --export 1F7F94D7A99BC726 | apt-key add - 1>&2
 rm -rf \${GNUPGHOME} 1>&2
 GNUPGHOME="\${TMP_GNUPGHOME}"
 
-/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
+/usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
 
 KERNEL_IMG="\$(apt-cache search \${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION} | sort | tail -n 1 | cut -f 1 -d ' ')"
 KERNEL_VERSION="\$(echo \${KERNEL_IMG} | cut -f 5- -d '-')"
 KERNEL_HDR="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-headers-\${KERNEL_VERSION}"
 
-/usr/bin/debconf-apt-progress \${1} -- /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
+/usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
 EOF
 
   chmod +x "${TMP_CHROOT}/${TMP_KERNEL}"
@@ -236,7 +236,7 @@ EOF
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootKernel" "Executing ${TMP_KERNEL} script in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /${TMP_KERNEL} "--logstderr" 2>> ${ARMSTRAP_LOG_FILE}
+  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /${TMP_KERNEL} >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -537,15 +537,25 @@ function makeFex {
 
 # Usage : default_installRoot
 function default_installRoot {
+  local TMP_GUI
+  guiStart
+  TMP_GUI=$(guiWriter "start" "Installing RootFS" "Progress")
+  
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting RootFS")
   httpExtract "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
 
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  29 "Setting up locales")
   chrootLocales "${BUILD_MNT_ROOT}" "${BUILD_LANG}" "${BUILD_LANG_EXTRA}"
+  
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Setting up locales")
   chrootTimeZone "${BUILD_MNT_ROOT}" "${BUILD_TIMEZONE}"
   
   setHostName "${BUILD_MNT_ROOT}" "${ARMSTRAP_HOSTNAME}"
   
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Updating RootFS")
   chrootUpgrade "${BUILD_MNT_ROOT}"
   
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Configuring RootFS")
   if [ -n "${BUILD_DPKG_EXTRAPACKAGES}" ]; then
     chrootInstall "${BUILD_MNT_ROOT}" "${BUILD_DPKG_EXTRAPACKAGES}"
   fi
@@ -572,28 +582,34 @@ function default_installRoot {
   fi
 
   chrootPassword "${BUILD_MNT_ROOT}" "${ARMSTRAP_PASSWORD}"
-  
+
   addTTY "${BUILD_MNT_ROOT}" "${BUILD_SERIALCON_ID}" "${BUILD_SERIALCON_RUNLEVEL}" "${BUILD_SERIALCON_TERM}" "${BUILD_SERIALCON_SPEED}" "${BUILD_SERIALCON_TYPE}"
 
   initFSTab "${BUILD_MNT_ROOT}" 
   addFSTab "${BUILD_MNT_ROOT}" ${BUILD_FSTAB[@]}
-  #"${BUILD_FSTAB_ROOTDEV}" "${BUILD_FSTAB_ROOTMNT}" "${BUILD_FSTAB_ROOTFST}" "${BUILD_FSTAB_ROOTOPT}" "${BUILD_FSTAB_ROOTDMP}" "${BUILD_FSTAB_ROOTPSS}"
 
   for i in "${BUILD_KERNEL_MODULES}"; do
     addKernelModule "${BUILD_MNT_ROOT}" "${i}"
   done
-
-  addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
   
+  addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Configuring RootFS")
+  guiStop
 }
 
 # usage : default_installBoot
 function default_installBoot {
+  local TMP_GUI
+  guiStart
+  TMP_GUI=$(guiWriter "start" "Installing BootLoader" "Progress")
+  
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting BootLoader")
   httpExtract "${BUILD_MNT_ROOT}/boot" "${BUILD_ARMBIAN_UBOOT}" "${BUILD_ARMBIAN_EXTRACT}"
   
   rm -f "${BUILD_BOOT_CMD}"
   touch "${BUILD_BOOT_CMD}"
 
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  2 "Configuring BootLoader")
   for i in "${BUILD_UBUILDER_BOOTCMD[@]}"; do
     local TMP_KND=""
     local TMP_VST=""
@@ -619,11 +635,9 @@ function default_installBoot {
   for i in "${BUILD_UBUILDER_BOOTUENV[@]}"; do
     ubootSetEnv "${BUILD_BOOT_UENV}" "${i}"
   done
-  
+
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Creating BootLoader Image")  
   ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
-  
-  #gitClone "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_GITSRC}" "${BUILD_TBUILDER_GITBRN}"
-  #makeFEXC "${BUILD_TBUILDER_SOURCE}" "${BUILD_TBUILDER_FAMILLY}"
   
   if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
     fexMac "${BUILD_MNT_ROOT}/${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
@@ -631,12 +645,23 @@ function default_installBoot {
   
   fex2bin "${BUILD_MNT_ROOT}" "${BUILD_BOOT_FEX}" "${BUILD_BOOT_BIN}"
 
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Installing BootLoader")
   ddLoader "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT[@]}" 
+  
+  guiStop
 }
 
 # Usage : default_installKernel
 function default_installKernel {
+  local TMP_GUI
+  guiStart
+  TMP_GUI=$(guiWriter "start" "Installing Kernel" "Progress")
+  
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Installing Kernel")
   chrootKernel "${BUILD_MNT_ROOT}"
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Installing Kernel")
+  printStatus "CHECKPOING" "We are at ${ARMSTRAP_GUI_PCT}"
+  guiStop
 }
 
 #usage default_installOS
