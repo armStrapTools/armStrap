@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard"
+ARMSTRAP_CONFIG="A70Xh"
 
 ##############################################################################
 # Basic configuration
@@ -52,8 +52,22 @@ ARMSTRAP_PASSWORD="armStrap"
 # for CubieBoard/HackBerry and 3.6 for Raspberry PI. The default kernel is a
 # general purpose kernel good for most situations.
 #
-#ARMSTRAP_KBUILDER_VERSION="3.4"
-#ARMSTRAP_KBUILDER_CONF="default"
+# ARMSTRAP_KERNEL_TYPE:
+#  sun4i : Cubieboard/HackBerry
+#  sun7i : Cubieboard2/CubieTruck/A70Xh
+# bcmrpi : Raspberry PI
+#ARMSTRAP_KERNEL_TYPE="sun4i"
+#
+# ARMSTAP_KERNEL_VERSION:
+# 3.4 : Cubie*/HackBerry/A70Xh
+# 3.6 : Raspberry PI
+#
+#ARMSTRAP_KERNEL_VERSION="3.4"
+#
+# ARMSTRAP_KERNEL_CONFIG
+# default : Default configuration, good for general usage
+# 
+#ARMSTRAP_KERNEL_CONFIG="default"
 #
 # If you want to change the kernel root device (like for installing on NAND)
 # change it there... Default is to boot from first partition of SD card.

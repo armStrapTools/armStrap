@@ -26,6 +26,8 @@ ARMSTRAP_SRC="${ARMSTRAP_ROOT}/src"
 ARMSTRAP_PKG="${ARMSTRAP_ROOT}/pkg"
 
 ARMSTRAP_BOARDS="${ARMSTRAP_ROOT}/boards"
+ARMSTRAP_KERNELS="${ARMSTRAP_ROOT}/builder/kernels"
+ARMSTRAP_BOOTLOADERS="${ARMSTRAP_ROOT}/builder/bootloaders"
 
 if [ ! -d "${ARMSTRAP_LOG}" ]; then
   mkdir -p ${ARMSTRAP_LOG}
@@ -95,7 +97,7 @@ detectAnsi
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:clWNKRUIAM" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:clWNRIAM" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -147,7 +149,7 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:clWNKRUIAM" opt; do
       ARMSTRAP_EXIT="Yes"
       ;;
     K)
-      ARMSTRAP_KBUILDER="Yes"
+      ARMSTRAP_KBUILDER="${OPTARG}"
       ;;
     V)
       ARMSTRAP_KBUILDER_VERSION="${OPTARG}"
@@ -164,11 +166,14 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:F:H:V:clWNKRUIAM" opt; do
     M)
       ARMSTRAP_RMOUNT="Yes"
       ;;
-    F)
+    O)
       ARMSTRAP_OS="${OPTARG}"
       ;;
-    U)
-      ARMSTRAP_UBUILDER="Yes"
+    B)
+      ARMSTRAP_BBUILDER="${OPTARG}"
+      ;;
+    F)
+      ARMSTRAP_BBUILDER_FAMILLY="${OPTARG}"
       ;;
     A)
       ARMSTRAP_ABUILDER="Yes"
@@ -211,6 +216,16 @@ if [ $? -ne 0 ]; then
   exit 0
 fi
 
+if [ ! -z "${ARMSTRAP_KBUILDER}" ]; then
+  kBuilder ${ARMSTRAP_KBUILDER}
+  exit 0
+fi
+
+if [ ! -z "${ARMSTRAP_BBUILDER}" ]; then
+  bBuilder "${ARMSTRAP_BBUILDER}" "${ARMSTRAP_BBUILDER_FAMILLY}"
+  exit 0
+fi
+
 source ${ARMSTRAP_BOARD_CONFIG}/config.sh
 
 checkConfig
@@ -221,12 +236,6 @@ loadLibrary "${ARMSTRAP_BOARD_CONFIG}" ${BUILD_INIT_SCRIPTS}
 rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
 mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
 ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log"
-
-isTrue "${ARMSTRAP_KBUILDER}"
-if [ $? -ne 0 ]; then
-  kBuilder
-  ARMSTRAP_EXIT="Yes"
-fi
 
 isTrue "${ARMSTRAP_RMOUNT}"
 if [ $? -ne 0 ]; then

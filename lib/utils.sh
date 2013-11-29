@@ -48,11 +48,12 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-V" "<version>" "Select an alternate kernel version (if avalable)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-C" "<CONFIG>" "Select a different kernel configuration."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-I" "" "Call menuconfig before building Kernel."
-  printf "\n${ANS_BLD}U-Boot Builder${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-U" "" "Build U-Boot (txz package)."
+  printf "\n${ANS_BLD}BootLoader Builder${ANS_RST}:\n"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-B" "<BOOTLOADER>" "Build BootLoader (txz package)."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "<FAMILLY>" "Select bootloader familly."
   printf "\n${ANS_BLD}RootFS updater${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "" "Update RootFS (txz package)."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "" "Select which RootFS to update."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-O" "" "Select which RootFS to update."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-M" "" "Execute a shell into the RootFS."
   printf "\n${ANS_BLD}All Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
@@ -240,10 +241,6 @@ function fixSymLink {
 function showConfig {
   local TMP_INFO="${TMP_INFO}        Board : ${ARMSTRAP_CONFIG}\n"
         TMP_INFO="${TMP_INFO} Distribution : ${ARMSTRAP_OS}\n"
-  if [ ! -z "${BUILD_KBUILDER_CONF}" ]; then
-        TMP_INFO="${TMP_INFO}Kernel Config : ${BUILD_KBUILDER_CONF}\n"
-  fi
-
         TMP_INFO="${TMP_INFO}     Hostname : ${ARMSTRAP_HOSTNAME}\n"
         TMP_INFO="${TMP_INFO}Root Password : ${ARMSTRAP_PASSWORD}\n"
   if [ ! -z "${ARMSTRAP_SWAP}" ]; then
@@ -575,19 +572,6 @@ function checkConfig {
     checkStatus "Board configuration ${ARMSTRAP_CONFIG} not found"
   fi
   
-  for TMP_I in ${BUILD_KBUILDER_CONFIG}/*; do
-    case `basename ${TMP_I}` in
-      *${BUILD_KBUILDER_CONF}*)
-        TMP_FND="Yes"
-        ;;
-    esac
-  done
-  
-  isTrue ${TMP_FND}
-  if [ $? -eq "0" ]; then
-    $(exit 1)
-    checkStatus "Kernel configuration ${BUILD_KBUILDER_CONF} not found"
-  fi
 }
 
 # usage checkRootFS 
@@ -635,6 +619,24 @@ function resetEnv {
     fi
   done
   
+  unset ${TMP_LST}
+}
+
+# usage unsetEnv <PATTERN>
+function unsetEnv {
+  local TMP_I=""
+  local TMP_IFS="${IFS}"
+  local TMP_LST=""
+  IFS="="
+  
+  while read TMP_I; do
+    TMP_I=(${TMP_I})
+    if [[ "${TMP_I[0]}" == "${1}"* ]]; then
+      TMP_LST="${TMP_I[0]} ${TMP_LST}"
+    fi
+  done <<< "`set`"
+  
+  IFS="${TMP_IFS}"
   unset ${TMP_LST}
 }
 

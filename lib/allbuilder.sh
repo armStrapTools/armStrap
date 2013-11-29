@@ -134,35 +134,58 @@ function allBuilder {
 }
 
 function kBuilder {
-  isTrue "${BUILD_KBUILDER}"
-  if [ $? -ne 0 ]; then
+  local TMP_KRNDIR="${ARMSTRAP_KERNELS}/${1}"
+  local TMP_LOG="${ARMSTRAP_LOG}/armStrap-Kernel_${1}_${ARMSTRAP_DATE}.log"
+  if [ -f "${TMP_KRNDIR}/config.sh" ]; then
     printStatus "kBuilder" "Kernel Builder"
-    kernelConf "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}" "${BUILD_KBUILDER_VERSION}"
-    gitClone "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_GITSRC}" "${BUILD_KBUILDER_GITBRN}"
-    kernelBuilder "${BUILD_KBUILDER_SOURCE}" "${BUILD_KBUILDER_CONFIG}" "${BUILD_KBUILDER_FAMILLY}" "${BUILD_KBUILDER_ARCH}" "${BUILD_KBUILDER_TYPE}" "${BUILD_KBUILDER_CONF}"
+    source ${TMP_KRNDIR}/config.sh
+    rm -f ${TMP_LOG}
+    mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
+    ARMSTRAP_LOG_FILE="${TMP_LOG}"
+    gitClone "${BUILD_KERNEL_SOURCE}" "${BUILD_KERNEL_GITSRC}" "${BUILD_KERNEL_GITBRN}"
+    kernelBuilder "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_PREHOOK}" "${BUILD_KERNEL_PSTHOOK}"
+    unsetEnv "BUILD_KERNEL_"
     printStatus "kBuilder" "Kernel Builder Done"
   else
-    printStatus "kBuilder" "Kernel Builder is not avalable for ${ARMSTRAP_CONFIG}"
+    printStatus "kBuilder" "Kernel Builder is not avalable for ${1}"
   fi
 }
 
-function uBuilder {
-  isTrue "${BUILD_UBUILDER}"
-  if [ $? -ne 0 ]; then
-    funExist ${BUILD_UBUILDER_ALT}
-    if [ ${?} -eq 0 ]; then
-      ${BUILD_UBUILDER_ALT}
-    else
-      printStatus "uBuilder" "U-Boot Builder"
-      makeUBoot "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-      makeFex "${BUILD_SBUILDER_CONFIG}" "${BUILD_UBUILDER_FAMILLY}" "${ARMSTRAP_PKG}"
-      printStatus "uBuilder" "Compressing ${BUILD_UBUILDER_FAMILLY}-u-boot files to ${ARMSTRAP_PKG}"
-      ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}-u-boot.txz" -C "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
-      rm -rf "${ARMSTRAP_PKG}/${BUILD_UBUILDER_FAMILLY}"
-      printStatus "uBuilder" "U-Boot Builder Done"
-    fi
+# Usage bBuilder <bootloader_type> <bootloader_familly>
+function bBuilder {
+  local TMP_BLRDIR="${ARMSTRAP_BOOTLOADERS}/${1}"
+  local TMP_BLRCFG="${TMP_BLRDIR}/${2}"
+  local TMP_LOG="${ARMSTRAP_LOG}/armStrap-BootLoader_${1}-${2}_${ARMSTRAP_DATE}.log"
+  if [ -f "${TMP_BLRCFG}/config.sh" ]; then
+    BUILD_BOOTLOADER_TYPE="${1}"
+    printStatus "bBuilder" "Loading configuration for ${1} (${2})"
+    source ${TMP_BLRCFG}/config.sh
+    rm -f ${TMP_LOG}
+    mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
+    ARMSTRAP_LOG_FILE="${TMP_LOG}"
+    case ${BUILD_BOOTLOADER_TYPE} in
+      "u-boot-sunxi") printStatus "bBuilder" "Updating ${BUILD_BOOTLOADER_TYPE} for ${BUILD_BOOTLOADER_FAMILLY}"
+                      gitClone "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_GITSRC}" "${BUILD_BOOTLOADER_GITBRN}"
+                      gitClone "${BUILD_BOOTLOADER_FEXSRC}" "${BUILD_BOOTLOADER_FEXGIT}" "${BUILD_BOOTLOADER_FEXBRN}"
+                      printStatus "bBuilder" "Cleaning ${BUILD_BOOTLOADER_TYPE}"
+                      kernelMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" distclean
+                      printStatus "bBuilder" "Building ${BUILD_BOOTLOADER_TYPE}"
+                      kernelMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" "${BUILD_BOOTLOADER_FAMILLY}"
+                      checkDirectory "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_FAMILLY}"
+                      printStatus "bBuilder" "Packaging ${BUILD_BOOTLOADER_TYPE}"
+                      cp -v "${BUILD_BOOTLOADER_SOURCE}/u-boot-sunxi-with-spl.bin" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_FAMILLY}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      cp -v "${BUILD_BOOTLOADER_FEXSRC}/sys_config/${BUILD_BOOTLOADER_CPU}/${BUILD_BOOTLOADER_FEX}" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_FAMILLY}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      ${BUILD_BOORLOADER_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_FAMILLY}.txz" -C "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_FAMILLY}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      rm -rf "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_FAMILLY}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      unsetEnv "BUILD_BOOTLOADER_"
+                      printStatus "bBuilder" "Builder done."
+                      ;;
+                   *) printStatus "Builder is not avalable for ${1}"
+                      ;;
+    esac
+  unsetEnv "BUILD_BOOTLOADER_"
   else
-    printStatus "uBuilder" "U-Boot Builder is not avalable for ${ARMSTRAP_CONFIG}"
+    printStatus "Builder is not avalable for ${1}"
   fi
 }
 
@@ -219,7 +242,6 @@ function rMount {
   fi
 
   shellRun "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-  #chrootShell "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
   
   printStatus "rMount" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
   rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"

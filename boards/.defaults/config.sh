@@ -1,6 +1,4 @@
 BUILD_CONFIG="${ARMSTRAP_CONFIG,,}"
-BUILD_CPU="a10"
-BUILD_ARCH="arm"
 
 if [ -z "${ARMSTRAP_LANG}" ]; then
   BUILD_LANG="${LANG}"
@@ -96,25 +94,6 @@ BUILD_BOOT_KERNEL_ADDR="0x48000000"
 BUILD_BOOT_UBOOT=("${BUILD_MNT_ROOT}/boot/u-boot-sunxi-with-spl.bin:1024:8")
 
 BUILD_DISK_LAYOUT=("1:/:ext4:-1")
-
-#############################################################################
-#
-# Kernel builder stuff
-#
-BUILD_KBUILDER="Yes"
-BUILD_KBUILDER_TYPE="sun4i"
-if [ -z "${ARMSTRAP_KBUILDER_CONF}" ]; then
-  BUILD_KBUILDER_CONF="default"
-else
-  BUILD_KBUILDER_CONF="${ARMSTRAP_KBUILDER_CONF}"
-fi
-BUILD_KBUILDER_ARCH="${BUILD_ARCH}"
-BUILD_KBUILDER_FAMILLY="${BUILD_CONFIG}"
-BUILD_KBUILDER_SOURCE="${ARMSTRAP_SRC}/${BUILD_CONFIG}/linux-sunxi"
-BUILD_KBUILDER_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/kernel"
-BUILD_KBUILDER_GITSRC="https://github.com/linux-sunxi/linux-sunxi.git"
-BUILD_KBUILDER_GITBRN=""
-BUILD_KBUILDER_DEFAULT="sun4i_defconfig"
 
 #############################################################################
 #

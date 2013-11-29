@@ -1,5 +1,11 @@
-source ${ARMSTRAP_BOARDS}/.defaults/sunxi.sh
-
+# Theses must always be set for a board configuration
 BUILD_CPU="a20"
-BUILD_KBUILDER_TYPE="sun7i"
-BUILD_KBUILDER_DEFAULT="sun7i_defconfig"
+BUILD_ARCH="arm"
+
+# Theses are overrides from the default board configuration
+BUILD_KERNEL_TYPE="sun7i"
+BUILD_KERNEL_VERSION="3.4"
+BUILD_KERNEL_CONFIG="default"
+
+# Include the default values last.
+source ${ARMSTRAP_BOARDS}/.defaults/config.sh
