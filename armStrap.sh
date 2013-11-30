@@ -40,6 +40,7 @@ ARMSTRAP_LOG_FILE="`mktemp ${ARMSTRAP_LOG}/armStrap.XXXXXXXX`"
 ARMSTRAP_GUI_FF1=$(mktemp --tmpdir armStrap_UI.XXXXXXXX)
 ARMSTRAP_GUI_FF2=$(mktemp --tmpdir armStrap_UI.XXXXXXXX)
 ARMSTRAP_GUI_PCT=0
+ARMSTRAP_GUI_DISABLE=""
 
 # The image name is defined later.
 ARMSTRAP_IMAGE_NAME=""
@@ -94,10 +95,9 @@ if [ ! -z "${ARMSTRAP_PREREQ}" ]; then
 fi
 
 detectAnsi
-showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:clWNRIAM" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:clWNRIAMgq" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -181,12 +181,20 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:clWNRIAM" opt; do
     H)
       ARMSTRAP_ABUILDER_HOOK="${OPTARG}"
       ;;
+    g)
+      ARMSTRAP_GUI_DISABLE="Yes"
+      ;;
+    q)
+      ARMSTRAP_LOG_SILENT="Yes"
+      ARMSTRAP_GUI_DISABLE="Yes"
+      ;;
     \?)
       showUsage
       ARMSTRAP_EXIT="Yes"
       ;;
     :)
       printf "Option -%s requires an argument.\n\n" "${OPTARG}"
+      showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
       showUsage
       exit 1
     ;;
@@ -197,6 +205,8 @@ isTrue "${ARMSTRAP_EXIT}"
 if [ $? -ne 0 ]; then
   exit 0
 fi
+
+showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
 isTrue "${ARMSTRAP_RMOUNT}"
 if [ $? -ne 0 ]; then
@@ -217,7 +227,7 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ ! -z "${ARMSTRAP_KBUILDER}" ]; then
-  kBuilder ${ARMSTRAP_KBUILDER}
+  kernelBuild ${ARMSTRAP_KBUILDER}
   exit 0
 fi
 

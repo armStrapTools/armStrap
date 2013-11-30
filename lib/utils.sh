@@ -60,8 +60,11 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-H" "<hookscript>" "Script to execute after building everything with"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "" "<PKG_PATH> and <LOGFILE> as parameters"
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-g" "" "Disable GUI."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-q" "" "Quiet."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Directory Cleanup."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-l" "" "Show licence."
+ 
   printf "\n${ANS_BLD}Supported boards and kernel configurations:${ANS_RST}\n"
   for i in ${TMP_BOARDS}; do
     local TMP_BRDCFG="$(kernelConfigs ${i})"
@@ -71,8 +74,10 @@ function showUsage {
 }
 
 function showTitle {
-  printf "\n${ANS_BLD}%s version %s${ANS_RST}\n" "${1}" "${2}"
-  printf "Copyright (C) 2013 Eddy Beaupre\n\n"
+  if [ -z "${ARMSTRAP_LOG_SILENT}" ]; then
+    printf "\n${ANS_BLD}%s version %s${ANS_RST}\n" "${1}" "${2}"
+    printf "Copyright (C) 2013 Eddy Beaupre\n\n"
+  fi
 }
 
 # Usage: printStatus <function> <message>
@@ -659,4 +664,42 @@ function cleanDirectory {
   guiStop
   
   rm -f "${ARMSTRAP_LOG_FILE}"  
+}
+
+function ccMake {
+  local TMP_CPUARC="${1}"
+  local TMP_CPUABI="${2}"
+  local TMP_WRKDIR="${3}"
+  local TMP_CFLAGS="${4}"
+  local TMP_CCPREF="${TMP_CPUARC}-linux-gnueabi${TMP_CPUABI}"
+  local TMP_ARCABI="${TMP_CPUARC}${TMP_CPUABI}"
+  shift
+  shift
+  shift
+  shift
+  
+  if [ -z "${TMP_CFLAGS}" ]; then
+    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  else
+    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make CFLAGS="${TMP_CFLAGS}" CXXFLAGS="${TMP_CFLAGS}" ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
+}
+
+function ccMakeNoLog {
+  local TMP_CPUARC="${1}"
+  local TMP_CPUABI="${2}"
+  local TMP_WRKDIR="${3}"
+  local TMP_CFLAGS="${4}"
+  local TMP_CCPREF="${TMP_CPUARC}-linux-gnueabi${TMP_CPUABI}"
+  local TMP_ARCABI="${TMP_CPUARC}${TMP_CPUABI}"
+  shift
+  shift
+  shift
+  shift
+  
+  if [ -z "${TMP_CFLAGS}" ]; then
+    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@}
+  else
+    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make CFLAGS="${TMP_CFLAGS}" CXXFLAGS="${TMP_CFLAGS}" ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@}
+  fi
 }

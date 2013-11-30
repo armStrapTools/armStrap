@@ -43,3 +43,15 @@ fi
 if [ -z "${BUILD_KERNEL_PSTHOOK}" ]; then
   BUILD_KERNEL_PSTHOOK=""
 fi
+
+if [ -z "${BUILD_KERNEL_FIRMWARE_SRC}" ]; then
+  BUILD_KERNEL_FIRMWARE_SRC=""
+fi
+
+if [ -z "${BUILD_KERNEL_FIRMWARE_GIT}" ]; then
+  BUILD_KERNEL_FIRMWARE_GIT=""
+fi
+
+if [ -z "${BUILD_KERNEL_FIRMWARE_BRN}" ]; then
+  BUILD_KERNEL_FIRMWARE_BRN=""
+fi

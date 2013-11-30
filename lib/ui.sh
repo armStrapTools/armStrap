@@ -109,70 +109,75 @@ function guiWorker {
 }
 
 function guiWriter {
-  local TMP_RAW
-  local TMP_CMD="${1}"  
-  local TMP_DTA="${2}"
-  shift
-  shift
-  local TMP_STP=$(date +%s)
-  local TMP_IFS="${IFS}"
-  IFS="@"
+  if [ -z "${ARMSTRAP_GUI_DISABLE}" ]; then
+    local TMP_RAW
+    local TMP_CMD="${1}"  
+    local TMP_DTA="${2}"
+    shift
+    shift
+    local TMP_STP=$(date +%s)
+    local TMP_IFS="${IFS}"
+    IFS="@"
 
-  if [ -z "${@}" ]; then  
-    printf "%d:%s@%s\n" ${TMP_STP} "${TMP_CMD}" "${TMP_DTA}" >${ARMSTRAP_GUI_FF1}
-  else
-    printf "%d:%s@%s#%s\n" ${TMP_STP} "${TMP_CMD}" "${TMP_DTA}" "${@}" >${ARMSTRAP_GUI_FF1}
-  fi
-  while  [ "${TMP_RAW}" != "${TMP_STP}" ]; do
-    if [ -p "${ARMSTRAP_GUI_FF2}" ]; then
-      read -r TMP_RAW <${ARMSTRAP_GUI_FF2}
-      TMP_RAW=(${TMP_RAW})
-      TMP_DTA=${TMP_RAW[1]}
-      IFS=":"
-      TMP_CMD=(${TMP_RAW[0]})
-      TMP_STP=${TMP_CMD[0]}
-      TMP_CMD=${TMP_CMD[1]}
-      TMP_RAW=${TMP_STP}
+    if [ -z "${@}" ]; then  
+      printf "%d:%s@%s\n" ${TMP_STP} "${TMP_CMD}" "${TMP_DTA}" >${ARMSTRAP_GUI_FF1}
     else
-      TMP_RAW=${TMP_STP}
-      TMP_DTA=""
+      printf "%d:%s@%s#%s\n" ${TMP_STP} "${TMP_CMD}" "${TMP_DTA}" "${@}" >${ARMSTRAP_GUI_FF1}
     fi
-  done
+    while  [ "${TMP_RAW}" != "${TMP_STP}" ]; do
+      if [ -p "${ARMSTRAP_GUI_FF2}" ]; then
+        read -r TMP_RAW <${ARMSTRAP_GUI_FF2}
+        TMP_RAW=(${TMP_RAW})
+        TMP_DTA=${TMP_RAW[1]}
+        IFS=":"
+        TMP_CMD=(${TMP_RAW[0]})
+        TMP_STP=${TMP_CMD[0]}
+        TMP_CMD=${TMP_CMD[1]}
+        TMP_RAW=${TMP_STP}
+      else
+        TMP_RAW=${TMP_STP}
+        TMP_DTA=""
+      fi
+    done
 
-  if [ ! -z ${TMP_DTA} ]; then
-    printf "%s\n" "${TMP_DTA}"
-  fi
+    if [ ! -z ${TMP_DTA} ]; then
+      printf "%s\n" "${TMP_DTA}"
+    fi
   
-  IFS="${TMP_IFS}"
+    IFS="${TMP_IFS}"
+  fi
 }
 
 function guiStart {
-  ARMSTRAP_LOG_SILENT="Yes"
-  guiWorker "${1}" "${ARMSTRAP_GUI_PCT}" &
+  if [ -z "${ARMSTRAP_GUI_DISABLE}" ]; then
+    ARMSTRAP_LOG_SILENT="Yes"
+    guiWorker "${1}" "${ARMSTRAP_GUI_PCT}" &
   
-  while [ ! -p "${ARMSTRAP_GUI_FF1}" ]; do
-    sleep 0.1
-  done
+    while [ ! -p "${ARMSTRAP_GUI_FF1}" ]; do
+      sleep 0.1
+    done
   
-  while [ ! -p "${ARMSTRAP_GUI_FF2}" ]; do
-    sleep 0.1
-  done
+    while [ ! -p "${ARMSTRAP_GUI_FF2}" ]; do
+      sleep 0.1
+    done
+  fi
   
 }
 
 function guiStop {
-  ARMSTRAP_LOG_SILENT=""
-  ARMSTRAP_GUI_PCT=$(guiWriter "get")  
-  sleep 1
+  if [ -z "${ARMSTRAP_GUI_DISABLE}" ]; then
+    ARMSTRAP_LOG_SILENT="No"
+    ARMSTRAP_GUI_PCT=$(guiWriter "get")  
+    sleep 1
 
-  local TMP=$(guiWriter "stop")
+    local TMP=$(guiWriter "stop")
   
-  while [ -p "${ARMSTRAP_GUI_FF1}" ]; do
-    sleep 0.1
-  done
+    while [ -p "${ARMSTRAP_GUI_FF1}" ]; do
+      sleep 0.1
+    done
   
-  while [ -p "${ARMSTRAP_GUI_FF2}" ]; do
-    sleep 0.1
-  done
-  
+    while [ -p "${ARMSTRAP_GUI_FF2}" ]; do
+      sleep 0.1
+    done
+  fi
 }

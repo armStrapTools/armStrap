@@ -495,44 +495,11 @@ function shellRun {
   enableServices "${TMP_DIR}"
 }
 
-function makeUBoot {
-
-  printStatus "ubootBuilder" "----------------------------------------"
-  printStatus "ubootBuilder" "- Board : ${2}"
-  printStatus "ubootBuilder" "----------------------------------------"
-  
-  gitClone "${BUILD_UBUILDER_SOURCE}" "${BUILD_UBUILDER_GITSRC}" "${BUILD_UBUILDER_GITBRN}"
-  
-  printStatus "makeUBoot" "Compiling U-Boot for ${2}"
-  make -C "${1}" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- distclean >> ${ARMSTRAP_LOG_FILE} 2>&1  
-  make -C "${1}" ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  
-  checkDirectory "${3}/${2}"
-  
-  printStatus "makeUBoot" "Copying u-boot-sunxi-with-spl.bin to ${3}/${2}"
-  cp -v "${1}/u-boot-sunxi-with-spl.bin" "${3}/${2}" >> ${ARMSTRAP_LOG_FILE} 2>&1
-}
-
-
-#usage makeFEXC <BUILD_TBUILDER_SOURCE> <BUILD_BOARD>
-function makeFEXC {
-  printStatus "makeSTools" "Compiling `basename ${1}` for ${2}"
-  make -C "${1}" clean >> ${ARMSTRAP_LOG_FILE} 2>&1  
-  make -C "${1}" fexc >> ${ARMSTRAP_LOG_FILE} 2>&1
-}
-
 #usage fex2bin <BUILD_MNT_ROOT> <src_fex> <dst_bin>
 function fex2bin {
   printStatus "fex2bin" "Compilling `basename ${3}`"
   shellRun ${1} /usr/bin/fexc -v -I fex -O bin ${2} ${3} >> ${ARMSTRAP_LOG_FILE} 2>&1
   #${1}/fexc -v -I fex -O bin ${2} ${3} >> ${ARMSTRAP_LOG_FILE} 2>&1
-}
-
-function makeFex {
-  gitClone "${BUILD_SBUILDER_SOURCE}" "${BUILD_SBUILDER_GITSRC}" "${BUILD_SBUILDER_GITBRN}"
-  printStatus "makeFex" "Copying `basename ${1}` for ${2}"
-  checkDirectory "${3}/${2}"
-  cp -v "${1}" "${3}/${2}" >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage : default_installRoot
