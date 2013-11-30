@@ -98,7 +98,7 @@ fi
 detectAnsi
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:R:clWNIAMgq" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:clWNIAMgq" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -152,12 +152,6 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:R:clWNIAMgq" opt; do
     K)
       ARMSTRAP_KBUILDER="${OPTARG}"
       ;;
-    V)
-      ARMSTRAP_KBUILDER_VERSION="${OPTARG}"
-      ;;
-    C)
-      ARMSTRAP_KBUILDER_CONF="${OPTARG}"
-      ;;
     I)
       ARMSTRAP_KBUILDER_MENUCONFIG="Yes"
       ;;
@@ -209,11 +203,6 @@ fi
 
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
 
-isTrue "${ARMSTRAP_RMOUNT}"
-if [ $? -ne 0 ]; then
-  ARMSTRAP_RUPDATER="No"
-fi
-
 ARMSTRAP_BOARD_CONFIG="${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}"
 
 checkDirectory ${ARMSTRAP_MNT}
@@ -241,7 +230,7 @@ if [ ! -z "${ARMSTRAP_RUPDATER}" ]; then
   if [ -z "${ARMSTRAP_RMOUNT}" ]; then
     rootfsUpdater "${ARMSTRAP_RUPDATER}" "${ARMSTRAP_OS}"
   else
-    rMount
+    rootfsMount "${ARMSTRAP_RUPDATER}" "${ARMSTRAP_OS}"
   fi
   exit 0
 fi

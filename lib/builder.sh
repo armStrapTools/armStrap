@@ -288,23 +288,27 @@ function bootBuilder {
   fi
 }
 
-# usage : rootfsUpdater <type> <familly>
+# usage : rootfsUpdater <TYPE> <ARCH>
 function rootfsUpdater {
-  local TMP_RFSDIR="${ARMSTRAP_ROOTFS}/${1}"
-  local TMP_RFSCFG="${TMP_RFSDIR}/${2}"
+  local TMP_RFSDIR="${ARMSTRAP_ROOTFS}/${2}"
+  local TMP_RFSCFG="${TMP_RFSDIR}/${1}"
   local TMP_LOG="${ARMSTRAP_LOG}/armStrap-RootFSUpdater_${1}-${2}_${ARMSTRAP_DATE}.log"
   
+  printStatus "rootfsUpdater" "${TMP_RFSCFG}"
+  
   if [ -f "${TMP_RFSCFG}/config.sh" ]; then
+    BUILD_ROOTFS_ARCH="${2}"
+    BUILD_ROOTFS_FAMILLY="${1}"
     local TMP_GUI
     
     guiStart
     TMP_GUI=$(guiWriter "name" "armStrap")
-    TMP_GUI=$(guiWriter "start" "RootFS Updater" "Progress")
-    BUILD_ROOTFS_TYPE="${1}"
-    BUILD_ROOTFS_FAMILLY="${2}"
+    TMP_GUI=$(guiWriter "start" "RootFS Updater (${1}/${2})" "Progress")
 
-    printStatus "rootfsUpdater" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILLY})"
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing")
     source ${TMP_RFSCFG}/config.sh
+
+    printStatus "rootfsUpdater" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILLY}-${BUILD_ROOTFS_ARCH})"
     rm -f ${TMP_LOG}
     mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
     ARMSTRAP_LOG_FILE="${TMP_LOG}"
@@ -314,54 +318,90 @@ function rootfsUpdater {
     fi
     checkDirectory "${BUILD_ROOTFS_SRC}"
     
-    printStatus "rootfsUpdater" "BUILD_ROOTFS_URL : ${BUILD_ROOTFS_URL}"
-    printStatus "rootfsUpdater" "BUILD_ROOTFS_SRC : ${BUILD_ROOTFS_SRC}"
-    printStatus "rootfsUpdater" "BUILD_ROOTFS_EXTRACT : ${BUILD_ROOTFS_EXTRACT}"
-    
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  2 "Extracting root filesystem")
     httpExtract "${BUILD_ROOTFS_SRC}" "${BUILD_ROOTFS_URL}" "${BUILD_ROOTFS_EXTRACT}"
-    shellRun "${BUILD_ROOTFS_SRC}" "apt-get -q -y update && apt-get -q -y dist-upgrade"
-    
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  31 "Updating root filesystem")    
+    shellRun "${BUILD_ROOTFS_SRC}" "apt-get -q -y update && apt-get -q -y dist-upgrade && apt-get -q -y clean && apt-get -q -y autoclean"
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  33 "Compressing root filesystem")    
     printStatus "rootfsUpdater" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
     
     rm -f "${ARMSTRAP_PKG}/`basename ${BUILD_ROOTFS_URL}`"
-    ${BUILD_ROOTFS_COMPRESS} "${ARMSTRAP_PKG}/`basename ${BUILD_ROOTFS_URL}`" -C "${BUILD_ROOTFS_SRC}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
-    printStatus "rBuilder" "rootFS Updater Done"
+    ${BUILD_ROOTFS_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_ROOTFS_TYPE}-${BUILD_ROOTFS_FAMILLY}-${BUILD_ROOTFS_ARCH}.txz" -C "${BUILD_ROOTFS_SRC}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  34 "Done")    
+    printStatus "rootfsUpdater" "Root filesystem updater Done"
     
     unsetEnv "BUILD_ROOTFS_"
     guiStop
-  fi
-  
-
-
-}
-
-function rBuilder {
-  local TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
-  local TMP_ROOTFS="${TMP_ROOTFS%.txz}"
-  
-  printStatus "rBuilder" "----------------------------------------"
-  printStatus "rBuilder" "- Updating rootFS ${TMP_ROOTFS}"
-  printStatus "rBuilder" "----------------------------------------"
-
-  if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
-    printStatus "rBuilder" "Creating work directory ${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-    checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
   else
-    printStatus "rBuilder" "Cleaning work directory ${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-    rm -rf "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-    checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+    printStatus "rootfsUpdater" "Cannot find ${1} for architecture ${2}"
   fi
-  
-  httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
-
-  shellRun "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "apt-get -q -y update && apt-get -q -y dist-upgrade"
-  
-  printStatus "rBuilder" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
-  rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
-  ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
-  printStatus "rBuilder" "rootFS Updater Done"
 }
 
+# usage : rootfsMount <TYPE> <ARCH>
+function rootfsMount {
+  local TMP_RFSDIR="${ARMSTRAP_ROOTFS}/${2}"
+  local TMP_RFSCFG="${TMP_RFSDIR}/${1}"
+  local TMP_LOG="${ARMSTRAP_LOG}/armStrap-RootFSUpdater_${1}-${2}_${ARMSTRAP_DATE}.log"
+  
+  printStatus "rootfsMount" "${TMP_RFSCFG}"
+  
+  if [ -f "${TMP_RFSCFG}/config.sh" ]; then
+    BUILD_ROOTFS_ARCH="${2}"
+    BUILD_ROOTFS_FAMILLY="${1}"
+    local TMP_GUI
+    
+    guiStart
+    TMP_GUI=$(guiWriter "name" "armStrap")
+    TMP_GUI=$(guiWriter "start" "RootFS Updater (${1}/${2})" "Progress")
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing")
+    source ${TMP_RFSCFG}/config.sh
+
+    printStatus "rootfsMount" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILLY}-${BUILD_ROOTFS_ARCH})"
+    rm -f ${TMP_LOG}
+    mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
+    ARMSTRAP_LOG_FILE="${TMP_LOG}"
+
+    if [ -d "${BUILD_ROOTFS_SRC}" ]; then
+      rm -rf "${BUILD_ROOTFS_SRC}"
+    fi
+    checkDirectory "${BUILD_ROOTFS_SRC}"
+    
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  2 "Extracting root filesystem")
+    httpExtract "${BUILD_ROOTFS_SRC}" "${BUILD_ROOTFS_URL}" "${BUILD_ROOTFS_EXTRACT}"
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  31 "Entering shell")
+    guiStop
+    shellRun "${BUILD_ROOTFS_SRC}"
+    guiStart
+    TMP_GUI=$(guiWriter "name" "armStrap")
+    TMP_GUI=$(guiWriter "start" "RootFS Updater (${1}/${2})" "Progress")
+    
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Cleaning root filesystem")
+    shellRun "${BUILD_ROOTFS_SRC}" "apt-get -q -y clean && apt-get -q -y autoclean && find . -name "*~" -exec rm {} \;"
+    
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  32 "Compressing root filesystem")    
+    printStatus "rootfsMount" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
+    
+    rm -f "${ARMSTRAP_PKG}/`basename ${BUILD_ROOTFS_URL}`"
+    ${BUILD_ROOTFS_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_ROOTFS_TYPE}-${BUILD_ROOTFS_FAMILLY}-${BUILD_ROOTFS_ARCH}.txz" -C "${BUILD_ROOTFS_SRC}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+    
+    if [ -d "${BUILD_ROOTFS_SRC}" ]; then
+      rm -rf "${BUILD_ROOTFS_SRC}"
+    fi
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  33 "Done")    
+    printStatus "rootfsMount" "Root filesystem updater Done"
+    
+    unsetEnv "BUILD_ROOTFS_"
+    guiStop
+  else
+    printStatus "rootfsMount" "Cannot find ${1} for architecture ${2}"
+  fi
+}
 
 function rMount {
   local TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"

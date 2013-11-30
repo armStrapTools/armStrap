@@ -50,13 +50,29 @@ function enableServices {
 function httpExtract {
   local TMP_DIR="${1}"
   local TMP_URL="${2}"
+  local TMP_PKG="`basename ${2}`"
   shift
   shift
   
   printStatus "httpExtract" "Fetching and extracting `basename ${TMP_URL}`"
   checkDirectory "${TMP_DIR}/"
-  wget --progress=dot:mega -a ${ARMSTRAP_LOG_FILE} -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
-  checkStatus "Error while downloading/extracting ${TMP_URL}"
+
+  if [ -f "${ARMSTRAP_PKG}/${TMP_PKG}" ]; then
+    printStatus "httpExtract" "Found local copy of ${TMP_PKG}"
+    TMP_URL="${ARMSTRAP_PKG}/${TMP_PKG}"
+    printStatus "httpExtract" "TMP_URL : ${TMP_URL}"
+    printStatus "httpExtract" "TMP_DIR : ${TMP_DIR}"
+    printStatus "httpExtract" "Command : ${@}"
+    cat "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
+    checkStatus "Error while downloading/extracting ${TMP_URL}"
+  else
+    printStatus "httpExtract" "Fetching and extracting `basename ${TMP_URL}`"
+    printStatus "httpExtract" "TMP_URL : ${TMP_URL}"
+    printStatus "httpExtract" "TMP_DIR : ${TMP_DIR}"
+    printStatus "httpExtract" "Command : ${@}"
+    wget --progress=dot:mega -a ${ARMSTRAP_LOG_FILE} -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
+    checkStatus "Error while downloading/extracting ${TMP_URL}"
+  fi
 }
 
 # usage pkgExtract <DESTINATION> <FILE> <EXTRACTOR_CMD>
