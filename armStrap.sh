@@ -67,7 +67,7 @@ ARMSTRAP_EXIT=""
 ARMSTRAP_ABUILDER=""
 ARMSTRAP_ABUILDER_HOOK=""
 # Theses are used by postArmStrap to populate the web server and repository.
-ARMSTRAP_ABUILDER_WWW="/var/www/armstrap/"
+ARMSTRAP_ABUILDER_WWW="/var/www/armstrap"
 ARMSTRAP_ABUILDER_KERNEL="${ARMSTRAP_ABUILDER_WWW}/kernel"
 ARMSTRAP_ABUILDER_ROOTFS="${ARMSTRAP_ABUILDER_WWW}/rootfs"
 ARMSTRAP_ABUILDER_LOADER="${ARMSTRAP_ABUILDER_WWW}/loader"
@@ -217,7 +217,7 @@ checkDirectory ${ARMSTRAP_SRC}
 checkDirectory ${ARMSTRAP_PKG}
 
 if [ ! -z "${ARMSTRAP_ABUILDER}" ]; then
-  allBuild
+  armStrapBuild
   exit 0
 fi
 

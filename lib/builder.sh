@@ -404,62 +404,69 @@ function rootfsMount {
   fi
 }
 
-function postArmStrap {
-  printStatus "postArmStrap" "Publishing armStrap"
+function armStrapPost {
+  local TMP_I=""
+  local TMP_J=""
+  local TMP_TYPE=""
+
+  printStatus "armStrapPost" "Publishing armStrap"
     
-  printStatus "postArmStrap" "Publishing logs"
+  printStatus "armStrapPost" "Publishing logs"
   if [ -d "${ARMSTRAP_ABUILDER_LOGS}" ]; then
-    rm -rf "${ARMSTRAP_ABUILDER_LOGS}"
+    rm -rf ${ARMSTRAP_ABUILDER_LOGS}
   fi
   checkDirectory "${ARMSTRAP_ABUILDER_LOGS}"
-  mv "${ARMSTRAP_LOG}/*" "${ARMSTRAP_ABUILDER_LOGS}"
+  cp ${ARMSTRAP_LOG}/* ${ARMSTRAP_ABUILDER_LOGS}
     
-  printStatus "postArmStrap" "Publishing bootloaders"
+  printStatus "armStrapPost" "Publishing bootloaders"
   checkDirectory "${ARMSTRAP_ABUILDER_LOADER}"
   for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
     for TMP_J in ${TMP_I}/*; do
-      mv -v "${ARMSTRAP_PKG}/${TMP_I}_${TMP_J}.txz" "${ARMSTRAP_ABUILDER_LOADER}/"
+      cp -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`_`basename ${TMP_J}`.txz ${ARMSTRAP_ABUILDER_LOADER}/
     done
   done
   
-  printStatus "postArmStrap" "Publishing rootfs"
+  printStatus "armStrapPost" "Publishing rootfs"
   checkDirectory "${ARMSTRAP_ABUILDER_ROOTFS}"
   for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
     for TMP_J in ${TMP_I}/*; do
-      mv -v "${ARMSTRAP_PKG}/*-${TMP_J}-${TMP_I}.txz" "${ARMSTRAP_ABUILDER_ROOTFS}/"
+      cp -v ${ARMSTRAP_PKG}/*-`basename ${TMP_J}`-`basename ${TMP_I}`.txz ${ARMSTRAP_ABUILDER_ROOTFS}/
     done
   done
   
-  #for i in *.sh; do
-  #  TMP_TYPE="`echo ${i} | cut -d- -f2`"
-  #  cp ${i} ${TMP_KERNEL}/${TMP_TYPE}/
-  #done
+  printStatus "armStrapPost" "Publishing kernel installer script"
+  for TMP_I in ${ARMSTRAP_PKG}/*.sh; do
+    TMP_J="`basename ${TMP_I}`"
+    TMP_TYPE="`echo ${TMP_J} | cut -d- -f2`"
+    checkDirectory "${ARMSTRAP_ABUILDER_KERNEL}/${TMP_TYPE}"
+    cp ${TMP_I} ${ARMSTRAP_ABUILDER_KERNEL}/${TMP_TYPE}/
+  done
   
-  #for i in *.deb; do
-  #  TMP_TYPE="`echo ${i} | cut -d- -f1`"
-  #  TMP_OLD="`echo ${i} | cut -d'_' -f1`"
-  #  REPREPRO_BASE_DIR="/var/www/packages/apt/armstrap" reprepro -C main remove ${TMP_TYPE} ${TMP_OLD}
-  #  REPREPRO_BASE_DIR="/var/www/packages/apt/armstrap" reprepro -C main includedeb ${TMP_TYPE} ${i}    
-  #done
+  printStatus "armStrapPost" "Publishing kernels"
+  for TMP_I in ${ARMSTRAP_PKG}/*.deb; do
+    TMP_J="`basename ${TMP_I}`"
+    TMP_TYPE="`echo ${TMP_J} | cut -d- -f1`"
+    TMP_OLD="`echo ${TMP_J} | cut -d'_' -f1`"
+    REPREPRO_BASE_DIR="/var/www/packages/apt/armstrap" reprepro -C main remove ${TMP_TYPE} ${TMP_OLD}
+    REPREPRO_BASE_DIR="/var/www/packages/apt/armstrap" reprepro -C main includedeb ${TMP_TYPE} ${TMP_I}    
+  done
+  printStatus "Done"
 }
 
-function allBuild {
+function armStrapBuild {
   local TMP_I=""
   local TMP_J=""
   
-  # Build all Kernels
-  #for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
-  #  kernelBuild ${TMP_I}
-  #done
+  for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
+    kernelBuild "`basename ${TMP_I}`"
+  done
   
-  # Build all BootLoaders
   for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
     for TMP_J in ${TMP_I}/*; do
       bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
     done
   done
 
-  # Build all RootFS
   for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
     for TMP_J in ${TMP_I}/*; do
       rootfsUpdater "`basename ${TMP_J}`" "`basename ${TMP_I}`"
@@ -467,10 +474,10 @@ function allBuild {
   done
   
   if [ "${ARMSTRAP_ABUILDER_HOOK}" = "-" ]; then
-    postArmStrap
+    armStrapPost
   else
     if [ -x "${ARMSTRAP_ABUILDER_HOOK}" ]; then
-      printStatus "allBuild" "Hook script found"
+      ${ARMSTRAP_ABUILDER_HOOK} ${ARMSTRAP_PKG} ${ARMSTRAP_LOG}
     fi
   fi
 }

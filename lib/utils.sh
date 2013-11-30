@@ -677,9 +677,9 @@ function ccMake {
   shift
   
   if [ -z "${TMP_CFLAGS}" ]; then
-    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make ${ARMSTRAP_MFLAGS} ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
   else
-    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make CFLAGS="${TMP_CFLAGS}" CXXFLAGS="${TMP_CFLAGS}" ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make ${ARMSTRAP_MFLAGS} CFLAGS="${TMP_CFLAGS}" CXXFLAGS="${TMP_CFLAGS}" ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
   fi
 }
 
@@ -698,6 +698,6 @@ function ccMakeNoLog {
   if [ -z "${TMP_CFLAGS}" ]; then
     CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@}
   else
-    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make CFLAGS="${TMP_CFLAGS}" CXXFLAGS="${TMP_CFLAGS}" ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@}
+    CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make ${ARMSTRAP_MFLAGS} CFLAGS="${TMP_CFLAGS}" CXXFLAGS="${TMP_CFLAGS}" ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@}
   fi
 }
