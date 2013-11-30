@@ -209,6 +209,7 @@ function kernelPack {
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Packaging Kernel")  
 }
 
+# usage kernelBuild <FAMILLY>
 function kernelBuild {
   local TMP_KRNDIR="${ARMSTRAP_KERNELS}/${1}"
   local TMP_LOG="${ARMSTRAP_LOG}/armStrap-Kernel_${1}_${ARMSTRAP_DATE}.log"
@@ -403,34 +404,73 @@ function rootfsMount {
   fi
 }
 
-function rMount {
-  local TMP_ROOTFS="`basename ${BUILD_ARMBIAN_ROOTFS}`"
-  local TMP_ROOTFS="${TMP_ROOTFS%.txz}"
-  
-  printStatus "rMount" "----------------------------------------"
-  printStatus "rMount" "- Entering rootFS ${TMP_ROOTFS}"
-  printStatus "rMount" "----------------------------------------"
-
-  if [ ! -d "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" ]; then
-    printStatus "rMount" "Creating work directory ${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-    checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-  else
-    printStatus "rMount" "Cleaning work directory ${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-    rm -rf "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
-    checkDirectory "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+function postArmStrap {
+  printStatus "postArmStrap" "Publishing armStrap"
+    
+  printStatus "postArmStrap" "Publishing logs"
+  if [ -d "${ARMSTRAP_ABUILDER_LOGS}" ]; then
+    rm -rf "${ARMSTRAP_ABUILDER_LOGS}"
   fi
+  checkDirectory "${ARMSTRAP_ABUILDER_LOGS}"
+  mv "${ARMSTRAP_LOG}/*" "${ARMSTRAP_ABUILDER_LOGS}"
+    
+  printStatus "postArmStrap" "Publishing bootloaders"
+  checkDirectory "${ARMSTRAP_ABUILDER_LOADER}"
+  for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
+    for TMP_J in ${TMP_I}/*; do
+      mv -v "${ARMSTRAP_PKG}/${TMP_I}_${TMP_J}.txz" "${ARMSTRAP_ABUILDER_LOADER}/"
+    done
+  done
   
-  if [ -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" ]; then
-    printStatus "rMount" "Using local copy found in ${ARMSTRAP_PKG}"
-    pkgExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" "${BUILD_ARMBIAN_EXTRACT}"
-  else
-    httpExtract "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
-  fi
+  printStatus "postArmStrap" "Publishing rootfs"
+  checkDirectory "${ARMSTRAP_ABUILDER_ROOTFS}"
+  for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
+    for TMP_J in ${TMP_I}/*; do
+      mv -v "${ARMSTRAP_PKG}/*-${TMP_J}-${TMP_I}.txz" "${ARMSTRAP_ABUILDER_ROOTFS}/"
+    done
+  done
+  
+  #for i in *.sh; do
+  #  TMP_TYPE="`echo ${i} | cut -d- -f2`"
+  #  cp ${i} ${TMP_KERNEL}/${TMP_TYPE}/
+  #done
+  
+  #for i in *.deb; do
+  #  TMP_TYPE="`echo ${i} | cut -d- -f1`"
+  #  TMP_OLD="`echo ${i} | cut -d'_' -f1`"
+  #  REPREPRO_BASE_DIR="/var/www/packages/apt/armstrap" reprepro -C main remove ${TMP_TYPE} ${TMP_OLD}
+  #  REPREPRO_BASE_DIR="/var/www/packages/apt/armstrap" reprepro -C main includedeb ${TMP_TYPE} ${i}    
+  #done
+}
 
-  shellRun "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}"
+function allBuild {
+  local TMP_I=""
+  local TMP_J=""
   
-  printStatus "rMount" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
-  rm -f "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz"
-  ${BUILD_ARMBIAN_COMPRESS} "${ARMSTRAP_PKG}/${TMP_ROOTFS}.txz" -C "${ARMSTRAP_SRC}/rootfs/${TMP_ROOTFS}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
-  printStatus "rMount" "rootFS mount Done"
+  # Build all Kernels
+  #for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
+  #  kernelBuild ${TMP_I}
+  #done
+  
+  # Build all BootLoaders
+  for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
+    for TMP_J in ${TMP_I}/*; do
+      bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
+    done
+  done
+
+  # Build all RootFS
+  for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
+    for TMP_J in ${TMP_I}/*; do
+      rootfsUpdater "`basename ${TMP_J}`" "`basename ${TMP_I}`"
+    done
+  done
+  
+  if [ "${ARMSTRAP_ABUILDER_HOOK}" = "-" ]; then
+    postArmStrap
+  else
+    if [ -x "${ARMSTRAP_ABUILDER_HOOK}" ]; then
+      printStatus "allBuild" "Hook script found"
+    fi
+  fi
 }

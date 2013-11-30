@@ -62,10 +62,16 @@ ARMSTRAP_MFLAGS="-j8"
 ARMSTRAP_KBUILDER=""
 ARMSTRAP_RUPDATER=""
 ARMSTRAP_UBUILDER=""
-ARMSTRAP_ABUILDER=""
-ARMSTRAP_ABUILDER_HOOK=""
 ARMSTRAP_UPDATE=""
 ARMSTRAP_EXIT=""
+ARMSTRAP_ABUILDER=""
+ARMSTRAP_ABUILDER_HOOK=""
+# Theses are used by postArmStrap to populate the web server and repository.
+ARMSTRAP_ABUILDER_WWW="/var/www/armstrap/"
+ARMSTRAP_ABUILDER_KERNEL="${ARMSTRAP_ABUILDER_WWW}/kernel"
+ARMSTRAP_ABUILDER_ROOTFS="${ARMSTRAP_ABUILDER_WWW}/rootfs"
+ARMSTRAP_ABUILDER_LOADER="${ARMSTRAP_ABUILDER_WWW}/loader"
+ARMSTRAP_ABUILDER_LOGS="${ARMSTRAP_ABUILDER_WWW}/logs"
 
 # Theses are packages that armStrap need for itself.
 ARMSTRAP_PREREQ="dialog"
@@ -98,7 +104,7 @@ fi
 detectAnsi
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:clWNIAMgq" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:A:clWANIMgq" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -172,9 +178,9 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:clWNIAMgq" opt; do
       ;;
     A)
       ARMSTRAP_ABUILDER="Yes"
-      ;;
-    H)
-      ARMSTRAP_ABUILDER_HOOK="${OPTARG}"
+      if [ ! -z "${OPTARG}" ]; then
+        ARMSTRAP_ABUILDER_HOOK="${OPTARG}"
+      fi
       ;;
     g)
       ARMSTRAP_GUI_DISABLE="Yes"
@@ -210,9 +216,8 @@ checkDirectory ${ARMSTRAP_IMG}
 checkDirectory ${ARMSTRAP_SRC}
 checkDirectory ${ARMSTRAP_PKG}
 
-isTrue "${ARMSTRAP_ABUILDER}"
-if [ $? -ne 0 ]; then
-  allBuilder
+if [ ! -z "${ARMSTRAP_ABUILDER}" ]; then
+  allBuild
   exit 0
 fi
 
