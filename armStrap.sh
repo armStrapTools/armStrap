@@ -28,6 +28,7 @@ ARMSTRAP_PKG="${ARMSTRAP_ROOT}/pkg"
 ARMSTRAP_BOARDS="${ARMSTRAP_ROOT}/boards"
 ARMSTRAP_KERNELS="${ARMSTRAP_ROOT}/builder/kernels"
 ARMSTRAP_BOOTLOADERS="${ARMSTRAP_ROOT}/builder/bootloaders"
+ARMSTRAP_ROOTFS="${ARMSTRAP_ROOT}/builder/rootfs"
 
 if [ ! -d "${ARMSTRAP_LOG}" ]; then
   mkdir -p ${ARMSTRAP_LOG}
@@ -97,7 +98,7 @@ fi
 detectAnsi
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:clWNRIAMgq" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:R:clWNIAMgq" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -161,7 +162,7 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:C:K:O:B:F:H:V:clWNRIAMgq" opt; do
       ARMSTRAP_KBUILDER_MENUCONFIG="Yes"
       ;;
     R)
-      ARMSTRAP_RUPDATER="Yes"
+      ARMSTRAP_RUPDATER="${OPTARG}"
       ;;
     M)
       ARMSTRAP_RMOUNT="Yes"
@@ -232,7 +233,16 @@ if [ ! -z "${ARMSTRAP_KBUILDER}" ]; then
 fi
 
 if [ ! -z "${ARMSTRAP_BBUILDER}" ]; then
-  bBuilder "${ARMSTRAP_BBUILDER}" "${ARMSTRAP_BBUILDER_FAMILLY}"
+  bootBuilder "${ARMSTRAP_BBUILDER}" "${ARMSTRAP_BBUILDER_FAMILLY}"
+  exit 0
+fi
+
+if [ ! -z "${ARMSTRAP_RUPDATER}" ]; then
+  if [ -z "${ARMSTRAP_RMOUNT}" ]; then
+    rootfsUpdater "${ARMSTRAP_RUPDATER}" "${ARMSTRAP_OS}"
+  else
+    rMount
+  fi
   exit 0
 fi
 
