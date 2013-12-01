@@ -726,7 +726,7 @@ function ccMakeNoLog {
   fi
 }
 
-# usage : getLoader <BOARDNAME>
+# usage : getLoader <BOARD_NAME>
 function getLoader {
   local TMP_IFS="${IFS}"
   local TMP_I=""
