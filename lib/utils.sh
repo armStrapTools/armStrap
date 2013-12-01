@@ -32,6 +32,8 @@ function showUsage {
   local TMP_I=""
   local TMP_J=""
   
+  showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"  
+  
   printf "Usage : ${ANS_BLD}sudo %s${ANS_RST} [PARAMETERS]\n" "${ARMSTRAP_NAME}"
   printf "\n${ANS_BLD}Image/SD Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
@@ -279,11 +281,11 @@ function fixSymLink {
 
 function showConfig {
   local TMP_INFO="${TMP_INFO}        Board : ${ARMSTRAP_CONFIG}\n"
-        TMP_INFO="${TMP_INFO} Distribution : ${ARMSTRAP_OS}\n"
+        TMP_INFO="${TMP_INFO} Distribution : ${BOARD_ROOTFS_FAMILLY} (${BOARD_ROOTFS_VERSION})\n"
         TMP_INFO="${TMP_INFO}     Hostname : ${ARMSTRAP_HOSTNAME}\n"
         TMP_INFO="${TMP_INFO}Root Password : ${ARMSTRAP_PASSWORD}\n"
   if [ ! -z "${ARMSTRAP_SWAP}" ]; then
-        TMP_INFO="${TMP_INFO}Swapfile Size : ${ARMSTRAP_SWAP_SIZE}\n"
+        TMP_INFO="${TMP_INFO}Swapfile Size : ${ARMSTRAP_SWAPSIZE}\n"
   fi
 
   if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then

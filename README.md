@@ -12,7 +12,7 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.75
+    armStrap.sh version 0.80
     Copyright (C) 2013 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
@@ -33,31 +33,57 @@ You need to be root to run this script. You have two options:
       -e <DOMAIN>             Set search domain.
     
     Kernel Builder:
-      -K                      Build Kernel (debian packages).
-      -V <version>            Select an alternate kernel version (if avalable).
-      -C <CONFIG>             Select a different kernel configuration.
+      -K <ARCH>               Build Kernel (debian packages).
       -I                      Call menuconfig before building Kernel.
     
-    U-Boot Builder:
-      -U                      Build U-Boot (txz package).
+    BootLoader Builder:
+      -B <BOOTLOADER>         Build BootLoader (.txz package).
+      -F <FAMILLY>            Select bootloader familly.
     
     RootFS updater:
-      -R                      Update RootFS (txz package).
-      -F                      Select which RootFS to update.
+      -R <ROOTFS>             Update RootFS (.txz package).
+      -O <FAMILLY>            Select which RootFS to update.
+      -M                      Execute a shell into the RootFS instead of updating it.
     
     All Builder:
-      -A                      Build Kernel/RootFS/U-Boot for all boards/configurations
-      -H <hookscript>         Script to execute after building everything with
-                              <PKG_PATH> and <LOGFILE> as parameters
+      -A <SCRIPT / ->         Build Kernel/RootFS/U-Boot for all boards/configurations
     
     Utilities:
-      -c                      Show licence.
+      -g                      Disable GUI.
+      -q                      Quiet.
+      -c                      Directory Cleanup.
+      -l                      Show licence.
     
-    Supported boards and kernel configurations:
-      CubieBoard              default desktop server video 
-      CubieBoard2             default 
-      HackBerry               default desktop server video 
-      RaspBerryPI             default 
+    Avalable boards, kernels and RootFS:
+    
+              Board        CPU    Familly      BootLoader
+    --------------- ---------- ---------- ---------------
+              A70Xh      sun7i     armv7l    u-boot-sunxi
+         CubieBoard      sun4i     armv7l    u-boot-sunxi
+        CubieBoard2      sun7i     armv7l    u-boot-sunxi
+         CubieTruck      sun7i     armv7l    u-boot-sunxi
+          HackBerry      sun4i     armv7l    u-boot-sunxi
+        RaspBerryPI     bcmrpi     armv6l            none
+    
+             Kernel     Config    Version
+    --------------- ---------- ----------
+              sun7i    default     3.4.67
+              sun4i    default     3.4.67
+             bcmrpi    default    3.6.11+
+
+             RootFS    Familly    Version
+    --------------- ---------- ----------
+             armv7l     ubuntu      saucy
+             armv7l     ubuntu    rarring
+             armv7l     debian     wheezy
+             armv7l     debian    testing
+             armv7l     debian     stable
+             armv7l     debian        sid
+             armv7l     debian     jessie
+             armv6l   raspbian     wheezy
+             armv6l   raspbian    testing
+             armv6l   raspbian     stable
+             armv6l   raspbian     jessie
     
     With no parameter, create an image using values found in config.sh.
 
