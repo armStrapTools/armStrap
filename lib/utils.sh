@@ -737,7 +737,7 @@ function getLoader {
       local TMP_J=(${TMP_I})
       TMP_J=${TMP_J[0]}
       IFS="${TMP_IFS}"
-      TMP_I=${TMP_I/${TMP_J}-/ }
+      TMP_I=${TMP_I/${TMP_J}-/}
       TMP_I=${TMP_I/${ARMSTRAP_TAR_EXTENSION}/}
       if [ "${TMP_BOARD}" = "${TMP_J}" ]; then
         TMP_LOADER="${TMP_I}"
