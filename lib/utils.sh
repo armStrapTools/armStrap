@@ -753,6 +753,7 @@ function fetchIndex {
   local TMP_IFS="${IFS}"
   local TMP_I=""
   
+  printStatus "fetchIndex" "Fetching and indexing armStrap repository informations."
   while read TMP_I; do
     TMP_I=(${TMP_I//// })
     case ${TMP_I[0]} in
@@ -764,5 +765,6 @@ function fetchIndex {
                ;;
     esac
   done <<< "`wget -a ${ARMSTRAP_LOG_FILE} -O - ${ARMSTRAP_ABUILDER_URL}/.index.txt`"
+  printStatus "fetchIndex" "Done"
   
 }
