@@ -215,7 +215,7 @@ function chrootKernel {
   cat >> "${TMP_CHROOT}/${TMP_KERNEL}" <<EOF  
 #!/bin/sh
 
-KERNEL_TYPE="${BOARD_CONFIG}"
+KERNEL_TYPE="${BOARD_KERNEL}"
 KERNEL_CONFIG="${BOARD_KERNEL_CONFIG}"
 KERNEL_VERSION="${BOARD_KERNEL_VERSION}"
 
@@ -538,10 +538,16 @@ function default_installRoot {
   fi
   
   isTrue "${ARMSTRAP_SWAP}"  
-  if [ $? -ne 0 ]; then
-    printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+  if [ ${ARMSTRAP_SWAPSIZE} -gt 0 ]; then
+    printf "CONF_SWAPFILE=%s" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_SWAPFACTOR=%s" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_MAXSWAP=%s" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
   else
-    printf "CONF_SWAPSIZE=0" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPFILE=%s" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPFACTOR=%s" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_MAXSWAP=%s" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
   fi
 
   if [ ! -z "${BOARD_ROOTFS_RECONFIG}" ]; then
@@ -549,6 +555,10 @@ function default_installRoot {
   fi
 
   if [ -d "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg" ]; then
+    BOARD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BOARD_DPKG_LOCALPACKAGES}"
+  fi
+  
+  if [ -d "${ARMSTRAP_BOARDS}/.defaults/dpkg" ]; then
     BOARD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BOARD_DPKG_LOCALPACKAGES}"
   fi
 
@@ -568,6 +578,12 @@ function default_installRoot {
   for i in "${BOARD_KERNEL_MODULES}"; do
     addKernelModule "${ARMSTRAP_MNT}" "${i}"
   done
+  
+  if [ ! -z ${ARMSTRAP_KERNEL_MODULES} ]; then
+    for i in "${ARMSTRAP_KERNEL_MODULES}"; do
+      addKernelModule "${ARMSTRAP_MNT}" "${i}"
+    done
+  fi
   
   addIface "${ARMSTRAP_MNT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Configuring RootFS")

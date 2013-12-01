@@ -10,7 +10,7 @@ if [ "`id -u`" -ne "0" ]; then
 fi
 
 #
-# Variables that should never be changed
+# Variables that should never be changed, unless you know what you're doing.
 #
 
 ARMSTRAP_VERSION="0.77"
@@ -52,13 +52,22 @@ ARMSTRAP_DEVICE=""
 ARMSTRAP_IMAGE_DEVICE=""
 ARMSTRAP_DEVICE_MAPS=("")
 
-# ARMSTRAP default distribution, board may override this.
-ARMSTRAP_OS="wheezy"
+# ARMSTRAP defaults
+ARMSTRAP_HOSTNAME="armStrap"
+ARMSTRAP_PASSWORD="armStrap"
+ARMSTRAP_TIMEZONE="America/Montreal"
 
+ARMSTRAP_SWAPFILE="/var/swap"
+ARMSTRAP_SWAPSIZE="128"
+ARMSTRAP_SWAPFACTOR="2"
+ARMSTRAP_SWAPMAX="2048"
+
+ARMSTRAP_ETH0_MODE="dhcp"
+
+# Any flags you want to add to make
 ARMSTRAP_MFLAGS="-j8"
 
-# Theses are internal values that should not be changed unless you understand
-# exactly what they are doing.
+# Internal variables that may be changes by the script
 ARMSTRAP_KBUILDER=""
 ARMSTRAP_RUPDATER=""
 ARMSTRAP_UBUILDER=""
@@ -298,7 +307,7 @@ if [ ! -z "${BOARD_PREREQ}" ]; then
   installPrereqs ${BOARD_PREREQ}
 fi
 
-if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
+if [ -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
   macAddress "${BOARD_MAC_PREFIX}"
 fi
 
