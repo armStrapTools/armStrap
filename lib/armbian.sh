@@ -586,7 +586,7 @@ function default_installBoot {
         TMP_GUI=$(guiWriter "start" "Installing BootLoader" "Progress")
   
         ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting BootLoader")
-        httpExtract "${ARMSTRAP_MNT}/boot" "${ARMSTRAP_ABUILDER_LOADER_URL}/${BOARD_CONFIG}-${TMP_LOADER}.${ARMSTRAP_TAR_EXTENSION}" "${ARMSTRAP_TAR_EXTRACT}"
+        httpExtract "${ARMSTRAP_MNT}/boot" "${ARMSTRAP_ABUILDER_LOADER_URL}/${BOARD_CONFIG}-${TMP_LOADER}${ARMSTRAP_TAR_EXTENSION}" "${ARMSTRAP_TAR_EXTRACT}"
     
         rm -f "${BOARD_LOADER_CMD}"
         touch "${BOARD_LOADER_CMD}"
