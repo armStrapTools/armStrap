@@ -60,16 +60,10 @@ function httpExtract {
   if [ -f "${ARMSTRAP_PKG}/${TMP_PKG}" ]; then
     printStatus "httpExtract" "Found local copy of ${TMP_PKG}"
     TMP_URL="${ARMSTRAP_PKG}/${TMP_PKG}"
-    printStatus "httpExtract" "TMP_URL : ${TMP_URL}"
-    printStatus "httpExtract" "TMP_DIR : ${TMP_DIR}"
-    printStatus "httpExtract" "Command : ${@}"
     cat "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
     checkStatus "Error while downloading/extracting ${TMP_URL}"
   else
     printStatus "httpExtract" "Fetching and extracting `basename ${TMP_URL}`"
-    printStatus "httpExtract" "TMP_URL : ${TMP_URL}"
-    printStatus "httpExtract" "TMP_DIR : ${TMP_DIR}"
-    printStatus "httpExtract" "Command : ${@}"
     wget --progress=dot:mega -a ${ARMSTRAP_LOG_FILE} -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
     checkStatus "Error while downloading/extracting ${TMP_URL}"
   fi
@@ -97,7 +91,7 @@ function chrootRun {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootRun" "Executing '${@}' in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot "${TMP_CHROOT}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot "${TMP_CHROOT}" ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -130,8 +124,8 @@ function chrootUpgrade {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootUpgrade" "Updating packages in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y update ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y dist-upgrade ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y update ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y dist-upgrade ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
     
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -147,7 +141,7 @@ function chrootInstall {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootInstall" "Installing packages in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
     
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -167,7 +161,7 @@ function chrootDPKG {
   
   printStatus "chrootDPKG" "Installing package ${TMP_DEB} in `basename ${TMP_CHROOT}`"
   cp -v ${2} ${TMP_DIR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/dpkg -i /${TMP_CHR}/${TMP_DEB} >> ${ARMSTRAP_LOG_FILE} 2>&1
   rm -rf ${TMP_DIR}
     
   umountPFS "${TMP_CHROOT}"
@@ -185,7 +179,7 @@ function chrootReconfig {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootReconfig" "Reconfiguring packages ${@} in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/dpkg-reconfigure ${@}
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/dpkg-reconfigure ${@}
     
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -201,7 +195,7 @@ function chrootPassword {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootReconfig" "Configuring root password in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/passwd root <<EOF > /dev/null 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/passwd root <<EOF > /dev/null 2>&1
 ${2}
 ${2}
 
@@ -221,9 +215,9 @@ function chrootKernel {
   cat >> "${TMP_CHROOT}/${TMP_KERNEL}" <<EOF  
 #!/bin/sh
 
-KERNEL_TYPE="${BUILD_CONFIG}"
-KERNEL_CONFIG="${BUILD_KBUILDER_CONF}"
-KERNEL_VERSION="${BUILD_KBUILDER_VERSION}"
+KERNEL_TYPE="${BOARD_CONFIG}"
+KERNEL_CONFIG="${BOARD_KERNEL_CONFIG}"
+KERNEL_VERSION="${BOARD_KERNEL_VERSION}"
 
 echo "deb http://packages.vls.beaupre.biz/apt/armstrap/ \${KERNEL_TYPE} main" > /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
 echo "deb-src http://packages.vls.beaupre.biz/apt/armstrap/ \${KERNEL_TYPE} main" >> /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
@@ -252,7 +246,7 @@ EOF
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootKernel" "Executing ${TMP_KERNEL} script in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /${TMP_KERNEL} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /${TMP_KERNEL} >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -288,8 +282,8 @@ function chrootLocales {
     
   done
   
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/locale-gen >> ${ARMSTRAP_LOG_FILE} 2>&1
-  LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/update-locale LANG=${TMP_LANG} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/locale-gen >> ${ARMSTRAP_LOG_FILE} 2>&1
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/sbin/update-locale LANG=${TMP_LANG} >> ${ARMSTRAP_LOG_FILE} 2>&1
   
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -308,7 +302,7 @@ function chrootTimeZone {
     mountPFS "${TMP_CHROOT}"
 
     printStatus "chrootTimeZone" "Setting timezone to ${TMP_TZ}"
-    LC_ALL="" LANGUAGE="${BUILD_LANGUAGE}" LANG="${BUILD_LANG}" chroot ${TMP_CHROOT}/ ln -sf /usr/share/zoneinfo/${TMP_TZ} /etc/localtime >> ${ARMSTRAP_LOG_FILE} 2>&1
+    LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ ln -sf /usr/share/zoneinfo/${TMP_TZ} /etc/localtime >> ${ARMSTRAP_LOG_FILE} 2>&1
     echo "${TMP_TZ}" > ${TMP_CHROOT}/etc/timezone
   
     umountPFS "${TMP_CHROOT}"
@@ -511,7 +505,7 @@ function shellRun {
   enableServices "${TMP_DIR}"
 }
 
-#usage fex2bin <BUILD_MNT_ROOT> <src_fex> <dst_bin>
+#usage fex2bin <ARMSTRAP_MNT> <src_fex> <dst_bin>
 function fex2bin {
   printStatus "fex2bin" "Compilling `basename ${3}`"
   shellRun ${1} /usr/bin/fexc -v -I fex -O bin ${2} ${3} >> ${ARMSTRAP_LOG_FILE} 2>&1
@@ -525,113 +519,124 @@ function default_installRoot {
   TMP_GUI=$(guiWriter "start" "Installing RootFS" "Progress")
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting RootFS")
-  httpExtract "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_ROOTFS}" "${BUILD_ARMBIAN_EXTRACT}"
+  httpExtract "${ARMSTRAP_MNT}" "${ARMSTRAP_ABUILDER_ROOTFS_URL}/${BOARD_ROOTFS_PACKAGE}" "${ARMSTRAP_TAR_EXTRACT}"
 
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  29 "Setting up locales")
-  chrootLocales "${BUILD_MNT_ROOT}" "${BUILD_LANG}" "${BUILD_LANG_EXTRA}"
+  chrootLocales "${ARMSTRAP_MNT}" "${BOARD_LANG}" "${BOARD_LANG_EXTRA}"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Setting up locales")
-  chrootTimeZone "${BUILD_MNT_ROOT}" "${BUILD_TIMEZONE}"
+  chrootTimeZone "${ARMSTRAP_MNT}" "${BOARD_TIMEZONE}"
   
-  setHostName "${BUILD_MNT_ROOT}" "${ARMSTRAP_HOSTNAME}"
+  setHostName "${ARMSTRAP_MNT}" "${ARMSTRAP_HOSTNAME}"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Updating RootFS")
-  chrootUpgrade "${BUILD_MNT_ROOT}"
+  chrootUpgrade "${ARMSTRAP_MNT}"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Configuring RootFS")
-  if [ -n "${BUILD_DPKG_EXTRAPACKAGES}" ]; then
-    chrootInstall "${BUILD_MNT_ROOT}" "${BUILD_DPKG_EXTRAPACKAGES}"
+  if [ -n "${BOARD_DPKG_EXTRAPACKAGES}" ]; then
+    chrootInstall "${ARMSTRAP_MNT}" "${BOARD_DPKG_EXTRAPACKAGES}"
   fi
   
   isTrue "${ARMSTRAP_SWAP}"  
   if [ $? -ne 0 ]; then
-    printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
+    printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAP_SIZE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
   else
-    printf "CONF_SWAPSIZE=0" > "${BUILD_MNT_ROOT}/etc/dphys-swapfile"
+    printf "CONF_SWAPSIZE=0" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
   fi
 
-  if [ ! -z "${BUILD_ARMBIAN_RECONFIG}" ]; then
-    chrootReconfig "${BUILD_MNT_ROOT}" "${BUILD_ARMBIAN_RECONFIG}"
+  if [ ! -z "${BOARD_ROOTFS_RECONFIG}" ]; then
+    chrootReconfig "${ARMSTRAP_MNT}" "${BOARD_ROOTFS_RECONFIG}"
   fi
 
   if [ -d "${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg" ]; then
-    BUILD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BUILD_DPKG_LOCALPACKAGES}"
+    BOARD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BOARD_DPKG_LOCALPACKAGES}"
   fi
 
-  if [ ! -z "${BUILD_DPKG_LOCALPACKAGES}" ]; then
-    for i in ${BUILD_DPKG_LOCALPACKAGES}; do
-      chrootDPKG "${BUILD_MNT_ROOT}" ${i}
+  if [ ! -z "${BOARD_DPKG_LOCALPACKAGES}" ]; then
+    for i in ${BOARD_DPKG_LOCALPACKAGES}; do
+      chrootDPKG "${ARMSTRAP_MNT}" ${i}
     done
   fi
 
-  chrootPassword "${BUILD_MNT_ROOT}" "${ARMSTRAP_PASSWORD}"
+  chrootPassword "${ARMSTRAP_MNT}" "${ARMSTRAP_PASSWORD}"
 
-  addTTY "${BUILD_MNT_ROOT}" "${BUILD_SERIALCON_ID}" "${BUILD_SERIALCON_RUNLEVEL}" "${BUILD_SERIALCON_TERM}" "${BUILD_SERIALCON_SPEED}" "${BUILD_SERIALCON_TYPE}"
+  addTTY "${ARMSTRAP_MNT}" "${BOARD_SERIAL_ID}" "${BOARD_SERIAL_RUNLEVEL}" "${BOARD_SERIAL_TERM}" "${BOARD_SERIAL_SPEED}" "${BOARD_SERIAL_TYPE}"
 
-  initFSTab "${BUILD_MNT_ROOT}" 
-  addFSTab "${BUILD_MNT_ROOT}" ${BUILD_FSTAB[@]}
+  initFSTab "${ARMSTRAP_MNT}" 
+  addFSTab "${ARMSTRAP_MNT}" ${BOARD_FSTAB[@]}
 
-  for i in "${BUILD_KERNEL_MODULES}"; do
-    addKernelModule "${BUILD_MNT_ROOT}" "${i}"
+  for i in "${BOARD_KERNEL_MODULES}"; do
+    addKernelModule "${ARMSTRAP_MNT}" "${i}"
   done
   
-  addIface "${BUILD_MNT_ROOT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
+  addIface "${ARMSTRAP_MNT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Configuring RootFS")
   guiStop
 }
 
 # usage : default_installBoot
 function default_installBoot {
-  local TMP_GUI
-  guiStart
-  TMP_GUI=$(guiWriter "start" "Installing BootLoader" "Progress")
+  local TMP_GUI=""
+  local TMP_LOADER=$(getLoader ${BOARD_CONFIG})
   
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting BootLoader")
-  httpExtract "${BUILD_MNT_ROOT}/boot" "${BUILD_ARMBIAN_UBOOT}" "${BUILD_ARMBIAN_EXTRACT}"
+  if [ ! -z "${TMP_LOADER}" ]; then
+    case ${TMP_LOADER} in
+      u-boot-sunxi)
+        guiStart
+        TMP_GUI=$(guiWriter "start" "Installing BootLoader" "Progress")
   
-  rm -f "${BUILD_BOOT_CMD}"
-  touch "${BUILD_BOOT_CMD}"
+        ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting BootLoader")
+        httpExtract "${ARMSTRAP_MNT}/boot" "${ARMSTRAP_ABUILDER_LOADER_URL}/${BOARD_CONFIG}-${TMP_LOADER}.${ARMSTRAP_TAR_EXTENSION}" "${ARMSTRAP_TAR_EXTRACT}"
+    
+        rm -f "${BOARD_LOADER_CMD}"
+        touch "${BOARD_LOADER_CMD}"
 
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  2 "Configuring BootLoader")
-  for i in "${BUILD_UBUILDER_BOOTCMD[@]}"; do
-    local TMP_KND=""
-    local TMP_VST=""
-    local TMP_POS=$(echo `expr index "$i" =`)
-    if [ $TMP_POS -ne 0 ]; then
-      local TMP_LEN=$(echo `expr length "$i"`)
-      let "TMP_KND=${TMP_POS} -1"
-      let "TMP_VST=${TMP_POS} +1"
-      local TMP_VAL=$(echo `expr substr "$i" $TMP_VST $TMP_LEN`)
-      local TMP_KEY=$(echo `expr substr "$i" 1 $TMP_KND`)
-      printStatus "UBOOT" "${TMP_KEY} : ${TMP_VAL}"
-    else
-      local TMP_KEY="$i"
-      local TMP_VAL=""
-      printStatus "UBOOT" "${TMP_KEY}"
-    fi
-    ubootSetEnv "${BUILD_BOOT_CMD}" "${TMP_KEY}" "${TMP_VAL}"
-  done
+        ARMSTRAP_GUI_PCT=$(guiWriter "add"  2 "Configuring BootLoader")
+        for i in "${BOARD_LOADER_BOOTCMD[@]}"; do
+          local TMP_KND=""
+          local TMP_VST=""
+          local TMP_POS=$(echo `expr index "$i" =`)
+          if [ $TMP_POS -ne 0 ]; then
+            local TMP_LEN=$(echo `expr length "$i"`)
+            let "TMP_KND=${TMP_POS} -1"
+            let "TMP_VST=${TMP_POS} +1"
+            local TMP_VAL=$(echo `expr substr "$i" $TMP_VST $TMP_LEN`)
+            local TMP_KEY=$(echo `expr substr "$i" 1 $TMP_KND`)
+            printStatus "UBOOT" "${TMP_KEY} : ${TMP_VAL}"
+          else
+            local TMP_KEY="$i"
+            local TMP_VAL=""
+            printStatus "UBOOT" "${TMP_KEY}"
+          fi
+          ubootSetEnv "${BOARD_LOADER_CMD}" "${TMP_KEY}" "${TMP_VAL}"
+        done
   
-  rm -f "${BUILD_BOOT_UENV}"
-  touch "${BUILD_BOOT_UENV}"
+        rm -f "${BOARD_LOADER_UENV}"
+        touch "${BOARD_LOADER_UENV}"
 
-  for i in "${BUILD_UBUILDER_BOOTUENV[@]}"; do
-    ubootSetEnv "${BUILD_BOOT_UENV}" "${i}"
-  done
+        for i in "${BOARD_LOADER_BOOTUENV[@]}"; do
+          ubootSetEnv "${BOARD_LOADER_UENV}" "${i}"
+        done
 
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Creating BootLoader Image")  
-  ubootImage ${BUILD_BOOT_CMD} ${BUILD_BOOT_SCR}
+        ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Creating BootLoader Image")  
+        ubootImage ${BOARD_LOADER_CMD} ${BOARD_LOADER_SCR}
   
-  if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
-    fexMac "${BUILD_MNT_ROOT}/${BUILD_BOOT_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
-  fi
+        if [ "${ARMSTRAP_MAC_ADDRESS}" != "" ]; then
+          fexMac "${ARMSTRAP_MNT}/${BOARD_LOADER_FEX}" "${ARMSTRAP_MAC_ADDRESS}"
+        fi
   
-  fex2bin "${BUILD_MNT_ROOT}" "${BUILD_BOOT_FEX}" "${BUILD_BOOT_BIN}"
+        fex2bin "${ARMSTRAP_MNT}" "${BOARD_LOADER_FEX}" "${BOARD_LOADER_BIN}"
 
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Installing BootLoader")
-  ddLoader "${ARMSTRAP_DEVICE}" "${BUILD_BOOT_UBOOT[@]}" 
+        ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Installing BootLoader")
+        ddLoader "${ARMSTRAP_DEVICE}" "${BOARD_LOADER_UBOOT[@]}" 
   
-  guiStop
+        guiStop
+        ;;
+      *)
+        printStatus "default_installBoot" "I don't know how to install bootloader ${TMP_LOADER}"
+        ;;
+   esac
+ fi
 }
 
 # Usage : default_installKernel
@@ -641,7 +646,7 @@ function default_installKernel {
   TMP_GUI=$(guiWriter "start" "Installing Kernel" "Progress")
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Installing Kernel")
-  chrootKernel "${BUILD_MNT_ROOT}"
+  chrootKernel "${ARMSTRAP_MNT}"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Installing Kernel")
   printStatus "CHECKPOING" "We are at ${ARMSTRAP_GUI_PCT}"
   guiStop
@@ -650,23 +655,23 @@ function default_installKernel {
 #usage default_installOS
 function default_installOS {
 
-  funExist ${BUILD_CONFIG}_installRoot
+  funExist ${BOARD_CONFIG}_installRoot
   if [ ${?} -eq 0 ]; then
-    ${BUILD_CONFIG}_installRoot
+    ${BOARD_CONFIG}_installRoot
   else
     default_installRoot
   fi
   
-  funExist ${BUILD_CONFIG}_installBoot
+  funExist ${BOARD_CONFIG}_installBoot
   if [ ${?} -eq 0 ]; then
-    ${BUILD_CONFIG}_installBoot
+    ${BOARD_CONFIG}_installBoot
   else
     default_installBoot
   fi
   
-  funExist ${BUILD_CONFIG}_installKernel
+  funExist ${BOARD_CONFIG}_installKernel
   if [ ${?} -eq 0 ]; then
-    ${BUILD_CONFIG}_installKernel
+    ${BOARD_CONFIG}_installKernel
   else
     default_installKernel
   fi

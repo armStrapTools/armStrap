@@ -1,11 +1,17 @@
 # Theses must always be set for a board configuration
-BUILD_CPU="a20"
-BUILD_ARCH="arm"
+BOARD_CPU="sun7i"
+BOARD_CPU_ARCH="arm"
+BOARD_CPU_FAMILLY="v7l"
 
-# Theses are overrides from the default board configuration
-BUILD_KERNEL_TYPE="sun7i"
-BUILD_KERNEL_VERSION="3.4"
-BUILD_KERNEL_CONFIG="default"
+BOARD_KERNEL="${BOARD_CPU}"
+BOARD_KERNEL_CONFIG="default"
+BOARD_KERNEL_VERSION="3.4.67"
+BOARD_KERNEL_LOADER="u-boot-sunxi"
+BOARD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
+
+BOARD_ROOTFS="${BOARD_CPU_ARCH}${BOARD_CPU_FAMILLY}"
+BOARD_ROOTFS_FAMILLY="debian"
+BOARD_ROOTFS_VERSION="stable"
 
 # Include the default values last.
 source ${ARMSTRAP_BOARDS}/.defaults/config.sh

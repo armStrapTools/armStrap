@@ -28,6 +28,10 @@ EOF
 
 function showUsage {
   local TMP_BOARDS="$(boardConfigs)"
+  local TMP_IFS="${IFS}"
+  local TMP_I=""
+  local TMP_J=""
+  
   printf "Usage : ${ANS_BLD}sudo %s${ANS_RST} [PARAMETERS]\n" "${ARMSTRAP_NAME}"
   printf "\n${ANS_BLD}Image/SD Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-b" "<BOARD>" "Use board definition <BOARD>."
@@ -47,27 +51,59 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-K" "<ARCH>" "Build Kernel (debian packages)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-I" "" "Call menuconfig before building Kernel."
   printf "\n${ANS_BLD}BootLoader Builder${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-B" "<BOOTLOADER>" "Build BootLoader (txz package)."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-B" "<BOOTLOADER>" "Build BootLoader (${ARMSTRAP_TAR_EXTENSION} package)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "<FAMILLY>" "Select bootloader familly."
   printf "\n${ANS_BLD}RootFS updater${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "<ROOTFS>" "Update RootFS (txz package)."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "<ROOTFS>" "Update RootFS (${ARMSTRAP_TAR_EXTENSION} package)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-O" "<FAMILLY>" "Select which RootFS to update."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-M" "" "Execute a shell into the RootFS instead of updating it."
   printf "\n${ANS_BLD}All Builder${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-H" "<hookscript>" "Script to execute after building everything with"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "" "<PKG_PATH> and <LOGFILE> as parameters"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "<SCRIPT / ->" "Build Kernel/RootFS/U-Boot for all boards/configurations"
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-g" "" "Disable GUI."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-q" "" "Quiet."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Directory Cleanup."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-l" "" "Show licence."
- 
-  printf "\n${ANS_BLD}Supported boards and kernel configurations:${ANS_RST}\n"
-  for i in ${TMP_BOARDS}; do
-    local TMP_BRDCFG="$(kernelConfigs ${i})"
-    printf "  ${ANS_BLD}%- 24s${ANS_RST}%s\n" "${i}" "${TMP_BRDCFG}"
+  
+  printf "\n${ANS_BLD}Avalable boards, kernels and RootFS:${ANS_RST}\n"
+  
+  printf "\n${ANS_BLD}%15s %10s %10s %15s${ANS_RST}\n--------------- ---------- ---------- ---------------\n" "Board" "CPU" "Familly" "BootLoader"
+  for TMP_I in ${ARMSTRAP_BOARDS}/*; do
+    local TMP_BOARD=$(basename ${TMP_I})
+    local TMP_LOADER=$(getLoader ${TMP_BOARD,,})
+    if [ -z "${TMP_LOADER}" ]; then
+      TMP_LOADER="none"
+    fi
+    source ${TMP_I}/config.sh
+    printf "% 15s % 10s % 10s % 15s\n" ${TMP_BOARD} ${BOARD_CPU} ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILLY} ${TMP_LOADER}
   done
+  
+  printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Kernel" "Config" "Version"
+  for TMP_I in ${ARMSTRAP_KERNEL_LIST}; do
+    IFS="-"
+    TMP_I=(${TMP_I})
+    IFS="_"
+    TMP_J=(${TMP_I[4]})
+    IFS="${TMP_IFS}"
+    printf "% 15s % 10s % 10s\n" ${TMP_I[0]} ${TMP_I[2]} ${TMP_J[0]}
+  done
+  
+  printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "RootFS" "Familly" "Version"
+  for TMP_I in ${ARMSTRAP_ROOTFS_LIST}; do
+    IFS="-"
+    TMP_I=(${TMP_I})
+    IFS="."
+    TMP_J=(${TMP_I[2]})
+    IFS="${TMP_IFS}"
+    printf "% 15s % 10s % 10s\n" ${TMP_I[0]} ${TMP_I[1]} ${TMP_J[0]}
+  done
+  
+  
+#  printf "\n${ANS_BLD}Supported boards and kernel configurations:${ANS_RST}\n"
+#  for i in ${TMP_BOARDS}; do
+#    local TMP_BRDCFG="$(kernelConfigs ${i})"
+#    printf "  ${ANS_BLD}%- 24s${ANS_RST}%s\n" "${i}" "${TMP_BRDCFG}"
+#  done
   printf "\nWith no parameter, create an image using values found in ${ANS_BLD}config.sh${ANS_RST}.\n\n"
 }
 
@@ -216,7 +252,7 @@ function isTrue {
 # Usage macAddress [<VENDOR_ID>]
 function macAddress {
   if [ -z "${1}" ]; then
-    BUILD_MAC_VENDOR=0x000246
+    BOARD_MAC_PREFIX=0x000246
   fi
   
   if [ -z ${ARMSTRAP_MAC_ADDRESS} ]; then
@@ -307,7 +343,7 @@ function unComment {
 function ubootImage {
   if [ -f "${1}" ]; then
     printStatus "ubootImage" "Generating ${2} from ${1}"
-    mkimage -C none -A ${BUILD_ARCH} -T script -d ${1} ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    mkimage -C none -A ${BOARD_CPU_ARCH} -T script -d ${1} ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
   else
     printStatus "ubootImage" "WARNING: ${1} not found. Cannot generate image."
   fi
@@ -579,21 +615,7 @@ function checkConfig {
 
 # usage checkRootFS 
 function checkRootFS {
-  local TMP_FND=""
-
-  for i in ${BUILD_ARMBIAN_ROOTFS_LIST}; do
-    case ${i} in
-      ${ARMSTRAP_OS})
-        TMP_FND="Yes"
-        ;;
-    esac
-  done
-  
-  isTrue ${TMP_FND}
-  if [ $? -eq "0" ]; then
-    $(exit 1)
-    checkStatus "rootFS ${ARMSTRAP_OS} not found for this board, valid choices are : ${BUILD_ARMBIAN_ROOTFS_LIST}"
-  fi
+  printStatus "checkRootFS" "XXX Disabled function"
 }
 
 # usage loadLibrary <LIBPATH> <LIB1> [<LIB2> ...]
@@ -700,4 +722,45 @@ function ccMakeNoLog {
   else
     CC=${TMP_CCPREF}-gcc dpkg-architecture -a${TMP_ARCABI} -t${TMP_CCPREF} -c make ${ARMSTRAP_MFLAGS} CFLAGS="${TMP_CFLAGS}" CXXFLAGS="${TMP_CFLAGS}" ARCH="${TMP_CPUARC}" CROSS_COMPILE="${TMP_CCPREF}-" -C "${TMP_WRKDIR}" ${@}
   fi
+}
+
+# usage : getLoader <BOARD_NAME>
+function getLoader {
+  local TMP_IFS="${IFS}"
+  local TMP_I=""
+  local TMP_J=""
+  local TMP_BOARD="${1,,}"
+  local TMP_LOADER=""
+  
+  for TMP_I in ${ARMSTRAP_LOADER_LIST}; do
+      IFS="-"
+      local TMP_J=(${TMP_I})
+      TMP_J=${TMP_J[0]}
+      IFS="${TMP_IFS}"
+      TMP_I=${TMP_I/${TMP_J}-/ }
+      TMP_I=${TMP_I/${ARMSTRAP_TAR_EXTENSION}/}
+      if [ "${TMP_BOARD}" = "${TMP_J}" ]; then
+        TMP_LOADER="${TMP_I}"
+      fi
+    done
+  printf "%s" "${TMP_LOADER}"
+}
+
+# usage : fetchIndex
+function fetchIndex {
+  local TMP_IFS="${IFS}"
+  local TMP_I=""
+  
+  while read TMP_I; do
+    TMP_I=(${TMP_I//// })
+    case ${TMP_I[0]} in
+      kernel)  ARMSTRAP_KERNEL_LIST="${TMP_I[1]} ${ARMSTRAP_KERNEL_LIST}"
+               ;;
+      loader)  ARMSTRAP_LOADER_LIST="${TMP_I[1]} ${ARMSTRAP_LOADER_LIST}"
+               ;;
+      rootfs)  ARMSTRAP_ROOTFS_LIST="${TMP_I[1]} ${ARMSTRAP_ROOTFS_LIST}"
+               ;;
+    esac
+  done <<< "`wget -a ${ARMSTRAP_LOG_FILE} -O - ${ARMSTRAP_ABUILDER_URL}/.index.txt`"
+  
 }

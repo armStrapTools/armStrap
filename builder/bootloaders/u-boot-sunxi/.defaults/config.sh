@@ -54,6 +54,4 @@ if [ -z "${BUILD_BOOTLOADER_GITBRN}" ]; then
   BUILD_BOOTLOADER_GITBRN="sunxi"
 fi
 
-if [ -z "${BUILD_BOORLOADER_COMPRESS}" ]; then
-  BUILD_BOORLOADER_COMPRESS="tar -cJvf"
-fi
+source ${ARMSTRAP_BOOTLOADERS}/.defaults/config.sh

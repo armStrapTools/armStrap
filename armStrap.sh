@@ -66,12 +66,26 @@ ARMSTRAP_UPDATE=""
 ARMSTRAP_EXIT=""
 ARMSTRAP_ABUILDER=""
 ARMSTRAP_ABUILDER_HOOK=""
-# Theses are used by postArmStrap to populate the web server and repository.
-ARMSTRAP_ABUILDER_WWW="/var/www/armstrap"
-ARMSTRAP_ABUILDER_KERNEL="${ARMSTRAP_ABUILDER_WWW}/kernel"
-ARMSTRAP_ABUILDER_ROOTFS="${ARMSTRAP_ABUILDER_WWW}/rootfs"
-ARMSTRAP_ABUILDER_LOADER="${ARMSTRAP_ABUILDER_WWW}/loader"
-ARMSTRAP_ABUILDER_LOGS="${ARMSTRAP_ABUILDER_WWW}/logs"
+ARMSTRAP_KERNEL_LIST=""
+ARMSTRAP_LOADER_LIST=""
+ARMSTRAP_ROOTFS_LIST=""
+# Theses are used by postArmStrap to populate the web server and by
+# armStrap to fetch them.
+ARMSTRAP_ABUILDER_URL="http://armstrap.vls.beaupre.biz"
+ARMSTRAP_ABUILDER_ROOT="/var/www/armstrap"
+ARMSTRAP_ABUILDER_KERNEL="${ARMSTRAP_ABUILDER_ROOT}/kernel"
+ARMSTRAP_ABUILDER_KERNEL_URL="http://armstrap.vls.beaupre.biz/kernel"
+ARMSTRAP_ABUILDER_ROOTFS="${ARMSTRAP_ABUILDER_ROOT}/rootfs"
+ARMSTRAP_ABUILDER_ROOTFS_URL="http://armstrap.vls.beaupre.biz/rootfs"
+ARMSTRAP_ABUILDER_LOADER="${ARMSTRAP_ABUILDER_ROOT}/loader"
+ARMSTRAP_ABUILDER_LOADER_URL="http://armstrap.vls.beaupre.biz/loader"
+ARMSTRAP_ABUILDER_LOGS="${ARMSTRAP_ABUILDER_ROOT}/logs"
+ARMSTRAP_ABUILDER_LOGS_URL="http://armstrap.vls.beaupre.biz/logs"
+ARMSTRAP_ABUILDER_REPO="/var/www/packages/apt/armstrap"
+
+ARMSTRAP_TAR_EXTRACT="tar -xJ"
+ARMSTRAP_TAR_COMPRESS="tar -cJvf"
+ARMSTRAP_TAR_EXTENSION=".txz"
 
 # Theses are packages that armStrap need for itself.
 ARMSTRAP_PREREQ="dialog"
@@ -102,6 +116,7 @@ if [ ! -z "${ARMSTRAP_PREREQ}" ]; then
 fi
 
 detectAnsi
+fetchIndex
 
 ARMSTRAP_EXIT=""
 while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:A:clWANIMgq" opt; do
@@ -245,11 +260,9 @@ source ${ARMSTRAP_BOARD_CONFIG}/config.sh
 checkConfig
 checkRootFS
 
-loadLibrary "${ARMSTRAP_BOARD_CONFIG}" ${BUILD_INIT_SCRIPTS}
-
-rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
-mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
-ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log"
+rm -f ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BOARD_ROOTFS}-${BOARD_ROOTFS_FAMILLY}-${BOARD_ROOTFS_VERSION}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
+mv ${ARMSTRAP_LOG_FILE} ${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BOARD_ROOTFS}-${BOARD_ROOTFS_FAMILLY}-${BOARD_ROOTFS_VERSION}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log
+ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/${ARMSTRAP_CONFIG}-${BOARD_ROOTFS}-${BOARD_ROOTFS_FAMILLY}-${BOARD_ROOTFS_VERSION}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.log"
 
 isTrue "${ARMSTRAP_RMOUNT}"
 if [ $? -ne 0 ]; then
@@ -275,20 +288,18 @@ fi
 
 if [ -z "${ARMSTRAP_DEVICE}" ]; then
   if [ -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-    ARMSTRAP_IMAGE_NAME=${ARMSTRAP_IMG}/${ARMSTRAP_CONFIG}-${BUILD_ARMBIAN_SUITE}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.img
+    ARMSTRAP_IMAGE_NAME=${ARMSTRAP_IMG}/${ARMSTRAP_CONFIG}-${BOARD_ROOTFS}-${BOARD_ROOTFS_FAMILLY}-${BOARD_ROOTFS_VERSION}_${ARMSTRAP_HOSTNAME}-${ARMSTRAP_DATE}.img
   fi
 fi
 
 showConfig
 
-loadLibrary "${ARMSTRAP_BOARD_CONFIG}" ${BUILD_INSTALL_SCRIPTS}
-
-if [ ! -z "${BUILD_PREREQ}" ]; then
-  installPrereqs ${BUILD_PREREQ}
+if [ ! -z "${BOARD_PREREQ}" ]; then
+  installPrereqs ${BOARD_PREREQ}
 fi
 
-if [ ! -z "${BUILD_MAC_VENDOR}" ]; then
-  macAddress "${BUILD_MAC_VENDOR}"
+if [ ! -z "${ARMSTRAP_MAC_ADDRESS}" ]; then
+  macAddress "${BOARD_MAC_PREFIX}"
 fi
 
 funExist ${BOARD_INIT_FUNCTION}
@@ -297,20 +308,20 @@ if [ ${?} -eq 0 ]; then
 fi
 
 if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-  setupImg ${BUILD_DISK_LAYOUT[@]}
+  setupImg ${BOARD_DISK_LAYOUT[@]}
 else
-  setupSD ${BUILD_DISK_LAYOUT[@]}
+  setupSD ${BOARD_DISK_LAYOUT[@]}
 fi
 
-funExist ${BUILD_INSTALL_FUNCTION}
+funExist ${BOARD_INSTALL_FUNCTION}
 if [ ${?} -eq 0 ]; then
-  ${BUILD_INSTALL_FUNCTION}
+  ${BOARD_INSTALL_FUNCTION}
 else
   default_installOS
 fi
 
 if [ ! -z "${ARMSTRAP_IMAGE_NAME}" ]; then
-  finishImg ${BUILD_DISK_LAYOUT[@]}
+  finishImg ${BOARD_DISK_LAYOUT[@]}
 else
-  finishSD ${BUILD_DISK_LAYOUT[@]}
+  finishSD ${BOARD_DISK_LAYOUT[@]}
 fi
