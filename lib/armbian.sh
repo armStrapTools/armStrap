@@ -539,15 +539,15 @@ function default_installRoot {
   
   isTrue "${ARMSTRAP_SWAP}"  
   if [ ${ARMSTRAP_SWAPSIZE} -gt 0 ]; then
-    printf "CONF_SWAPFILE=%s" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_SWAPFACTOR=%s" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_MAXSWAP=%s" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_SWAPFACTOR=%s\n" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
   else
-    printf "CONF_SWAPFILE=%s" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_SWAPFACTOR=%s" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_MAXSWAP=%s" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPFACTOR=%s\n" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
   fi
 
   if [ ! -z "${BOARD_ROOTFS_RECONFIG}" ]; then
