@@ -559,7 +559,7 @@ function default_installRoot {
   fi
   
   if [ -d "${ARMSTRAP_BOARDS}/.defaults/dpkg" ]; then
-    BOARD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BOARD_DPKG_LOCALPACKAGES}"
+    BOARD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/.defaults/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BOARD_DPKG_LOCALPACKAGES}"
   fi
 
   if [ ! -z "${BOARD_DPKG_LOCALPACKAGES}" ]; then
