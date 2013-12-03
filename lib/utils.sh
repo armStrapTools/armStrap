@@ -69,7 +69,7 @@ function showUsage {
   
   printf "\n${ANS_BLD}Avalable boards, kernels and RootFS:${ANS_RST}\n"
   
-  printf "\n${ANS_BLD}%15s %10s %10s %15s${ANS_RST}\n--------------- ---------- ---------- ---------------\n" "Board" "CPU" "Familly" "BootLoader"
+  printf "\n${ANS_BLD}%15s %15s %10s %15s${ANS_RST}\n--------------- --------------- ---------- ---------------\n" "Board" "Kernel" "Familly" "BootLoader"
   for TMP_I in ${ARMSTRAP_BOARDS}/*; do
     local TMP_BOARD=$(basename ${TMP_I})
     local TMP_LOADER=$(getLoader ${TMP_BOARD,,})
@@ -77,17 +77,22 @@ function showUsage {
       TMP_LOADER="none"
     fi
     source ${TMP_I}/config.sh
-    printf "% 15s % 10s % 10s % 15s\n" ${TMP_BOARD} ${BOARD_CPU} ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILLY} ${TMP_LOADER}
+    printf "% 15s % 15s % 10s % 15s\n" ${TMP_BOARD} ${BOARD_CPU} ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILLY} ${TMP_LOADER}
   done
   
   printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Kernel" "Config" "Version"
   for TMP_I in ${ARMSTRAP_KERNEL_LIST}; do
-    IFS="-"
-    TMP_I=(${TMP_I})
+    local TMP_KRN=${TMP_I%%-linux-*}
+    local TMP_CFG=${TMP_I##$TMP_KRN-linux-}
     IFS="_"
-    TMP_J=(${TMP_I[4]})
+    local TMP_VER=(${TMP_I})
+    IFS="-"
+    TMP_VER=(${TMP_VER[1]})
+    TMP_VER=${TMP_VER[0]}
+    TMP_CFG=(${TMP_CFG})
+    TMP_CFG=${TMP_CFG[0]}
     IFS="${TMP_IFS}"
-    printf "% 15s % 10s % 10s\n" ${TMP_I[0]} ${TMP_I[2]} ${TMP_J[0]}
+    printf "% 15s % 10s % 10s\n" ${TMP_KRN} ${TMP_CFG} ${TMP_VER}
   done
   
   printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "RootFS" "Familly" "Version"
