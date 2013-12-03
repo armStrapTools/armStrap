@@ -83,16 +83,6 @@ function kernelPack {
   local TMP_BUILD_MKIMAG="${8}"
   local TMP_BUILD_FIRMWR="${9}"
   
-  printStatus "kernelPack" "TMP_BUILD_WRKDIR : ${TMP_BUILD_WRKDIR}"
-  printStatus "kernelPack" "TMP_BUILD_CFGDIR : ${TMP_BUILD_CFGDIR}"
-  printStatus "kernelPack" "TMP_BUILD_CFGTYP : ${TMP_BUILD_CFGTYP}"
-  printStatus "kernelPack" "TMP_BUILD_CONFIG : ${TMP_BUILD_CONFIG}"
-  printStatus "kernelPack" "TMP_BUILD_CPUARC : ${TMP_BUILD_CPUARC}"
-  printStatus "kernelPack" "TMP_BUILD_CPUABI : ${TMP_BUILD_CPUABI}"
-  printStatus "kernelPack" "TMP_BUILD_CFLAGS : ${TMP_BUILD_CFLAGS}"
-  printStatus "kernelPack" "TMP_BUILD_MKIMAG : ${TMP_BUILD_MKIMAG}"
-  printStatus "kernelPack" "TMP_BUILD_FIRMWR : ${TMP_BUILD_FIRMWR}"
-
   local TMP_BUILD_SCRDST="${TMP_BUILD_WRKDIR}/scripts/package/"  
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Packaging Kernel")  
@@ -135,7 +125,8 @@ function kernelPack {
   local TMP_I=""
   
   for TMP_I in *.deb; do 
-    local TMP_STR="`echo ${TMP_I} | cut -d'_' -f1`"
+    local TMP_STR="${TMP_I%%_*}"
+#    "`echo ${TMP_I} | cut -d'_' -f1`"
     
     if [[ $TMP_STR == *image-* ]]; then
       TMP_KERNEL_SCR="${TMP_I/image/kernel}"
@@ -217,7 +208,7 @@ function kernelBuild {
     ARMSTRAP_GUI_PCT=0
     guiStart
     TMP_GUI=$(guiWriter "name" "armStrap")
-    TMP_GUI=$(guiWriter "start" "Kernel Builder" "Progress")
+    TMP_GUI=$(guiWriter "start" "Kernel Builder (${1})" "Progress")
     printStatus "kernelBuild" "Kernel Builder"
     source ${TMP_KRNDIR}/config.sh
     rm -f ${TMP_LOG}
@@ -405,6 +396,13 @@ function rootfsMount {
   fi
 }
 
+# usage repoPost <DEB_PACKAGE>
+function repoPost {
+    local TMP_FILE="`basename ${1}`"
+    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main remove ${TMP_FILE%%-linux-*} ${TMP_FILE%%_*}
+    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main includedeb ${TMP_FILE%%-linux-*} ${1}
+}
+
 function armStrapPost {
   local TMP_I=""
   local TMP_J=""
@@ -445,11 +443,7 @@ function armStrapPost {
   
   printStatus "armStrapPost" "Publishing kernels"
   for TMP_I in ${ARMSTRAP_PKG}/*.deb; do
-    TMP_J="`basename ${TMP_I}`"
-    TMP_TYPE="`echo ${TMP_J} | cut -d- -f1`"
-    TMP_OLD="`echo ${TMP_J} | cut -d'_' -f1`"
-    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main remove ${TMP_TYPE} ${TMP_OLD}
-    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main includedeb ${TMP_TYPE} ${TMP_I}    
+    repoPost "${TMP_I}"
   done
   
   printStatus "armStrapPost" "Making indexes"
@@ -470,10 +464,12 @@ function armStrapBuild {
   rm -f ${ARMSTRAP_LOG}/*
   rm -f ${ARMSTRAP_PKG}/*
   
+  touch ${ARMSTRAP_LOG_FILE}
+  
   for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
     kernelBuild "`basename ${TMP_I}`"
   done
-  
+ 
   for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
     for TMP_J in ${TMP_I}/*; do
       bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
