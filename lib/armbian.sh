@@ -539,15 +539,15 @@ function default_installRoot {
   
   isTrue "${ARMSTRAP_SWAP}"  
   if [ ${ARMSTRAP_SWAPSIZE} -gt 0 ]; then
-    printf "CONF_SWAPFILE=%s" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_SWAPFACTOR=%s" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_MAXSWAP=%s" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_SWAPFACTOR=%s\n" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
   else
-    printf "CONF_SWAPFILE=%s" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_SWAPSIZE=%s" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_SWAPFACTOR=%s" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_MAXSWAP=%s" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "#CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_SWAPFACTOR=%s\n" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    printf "CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
   fi
 
   if [ ! -z "${BOARD_ROOTFS_RECONFIG}" ]; then
@@ -559,7 +559,7 @@ function default_installRoot {
   fi
   
   if [ -d "${ARMSTRAP_BOARDS}/.defaults/dpkg" ]; then
-    BOARD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BOARD_DPKG_LOCALPACKAGES}"
+    BOARD_DPKG_LOCALPACKAGES="`find ${ARMSTRAP_BOARDS}/.defaults/dpkg/*.deb -maxdepth 1 -type f -print0 | xargs -0 echo` ${BOARD_DPKG_LOCALPACKAGES}"
   fi
 
   if [ ! -z "${BOARD_DPKG_LOCALPACKAGES}" ]; then
