@@ -232,11 +232,12 @@ GNUPGHOME="\${TMP_GNUPGHOME}"
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
 
-KERNEL_IMG="\$(apt-cache search \${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION} | sort | tail -n 1 | cut -f 1 -d ' ')"
-KERNEL_VERSION="\$(echo \${KERNEL_IMG} | cut -f 5- -d '-')"
+KERNEL_FRM="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-firmware-image-\${KERNEL_VERSION}"
 KERNEL_HDR="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-headers-\${KERNEL_VERSION}"
+KERNEL_IMG="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION}"
+KERNEL_LBC="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-libc-\${KERNEL_VERSION}"
 
-/usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
+/usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR} \${KERNEL_FRM}
 EOF
 
   chmod +x "${TMP_CHROOT}/${TMP_KERNEL}"
