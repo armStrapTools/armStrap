@@ -198,6 +198,8 @@ function kernelPack {
     unset EXPORT_ARMSTRAP_FIRMWARE
   fi
   
+  
+  
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Packaging Kernel")  
 }
 
@@ -221,6 +223,7 @@ function kernelBuild {
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Building kernel for ${1}")
     kernelMake "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_PREHOOK}" "${BUILD_KERNEL_PSTHOOK}"
     kernelPack "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_MKIMAGE}" "${BUILD_KERNEL_FIRMWARE_SRC}"
+    ccMake "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_SOURCE}" "${BUILD_KERNEL_CFLAGS}" distclean
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Done")
     printStatus "kernelBuild" "Kernel Builder Done"
     unsetEnv "BUILD_KERNEL_"
@@ -270,6 +273,7 @@ function bootBuilder {
                       ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}${ARMSTRAP_TAR_EXTENSION}" -C "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Cleaning up")
                       rm -rf "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      ccMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" distclean
                       unsetEnv "BUILD_BOOTLOADER_"
                       printStatus "bootBuilder" "Builder done."
                       ;;
@@ -324,10 +328,14 @@ function rootfsUpdater {
     
     rm -f "${ARMSTRAP_PKG}/`basename ${BUILD_ROOTFS_URL}`"
     ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_ROOTFS_TYPE}-${BUILD_ROOTFS_FAMILLY}-${BUILD_ROOTFS_ARCH}${ARMSTRAP_TAR_EXTENSION}" -C "${BUILD_ROOTFS_SRC}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+    
+    if [ -d "${BUILD_ROOTFS_SRC}" ]; then
+      rm -rf "${BUILD_ROOTFS_SRC}"
+    fi    
 
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  34 "Done")    
     printStatus "rootfsUpdater" "Root filesystem updater Done"
-    
+        
     unsetEnv "BUILD_ROOTFS_"
     guiStop
   else
