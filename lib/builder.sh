@@ -53,12 +53,12 @@ function kernelMake {
   
   printStatus "kernelMake" "Building Kernel image"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  4 "Building kernel image")  
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" uImage
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} uImage ${BUILD_KERNEL_EXTRA_MAKE}
   checkStatus "Error while building kernel image"
   
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Building kernel image")  
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Building kernel modules")  
   printStatus "kernelMake" "Building Kernel Modules"
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" modules
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} modules
   checkStatus "Error while building Kernel Modules"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Building kernel modules")  
@@ -99,6 +99,7 @@ function kernelPack {
   export EXPORT_ARMSTRAP_TARGET="${TMP_BUILD_CFGTYP}-"
   export EXPORT_ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
   export EXPORT_ARMSTRAP_REPOS="${TMP_BUILD_CFGTYP}"
+  export EXPORT_ARMSTRAP_EXTRA_DEB="${BUILD_KERNEL_EXTRA_DEB}"
   if [ ! -z "${TMP_BUILD_MKIMAG}" ]; then 
     export EXPORT_ARMSTRAP_MKIMAGE="${TMP_BUILD_MKIMAG}"
   fi
@@ -189,6 +190,7 @@ function kernelPack {
   unset EXPORT_ARMSTRAP_TARGET
   unset EXPORT_ARMSTRAP_RELEASE
   unset EXPORT_ARMSTRAP_REPOS
+  unset EXPORT_ARMSTRAP_EXTRA_DEB
   if [ ! -z "${EXPORT_ARMSTRAP_MKIMAGE}" ]; then 
     unset EXPORT_ARMSTRAP_MKIMAGE
   fi

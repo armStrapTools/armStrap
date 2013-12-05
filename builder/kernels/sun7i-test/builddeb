@@ -171,8 +171,12 @@ function updateBoot {
   if [ -f "\${1}" ]; then
     while read i; do  
       case "\${i}" in
-        kernel=*)
-        ;;
+        kernel=*) ;;
+        kernel_loadaddr=*) ;;
+        kernel_dtb=*) ;;
+        kernel_dtb_loadaddr=*) ;;
+        ftd_high=*) ;;
+        autoboot=*) ;;
       *)
         echo "\${i}" >> "\${TMP_TXTD}"
         ;;
@@ -187,7 +191,12 @@ function updateBoot {
     mv "\${TMP_TXTD}" "\${1}"
   fi
   
-  echo "kernel=uImage-\${2}" >> \${1}
+  echo "kernel=/boot/uImage-\${2}" >> \${1}
+  echo "kernel_dtb=/boot/sun7i-a20-cubietruck.dtb" >> \${1}
+  echo "kernel_loadaddr=0x46000000" >> \${1}
+  echo "kernel_dtb_loadaddr=0x49000000" >> \${1}
+  echo "fdt_high=ffffffff" >> \${1}
+  echo "autoboot=setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p1 ro rootwait && ext4load mmc 0 \\\$kernel_loadaddr \\\$kernel && ext4load mmc 0 \\\$dtb_loadaddr \\\$kernel_dtb && bootm \\\$kernel_loadaddr - \\\$kernel_dtb_loadaddr" >> \${1}
 }
 
 updateBoot "/boot/uEnv.txt" ${version}
