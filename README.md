@@ -12,9 +12,9 @@ You need to be root to run this script. You have two options:
 
 2) Configure your build using the command line:
 
-    armStrap.sh version 0.80
-    Copyright (C) 2013 Eddy Beaupre
-    
+armStrap.sh version 0.81
+Copyright (C) 2013 Eddy Beaupre
+
     Usage : sudo armStrap.sh [PARAMETERS]
     
     Image/SD Builder:
@@ -56,21 +56,24 @@ You need to be root to run this script. You have two options:
     
     Avalable boards, kernels and RootFS:
     
-              Board        CPU    Familly      BootLoader
-    --------------- ---------- ---------- ---------------
-              A70Xh      sun7i     armv7l    u-boot-sunxi
-         CubieBoard      sun4i     armv7l    u-boot-sunxi
-        CubieBoard2      sun7i     armv7l    u-boot-sunxi
-         CubieTruck      sun7i     armv7l    u-boot-sunxi
-          HackBerry      sun4i     armv7l    u-boot-sunxi
-        RaspBerryPI     bcmrpi     armv6l            none
+              Board          Kernel    Familly      BootLoader
+    --------------- --------------- ---------- ---------------
+              A70Xh           sun7i     armv7l    u-boot-sunxi
+         CubieBoard           sun4i     armv7l    u-boot-sunxi
+        CubieBoard2           sun7i     armv7l    u-boot-sunxi
+         CubieTruck     sun7i-stage     armv7l    u-boot-sunxi
+          HackBerry           sun4i     armv7l    u-boot-sunxi
+        RaspBerryPI          bcmrpi     armv6l            none
     
              Kernel     Config    Version
     --------------- ---------- ----------
+         sunxi-test    default     3.13.0
+        sun7i-stage    default    3.4.67+
               sun7i    default     3.4.67
+        sun4i-stage    default    3.4.67+
               sun4i    default     3.4.67
              bcmrpi    default    3.6.11+
-
+    
              RootFS    Familly    Version
     --------------- ---------- ----------
              armv7l     ubuntu      saucy
