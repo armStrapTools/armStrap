@@ -170,30 +170,25 @@ EOF
 done
 
 cat <<EOF > "$tmpdir$debhookdir/postinst.d/updateBoot"
-#!/bin/bash
+#!/bin/sh
+# Usage updateBoot <KERNEL_VERSION>
 
-# Usage updateBoot <BOOT_PATH> <KERNEL_VERSION>
-function updateBoot {
-
-  local TMP_UENV=\$(mktemp \${1}/uEnv.XXXXXX)
+tmp_uenv=\$(/boot/uEnv.XXXXXX)
   
-  if [ -f /etc/armstrap.conf ]; then
-    source /etc/armstrap.conf
-  fi
+if [ -f /etc/armstrap.conf ]; then
+  source /etc/armstrap.conf
+fi
   
-  touch \${1}/uEnv.txt
-  rm -f \${1}/uEnv.bak
-  cp \${1}/uEnv.txt \${1}/uEnv.bak
-  awk '/^kernel=/ { skip = 1; } /^dtb=/ { skip = 1; } /.*/ { if (skip) skip = 0; else print \$0; }' \${1}/uEnv.txt > \${TMP_UENV}
-  echo "kernel=uImage-\${2}" >> \${TMP_UENV}
-  if [ -d \${1}/dtbs ] && [ ! -z "\${uboot_kernel_dtb}" ]; then
-    echo "dtb=\${uboot_kernel_dtb}" >> \${TMP_UENV}
-  fi
-  rm -f \${1}/uEnv.txt
-  mv \${TMP_UENV} \${1}/uEnv.txt
-}
-
-updateBoot "/boot" \${1}
+touch /boot/uEnv.txt
+rm -f /boot/uEnv.bak
+cp /boot/uEnv.txt /boot/uEnv.bak
+awk '/^kernel=/ { skip = 1; } /^dtb=/ { skip = 1; } /.*/ { if (skip) skip = 0; else print \$0; }' /boot/uEnv.txt > \${tmp_uenv}
+echo "kernel=uImage-\${1}" >> \${tmp_uenv}
+if [ -f /boot/${uboot_kernel_dtb} ]; then
+  echo "dtb=\${uboot_kernel_dtb}" >> \${tmp_uenv}
+fi
+rm -f /boot/uEnv.txt
+mv \${tmp_uenv} /boot/uEnv.txt
 
 EOF
 
