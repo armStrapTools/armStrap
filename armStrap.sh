@@ -246,20 +246,32 @@ if [ ! -z "${ARMSTRAP_ABUILDER}" ]; then
 fi
 
 if [ ! -z "${ARMSTRAP_KBUILDER}" ]; then
-  kernelBuild ${ARMSTRAP_KBUILDER}
+  if [ "${ARMSTRAP_KBUILDER}" = "-" ]; then
+    kernelPost
+  else
+    kernelBuild ${ARMSTRAP_KBUILDER}
+  fi
   exit 0
 fi
 
 if [ ! -z "${ARMSTRAP_BBUILDER}" ]; then
-  bootBuilder "${ARMSTRAP_BBUILDER}" "${ARMSTRAP_BBUILDER_FAMILLY}"
+  if [ "${ARMSTRAP_BBUILDER}" = "-" ]; then
+    loaderPost
+  else
+    bootBuilder "${ARMSTRAP_BBUILDER}" "${ARMSTRAP_BBUILDER_FAMILLY}"
+  fi
   exit 0
 fi
 
 if [ ! -z "${ARMSTRAP_RUPDATER}" ]; then
-  if [ -z "${ARMSTRAP_RMOUNT}" ]; then
-    rootfsUpdater "${ARMSTRAP_RUPDATER}" "${ARMSTRAP_OS}"
+  if [ "${ARMSTRAP_RUPDATER}" = "-" ]; then
+    rootfsPost
   else
-    rootfsMount "${ARMSTRAP_RUPDATER}" "${ARMSTRAP_OS}"
+    if [ -z "${ARMSTRAP_RMOUNT}" ]; then
+      rootfsUpdater "${ARMSTRAP_RUPDATER}" "${ARMSTRAP_OS}"
+    else
+      rootfsMount "${ARMSTRAP_RUPDATER}" "${ARMSTRAP_OS}"
+    fi
   fi
   exit 0
 fi

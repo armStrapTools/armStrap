@@ -244,7 +244,7 @@ function bootBuilder {
     ARMSTRAP_GUI_PCT=0
     guiStart
     TMP_GUI=$(guiWriter "name" "armStrap")
-    TMP_GUI=$(guiWriter "start" "BootLoader Builder" "Progress")
+    TMP_GUI=$(guiWriter "start" "BootLoader Builder (${1}/${2})" "Progress")
     BUILD_BOOTLOADER_TYPE="${1}"
     printStatus "bootBuilder" "Loading configuration for ${1} (${2})"
     source ${TMP_BLRCFG}/config.sh
@@ -270,7 +270,7 @@ function bootBuilder {
                       cp -v "${BUILD_BOOTLOADER_SOURCE}/u-boot-sunxi-with-spl.bin" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
                       cp -v "${BUILD_BOOTLOADER_FEXSRC}/sys_config/${BUILD_BOOTLOADER_CPU}/${BUILD_BOOTLOADER_FEX}" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Packaging")
-                      ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}${ARMSTRAP_TAR_EXTENSION}" -C "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_NAME}-${BUILD_BOOTLOADER_TYPE}${ARMSTRAP_TAR_EXTENSION}" -C "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Cleaning up")
                       rm -rf "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
                       ccMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" distclean
@@ -413,48 +413,57 @@ function repoPost {
     REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main includedeb ${TMP_FILE%%-linux-*} ${1}
 }
 
-function armStrapPost {
+function kernelPost {
   local TMP_I=""
-  local TMP_J=""
-  local TMP_TYPE=""
 
-  printStatus "armStrapPost" "Publishing armStrap"
-    
-  printStatus "armStrapPost" "Publishing logs"
-  if [ -d "${ARMSTRAP_ABUILDER_LOGS}" ]; then
-    rm -rf ${ARMSTRAP_ABUILDER_LOGS}
-  fi
-  checkDirectory "${ARMSTRAP_ABUILDER_LOGS}"
-  cp ${ARMSTRAP_LOG}/* ${ARMSTRAP_ABUILDER_LOGS}
-    
-  printStatus "armStrapPost" "Publishing bootloaders"
-  checkDirectory "${ARMSTRAP_ABUILDER_LOADER}"
-  for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
-    for TMP_J in ${TMP_I}/*; do
-      cp -v ${ARMSTRAP_PKG}/`basename ${TMP_J}`-`basename ${TMP_I}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_LOADER}/
-    done
-  done
-  
-  printStatus "armStrapPost" "Publishing rootfs"
-  checkDirectory "${ARMSTRAP_ABUILDER_ROOTFS}"
-  for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
-    for TMP_J in ${TMP_I}/*; do
-      cp -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`-*-`basename ${TMP_J}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_ROOTFS}/
-    done
+  for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
+    kernelBuild "`basename ${TMP_I}`"
   done
   
   printStatus "armStrapPost" "Publishing kernel installer script"
   checkDirectory "${ARMSTRAP_ABUILDER_KERNEL}"
   for TMP_I in ${ARMSTRAP_PKG}/*.sh; do
-    TMP_J="`basename ${TMP_I}`"
-    TMP_TYPE="`echo ${TMP_J} | cut -d- -f2`"  
-    cp ${TMP_I} ${ARMSTRAP_ABUILDER_KERNEL}/
+   mv -v ${TMP_I} ${ARMSTRAP_ABUILDER_KERNEL}/
   done
   
   printStatus "armStrapPost" "Publishing kernels"
   for TMP_I in ${ARMSTRAP_PKG}/*.deb; do
     repoPost "${TMP_I}"
+    rm -f ${TMP_I}
   done
+}
+
+function loaderPost {
+  local TMP_I=""
+  local TMP_J=""
+
+  checkDirectory "${ARMSTRAP_ABUILDER_LOADER}"
+  for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
+    for TMP_J in ${TMP_I}/*; do
+      bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
+      printStatus "armStrapPost" "Publishing bootloaders"
+      mv -v ${ARMSTRAP_PKG}/`basename ${TMP_J}`-`basename ${TMP_I}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_LOADER}/
+    done
+  done
+}
+
+function rootfsPost {
+  local TMP_I=""
+  local TMP_J=""
+
+  checkDirectory "${ARMSTRAP_ABUILDER_ROOTFS}"
+  for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
+    for TMP_J in ${TMP_I}/*; do
+      rootfsUpdater "`basename ${TMP_J}`" "`basename ${TMP_I}`"
+      printStatus "armStrapPost" "Publishing rootfs"
+      mv -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`-*-`basename ${TMP_J}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_ROOTFS}/
+    done
+  done
+}
+
+function indexPost {
+  local TMP_I=""
+  local TMP_J=""
   
   printStatus "armStrapPost" "Making indexes"
   rm -f ${ARMSTRAP_ABUILDER_ROOT}/.index.txt
@@ -464,39 +473,11 @@ function armStrapPost {
       echo ${TMP_J/$ARMSTRAP_ABUILDER_ROOT/} >> ${ARMSTRAP_ABUILDER_ROOT}/.index.txt
     done
   done
-  printStatus "Done"
 }
 
 function armStrapBuild {
-  local TMP_I=""
-  local TMP_J=""
-  
-  rm -f ${ARMSTRAP_LOG}/*
-  rm -f ${ARMSTRAP_PKG}/*
-  
-  touch ${ARMSTRAP_LOG_FILE}
-  
-  for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
-    kernelBuild "`basename ${TMP_I}`"
-  done
- 
-#  for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
-#    for TMP_J in ${TMP_I}/*; do
-#      bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
-#    done
-#  done
-
-#  for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
-#    for TMP_J in ${TMP_I}/*; do
-#      rootfsUpdater "`basename ${TMP_J}`" "`basename ${TMP_I}`"
-#    done
-#  done
-  
-  if [ "${ARMSTRAP_ABUILDER_HOOK}" = "-" ]; then
-    armStrapPost
-  else
-    if [ -x "${ARMSTRAP_ABUILDER_HOOK}" ]; then
-      ${ARMSTRAP_ABUILDER_HOOK} ${ARMSTRAP_PKG} ${ARMSTRAP_LOG}
-    fi
-  fi
+  kernelPost
+  loaderPost
+  rootfsPost
+  indexPost
 }
