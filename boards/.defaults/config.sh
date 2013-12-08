@@ -72,7 +72,8 @@ BOARD_LOADER_CMDLINE="console=tty0 console=${BOARD_SERIAL_TERM},${BOARD_SERIAL_S
 # Theses are defaults values that can be overwritten by uEnv.txt
 #
 BOARD_LOADER_BOOTCMD=("root=${BOARD_LOADER_ROOT} rootwait")
-BOARD_LOADER_BOOTUENV=("bootargs=${BOARD_LOADER_CMDLINE}")
+#BOARD_LOADER_BOOTUENV=("bootargs=${BOARD_LOADER_CMDLINE}")
+BOARD_LOADER_BOOTUENV=("")
 
 BOARD_DISK_LAYOUT=("1:/:ext4:-1")
 

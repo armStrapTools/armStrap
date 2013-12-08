@@ -430,15 +430,14 @@ function armStrapConfig {
   
   if [ ! -f ${TMP_CONF} ]; then
     touch ${TMP_CONF}
-    printf "# armStap configuration. This is a normal shell script that is sourced\n"
-    printf "# by various utilities that can be run once the system is installed and\n"
-    printf "# running (like kernel packages). Do not modify theses values unless you\n"
-    printf "# know what you're doing.\n\n"
+    printf "# armStap configuration. This is a normal shell script that is sourced\n" >> ${TMP_CONF}
+    printf "# by various utilities that can be run once the system is installed and\n" >> ${TMP_CONF}
+    printf "# running (like kernel packages). Do not modify theses values unless you\n" >> ${TMP_CONF}
+    printf "# know what you're doing.\n\n" >> ${TMP_CONF}
   fi
   
   printStatus "armStrapConfig" "Configuring armStrap parameters ${@}"
   printf "%s\n" "${@}" >> ${TMP_CONF}
-  fi
 }
 
 # Usage : addIface <ARMSTRAP_ROOT> <INTERFACE> <MAC_ADDRESS> <dhcp|static> [<address> <netmask> <gateway>]
@@ -630,10 +629,10 @@ function default_installBoot {
         if [ -f ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_CMD}` ]; then
           cp ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_CMD}` ${BOARD_LOADER_CMD}
         else 
-          if [ -f ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_CMD}` ${BOARD_LOADER_CMD} ]; then
+          if [ -f ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_CMD}` ]; then
             ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_CMD}` ${BOARD_LOADER_CMD} 
           else
-            rm "${BOARD_LOADER_CMD}"
+            rm -f "${BOARD_LOADER_CMD}"
             touch "${BOARD_LOADER_CMD}"
           fi
         fi
@@ -664,10 +663,10 @@ function default_installBoot {
         if [ -f ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_UENV}` ]; then
           cp ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_UENV}` ${BOARD_LOADER_UENV}
         else 
-          if [ -f ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_UENV}` ${BOARD_LOADER_UENV} ]; then
+          if [ -f ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_UENV}` ]; then
             cp ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_UENV}` ${BOARD_LOADER_UENV}
           else
-            rm "${BOARD_LOADER_UENV}"
+            rm -f "${BOARD_LOADER_UENV}"
             touch "${BOARD_LOADER_UENV}"
           fi
         fi        
