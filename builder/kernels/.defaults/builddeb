@@ -117,6 +117,15 @@ else
 		cp $KBUILD_IMAGE "$tmpdir/boot/vmlinuz-$version"
 	else
 		cp arch/$ARCH/boot/uImage "$tmpdir/boot/uImage-$version"
+
+		j=$(find arch/$ARCH/boot/dts/ -name sun*.dtb -type f)
+		if [ ! -z "${j}" ]; then
+		  mkdir -p $tmpdir/boot/dtbs
+		  for i in ${j}; do
+		    cp ${i} $tmpdir/boot/dtbs/
+		  done
+		fi
+		
 		if [ ! -z "${EXPORT_ARMSTRAP_EXTRA_DEB}" ]; then
 		  for i in ${EXPORT_ARMSTRAP_EXTRA_DEB}; do
 		    cp -v $i $tmpdir/boot/
@@ -163,34 +172,28 @@ done
 cat <<EOF > "$tmpdir$debhookdir/postinst.d/updateBoot"
 #!/bin/bash
 
-# Usage updateBoot <UENV_PATH> <KERNEL_VERSION>
+# Usage updateBoot <BOOT_PATH> <KERNEL_VERSION>
 function updateBoot {
 
-  local TMP_TXTD="\`mktemp uEnv.XXXXXX\`"
-
-  if [ -f "\${1}" ]; then
-    while read i; do  
-      case "\${i}" in
-        kernel=*)
-        ;;
-      *)
-        echo "\${i}" >> "\${TMP_TXTD}"
-        ;;
-      esac
-    done < "\${1}"
-
-    if [ -f "\${1}.old" ]; then
-      rm -f "\${1}.old"
-    fi
-
-    mv "\${1}" "\${1}.old"   
-    mv "\${TMP_TXTD}" "\${1}"
+  local TMP_UENV=\$(mktemp \${1}/uEnv.XXXXXX)
+  
+  if [ -f /etc/armstrap.conf ]; then
+    source /etc/armstrap.conf
   fi
   
-  echo "kernel=uImage-\${2}" >> \${1}
+  touch \${1}/uEnv.txt
+  rm -f \${1}/uEnv.bak
+  cp \${1}/uEnv.txt \${1}/uEnv.bak
+  awk '/^kernel=/ { skip = 1; } /^dtb=/ { skip = 1; } /.*/ { if (skip) skip = 0; else print \$0; }' \${1}/uEnv.txt > \${TMP_UENV}
+  echo "kernel=uImage-\${2}" >> \${TMP_UENV}
+  if [ -d \${1}/dtbs ] && [ ! -z "\${uboot_kernel_dtb}" ]; then
+    echo "dtb=\${uboot_kernel_dtb}" >> \${TMP_UENV}
+  fi
+  rm -f \${1}/uEnv.txt
+  mv \${TMP_UENV} \${1}/uEnv.txt
 }
 
-updateBoot "/boot/uEnv.txt" ${version}
+updateBoot "/boot" \${1}
 
 EOF
 

@@ -471,26 +471,26 @@ function armStrapBuild {
   local TMP_I=""
   local TMP_J=""
   
-  rm -f ${ARMSTRAP_LOG}/*
-  rm -f ${ARMSTRAP_PKG}/*
+#  rm -f ${ARMSTRAP_LOG}/*
+#  rm -f ${ARMSTRAP_PKG}/*
   
   touch ${ARMSTRAP_LOG_FILE}
   
-  for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
-    kernelBuild "`basename ${TMP_I}`"
-  done
+#  for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
+#    kernelBuild "`basename ${TMP_I}`"
+#  done
  
-  for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
-    for TMP_J in ${TMP_I}/*; do
-      bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
-    done
-  done
+#  for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
+#    for TMP_J in ${TMP_I}/*; do
+#      bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
+#    done
+#  done
 
-  for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
-    for TMP_J in ${TMP_I}/*; do
-      rootfsUpdater "`basename ${TMP_J}`" "`basename ${TMP_I}`"
-    done
-  done
+#  for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
+#    for TMP_J in ${TMP_I}/*; do
+#      rootfsUpdater "`basename ${TMP_J}`" "`basename ${TMP_I}`"
+#    done
+#  done
   
   if [ "${ARMSTRAP_ABUILDER_HOOK}" = "-" ]; then
     armStrapPost

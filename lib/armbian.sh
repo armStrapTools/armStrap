@@ -423,6 +423,24 @@ function addKernelModule {
   printf "%s\n" ${TMP_MODULE} >> ${TMP_ROOT}/etc/modules
 }
 
+# Usage : armStrapConfig <ARMSTRAP_ROOT> <CONFIG_PARAM>
+function armStrapConfig {
+  local TMP_CONF="${1}/etc/armStrap.config"
+  shift
+  
+  if [ ! -f ${TMP_CONF} ]; then
+    touch ${TMP_CONF}
+    printf "# armStap configuration. This is a normal shell script that is sourced\n"
+    printf "# by various utilities that can be run once the system is installed and\n"
+    printf "# running (like kernel packages). Do not modify theses values unless you\n"
+    printf "# know what you're doing.\n\n"
+  fi
+  
+  printStatus "armStrapConfig" "Configuring armStrap parameters ${@}"
+  printf "%s\n" "${@}" >> ${TMP_CONF}
+  fi
+}
+
 # Usage : addIface <ARMSTRAP_ROOT> <INTERFACE> <MAC_ADDRESS> <dhcp|static> [<address> <netmask> <gateway>]
 function addIface {
   local TMP_ROOT="${1}"
@@ -586,6 +604,10 @@ function default_installRoot {
     done
   fi
   
+  if [ ! -z ${BOARD_KERNEL_DTB} ]; then
+    armStrapConfig "${ARMSTRAP_MNT}" "uboot_kernel_dtb=dtbs/${BOARD_KERNEL_DTB}"
+  fi
+  
   addIface "${ARMSTRAP_MNT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Configuring RootFS")
   guiStop
@@ -605,8 +627,16 @@ function default_installBoot {
         ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting BootLoader")
         httpExtract "${ARMSTRAP_MNT}/boot" "${ARMSTRAP_ABUILDER_LOADER_URL}/${BOARD_CONFIG}-${TMP_LOADER}${ARMSTRAP_TAR_EXTENSION}" "${ARMSTRAP_TAR_EXTRACT}"
     
-        rm -f "${BOARD_LOADER_CMD}"
-        touch "${BOARD_LOADER_CMD}"
+        if [ -f ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_CMD}` ]; then
+          cp ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_CMD}` ${BOARD_LOADER_CMD}
+        else 
+          if [ -f ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_CMD}` ${BOARD_LOADER_CMD} ]; then
+            ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_CMD}` ${BOARD_LOADER_CMD} 
+          else
+            rm "${BOARD_LOADER_CMD}"
+            touch "${BOARD_LOADER_CMD}"
+          fi
+        fi
 
         ARMSTRAP_GUI_PCT=$(guiWriter "add"  2 "Configuring BootLoader")
         for i in "${BOARD_LOADER_BOOTCMD[@]}"; do
@@ -630,6 +660,17 @@ function default_installBoot {
   
         rm -f "${BOARD_LOADER_UENV}"
         touch "${BOARD_LOADER_UENV}"
+        
+        if [ -f ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_UENV}` ]; then
+          cp ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_UENV}` ${BOARD_LOADER_UENV}
+        else 
+          if [ -f ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_UENV}` ${BOARD_LOADER_UENV} ]; then
+            cp ${ARMSTRAP_BOARDS}/.defaults/boot/`basename ${BOARD_LOADER_UENV}` ${BOARD_LOADER_UENV}
+          else
+            rm "${BOARD_LOADER_UENV}"
+            touch "${BOARD_LOADER_UENV}"
+          fi
+        fi        
 
         for i in "${BOARD_LOADER_BOOTUENV[@]}"; do
           ubootSetEnv "${BOARD_LOADER_UENV}" "${i}"

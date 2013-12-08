@@ -1,0 +1,6 @@
+setaddr=if test -z \\"$dtb\\"; then kernel_loadaddr=0x48000000; else kernel_loadaddr=0x46000000 && dtb_loadaddr=0x49000000 && extrabootm="- ${dtb_loadaddr}" && fdt_high=ffffffff; fi
+loadscript=if ext2load $device $partition 0x43000000 ${bootpath}script.bin; then true; elif fatload $device $partition 0x43000000 ${bootpath}script.bin; then true; else false; fi
+loadkernel=if ext2load $device $partition ${kernel_loadaddr} ${bootpath}${kernel}; then true; elif fatload $device $partition ${kernel_loadaddr} ${bootpath}${kernel}; then true; else false; fi
+loaddtb=if test -z \\"$dtb\\"; then true; elif ext2load $device $partition ${dtb_loadaddr} ${bootpath}${dtb}; then true; elif fatload $device $partition ${dtb_loadaddr} ${bootpath}${dtb}; then true; else false; fi;
+autoboot=run setaddr && run loadscript && run loadkernel && run loaddtb && run setargs && bootm ${kernel_loadaddr} ${extrabootm}
+bootpath=/boot/
