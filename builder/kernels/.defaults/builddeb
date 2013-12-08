@@ -173,10 +173,10 @@ cat <<EOF > "$tmpdir$debhookdir/postinst.d/updateBoot"
 #!/bin/sh
 # Usage updateBoot <KERNEL_VERSION>
 
-tmp_uenv=\$(/boot/uEnv.XXXXXX)
+tmp_uenv=\$(mktemp /boot/uEnv.XXXXXX)
   
-if [ -f /etc/armstrap.conf ]; then
-  source /etc/armstrap.conf
+if [ -f /etc/armStrap.conf ]; then
+  . /etc/armStrap.conf
 fi
   
 touch /boot/uEnv.txt
@@ -184,7 +184,7 @@ rm -f /boot/uEnv.bak
 cp /boot/uEnv.txt /boot/uEnv.bak
 awk '/^kernel=/ { skip = 1; } /^dtb=/ { skip = 1; } /.*/ { if (skip) skip = 0; else print \$0; }' /boot/uEnv.txt > \${tmp_uenv}
 echo "kernel=uImage-\${1}" >> \${tmp_uenv}
-if [ -f /boot/${uboot_kernel_dtb} ]; then
+if [ -f /boot/\${uboot_kernel_dtb} ]; then
   echo "dtb=\${uboot_kernel_dtb}" >> \${tmp_uenv}
 fi
 rm -f /boot/uEnv.txt

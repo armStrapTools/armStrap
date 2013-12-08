@@ -471,14 +471,14 @@ function armStrapBuild {
   local TMP_I=""
   local TMP_J=""
   
-#  rm -f ${ARMSTRAP_LOG}/*
-#  rm -f ${ARMSTRAP_PKG}/*
+  rm -f ${ARMSTRAP_LOG}/*
+  rm -f ${ARMSTRAP_PKG}/*
   
   touch ${ARMSTRAP_LOG_FILE}
   
-#  for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
-#    kernelBuild "`basename ${TMP_I}`"
-#  done
+  for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
+    kernelBuild "`basename ${TMP_I}`"
+  done
  
 #  for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
 #    for TMP_J in ${TMP_I}/*; do

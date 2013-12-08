@@ -425,7 +425,7 @@ function addKernelModule {
 
 # Usage : armStrapConfig <ARMSTRAP_ROOT> <CONFIG_PARAM>
 function armStrapConfig {
-  local TMP_CONF="${1}/etc/armStrap.config"
+  local TMP_CONF="${1}/etc/armStrap.conf"
   shift
   
   if [ ! -f ${TMP_CONF} ]; then
