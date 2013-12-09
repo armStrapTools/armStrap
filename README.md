@@ -10,13 +10,15 @@ You need to be root to run this script. You have two options:
 
 1) With no parameter from the command line, create an image using values found in config.sh.
 
-2) Configure your build using the command line:
+2) Configure your build using the command line (Not recommended for version 0.8x, i've made
+   many changes and some options have changed meanings or simply do nothing. Use the config
+   file until i remove this message) :
 
-armStrap.sh version 0.81
-Copyright (C) 2013 Eddy Beaupre
+    armStrap.sh version 0.82
+    Copyright (C) 2013 Eddy Beaupre
 
     Usage : sudo armStrap.sh [PARAMETERS]
-    
+
     Image/SD Builder:
       -b <BOARD>              Use board definition <BOARD>.
       -d <DEVICE>             Write to <DEVICE> instead of creating an image.
@@ -33,20 +35,23 @@ Copyright (C) 2013 Eddy Beaupre
       -e <DOMAIN>             Set search domain.
     
     Kernel Builder:
-      -K <ARCH>               Build Kernel (debian packages).
+      -K <ARCH>               Build Kernel (debian packages). (Build all if arg is -)
+         -                    Build all avalables Kernel.
       -I                      Call menuconfig before building Kernel.
     
     BootLoader Builder:
       -B <BOOTLOADER>         Build BootLoader (.txz package).
+         -                    Build all avalables BootLoaders.
       -F <FAMILLY>            Select bootloader familly.
     
     RootFS updater:
       -R <ROOTFS>             Update RootFS (.txz package).
+         -                    Update all avalables RootFS.
       -O <FAMILLY>            Select which RootFS to update.
       -M                      Execute a shell into the RootFS instead of updating it.
     
     All Builder:
-      -A <SCRIPT / ->         Build Kernel/RootFS/U-Boot for all boards/configurations
+      -A                      Build Kernel/RootFS/U-Boot for all boards/configurations
     
     Utilities:
       -g                      Disable GUI.

@@ -13,7 +13,7 @@ fi
 # Variables that should never be changed, unless you know what you're doing.
 #
 
-ARMSTRAP_VERSION="0.81"
+ARMSTRAP_VERSION="0.82"
 ARMSTRAP_NAME=`basename ${0}`
 
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
@@ -128,7 +128,7 @@ detectAnsi
 fetchIndex
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:A:clWANIMgq" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:clWANIMgq" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"

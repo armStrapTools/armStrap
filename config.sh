@@ -128,3 +128,10 @@ ARMSTRAP_CONFIG="CubieBoard"
 #ARMSTRAP_IMAGE_NAME="wathever_you_want_to_name_your_image.img"
 # Specify the size of the image to be build in MB
 #ARMSTRAP_IMAGE_SIZE="2048"
+
+##############################################################################
+# armStrap Repository Enabler
+#
+# Unless you're me, or you want to run your own repo with your own builds leave
+# this option commented out.
+#ARMSTRAP_ABUILDER_REPO_ENABLE="Yes"
