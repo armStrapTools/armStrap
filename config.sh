@@ -63,14 +63,20 @@ ARMSTRAP_CONFIG="CubieBoard"
 # Kernel Section
 #
 # Some board can use many kernels, the stable one is the default but you can
-# try an alternate version if you wish. Right now, only kernel 3.4 is supported
-# for sunxi and 3.6 for bcmrpi. The default kernel is a general purpose kernel
-# good for most situations.
+# try an alternate version if you wish. See armStrap -? for a list of avalable
+# kernels.
 #
 # See help for valid targets.
 #
 #ARMSTRAP_KERNEL_CONFIG="default"
 #ARMSTRAP_KERNEL_VERSION="3.4.67"
+#
+# If you want to test the unified 3.13 kernel, you must override the default
+# CPU of the board (eventually, sunxi will become the default CPU but right
+# now, the kernel is too young to make it the default one.)
+#
+#ARMSTRAP_BOARD_KERNEL="sunxi"
+#ARMSTRAP_KERNEL_VERSION="3.13.0"
 #
 # You can add kernel modules to the default ones here
 #
