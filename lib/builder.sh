@@ -431,6 +431,7 @@ function kernelPost {
     repoPost "${TMP_I}"
     rm -f ${TMP_I}
   done
+  indexPost
 }
 
 function loaderPost {
@@ -445,6 +446,7 @@ function loaderPost {
       mv -v ${ARMSTRAP_PKG}/`basename ${TMP_J}`-`basename ${TMP_I}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_LOADER}/
     done
   done
+  indexPost
 }
 
 function rootfsPost {
@@ -459,6 +461,7 @@ function rootfsPost {
       mv -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`-*-`basename ${TMP_J}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_ROOTFS}/
     done
   done
+  indexPost
 }
 
 function indexPost {
@@ -479,5 +482,4 @@ function armStrapBuild {
   kernelPost
   loaderPost
   rootfsPost
-  indexPost
 }
