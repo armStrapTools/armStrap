@@ -116,6 +116,14 @@ function on_exit()
 
 source ./config.sh
 
+# This is basically a hack i use for myself to stop playing with
+# the default config.sh, any values set in config_local.sh override
+# what is in config.sh.
+
+if [ -f ./config_local.sh ]
+  source ./config_local.sh
+fi
+
 for i in ./lib/*.sh; do
   source ${i}
 done
