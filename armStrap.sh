@@ -120,7 +120,7 @@ source ./config.sh
 # the default config.sh, any values set in config_local.sh override
 # what is in config.sh.
 
-if [ -f ./config_local.sh ]
+if [ -f ./config_local.sh ]; then
   source ./config_local.sh
 fi
 
