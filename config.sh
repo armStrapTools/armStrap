@@ -73,9 +73,11 @@ ARMSTRAP_CONFIG="CubieBoard"
 #
 # If you want to test the unified 3.13 kernel, you must override the default
 # CPU of the board (eventually, sunxi will become the default CPU but right
-# now, the kernel is too young to make it the default one.)
+# now, the kernel is too young to make it the default one, that's why the
+# repository is called sunxi-test... Once it's matured enough, i will create
+# a sunxi repository and keep sunxi-test for mainline development.)
 #
-#ARMSTRAP_BOARD_KERNEL="sunxi"
+#ARMSTRAP_BOARD_KERNEL="sunxi-test"
 #ARMSTRAP_KERNEL_VERSION="3.13.0"
 #
 # You can add kernel modules to the default ones here
