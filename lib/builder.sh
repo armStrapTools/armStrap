@@ -420,19 +420,20 @@ function kernelPost {
     kernelBuild "`basename ${TMP_I}`"
   done
   
-  if [ ! -z ${ARMSTRAP_ABUILDER_REPO_ENABLE} ]; then
+  if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
     printStatus "armStrapPost" "Publishing kernel installer script"
     checkDirectory "${ARMSTRAP_ABUILDER_KERNEL}"
     for TMP_I in ${ARMSTRAP_PKG}/*.sh; do
       mv -v ${TMP_I} ${ARMSTRAP_ABUILDER_KERNEL}/
     done
+    indexPost
   
     printStatus "armStrapPost" "Publishing kernels"
     for TMP_I in ${ARMSTRAP_PKG}/*.deb; do
       repoPost "${TMP_I}"
       rm -f ${TMP_I}
     done
-    indexPost
+
   fi
 }
 
@@ -444,13 +445,13 @@ function loaderPost {
   for TMP_I in ${ARMSTRAP_BOOTLOADERS}/*; do
     for TMP_J in ${TMP_I}/*; do
       bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
-      if [ ! -z ${ARMSTRAP_ABUILDER_REPO_ENABLE} ]; then
+      if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
         printStatus "armStrapPost" "Publishing bootloaders"
         mv -v ${ARMSTRAP_PKG}/`basename ${TMP_J}`-`basename ${TMP_I}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_LOADER}/
+        indexPost
       fi
     done
   done
-  indexPost
 }
 
 function rootfsPost {
@@ -461,20 +462,21 @@ function rootfsPost {
   for TMP_I in ${ARMSTRAP_ROOTFS}/*; do
     for TMP_J in ${TMP_I}/*; do
       rootfsUpdater "`basename ${TMP_J}`" "`basename ${TMP_I}`"
-      if [ ! -z ${ARMSTRAP_ABUILDER_REPO_ENABLE} ]; then
+      if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
         printStatus "armStrapPost" "Publishing rootfs"
         mv -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`-*-`basename ${TMP_J}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_ROOTFS}/
+        indexPost
       fi
     done
   done
-  indexPost
+  
 }
 
 function indexPost {
   local TMP_I=""
   local TMP_J=""
   
-  if [ ! -z ${ARMSTRAP_ABUILDER_REPO_ENABLE} ]; then
+  if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
     printStatus "armStrapPost" "Making indexes"
     rm -f ${ARMSTRAP_ABUILDER_ROOT}/.index.txt
     touch ${ARMSTRAP_ABUILDER_ROOT}/.index.txt

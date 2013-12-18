@@ -75,7 +75,7 @@ function guiWorker {
              exec 3>${TMP_GUI}
              TMP_PID=""
              while [ -z "${TMP_PID}" ]; do
-               TMP_PID=$(/usr/bin/pgrep --newest dialog)
+               TMP_PID=$(/usr/bin/pgrep -n dialog)
              done
              printf "%d:%s@%d" "${TMP_STP}" "${TMP_CMD}" ${TMP_PID} >${ARMSTRAP_GUI_FF2}
              ;;
