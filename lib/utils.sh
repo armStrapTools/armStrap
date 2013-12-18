@@ -56,11 +56,11 @@ function showUsage {
   printf "\n${ANS_BLD}BootLoader Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-B" "<BOOTLOADER>" "Build BootLoader (${ARMSTRAP_TAR_EXTENSION} package)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "-" "Build all avalables BootLoaders."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "<FAMILLY>" "Select bootloader familly."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "<FAMILY>" "Select bootloader family."
   printf "\n${ANS_BLD}RootFS updater${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "<ROOTFS>" "Update RootFS (${ARMSTRAP_TAR_EXTENSION} package)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "-" "Update all avalables RootFS."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-O" "<FAMILLY>" "Select which RootFS to update."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-O" "<FAMILY>" "Select which RootFS to update."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-M" "" "Execute a shell into the RootFS instead of updating it."
   printf "\n${ANS_BLD}All Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
@@ -72,7 +72,7 @@ function showUsage {
   
   printf "\n${ANS_BLD}Avalable boards, kernels and RootFS:${ANS_RST}\n"
   
-  printf "\n${ANS_BLD}%15s %15s %10s %15s${ANS_RST}\n--------------- --------------- ---------- ---------------\n" "Board" "Kernel" "Familly" "BootLoader"
+  printf "\n${ANS_BLD}%15s %15s %10s %15s${ANS_RST}\n--------------- --------------- ---------- ---------------\n" "Board" "Kernel" "Family" "BootLoader"
   for TMP_I in ${ARMSTRAP_BOARDS}/*; do
     local TMP_BOARD=$(basename ${TMP_I})
     local TMP_LOADER=$(getLoader ${TMP_BOARD,,})
@@ -80,7 +80,7 @@ function showUsage {
       TMP_LOADER="none"
     fi
     source ${TMP_I}/config.sh
-    printf "% 15s % 15s % 10s % 15s\n" ${TMP_BOARD} ${BOARD_CPU} ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILLY} ${TMP_LOADER}
+    printf "% 15s % 15s % 10s % 15s\n" ${TMP_BOARD} ${BOARD_CPU} ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY} ${TMP_LOADER}
   done
   
   printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Kernel" "Config" "Version"
@@ -98,7 +98,7 @@ function showUsage {
     printf "% 15s % 10s % 10s\n" ${TMP_KRN} ${TMP_CFG} ${TMP_VER}
   done
   
-  printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "RootFS" "Familly" "Version"
+  printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "RootFS" "Family" "Version"
   for TMP_I in ${ARMSTRAP_ROOTFS_LIST}; do
     IFS="-"
     TMP_I=(${TMP_I})
@@ -289,7 +289,7 @@ function fixSymLink {
 
 function showConfig {
   local TMP_INFO="${TMP_INFO}        Board : ${ARMSTRAP_CONFIG}\n"
-        TMP_INFO="${TMP_INFO} Distribution : ${BOARD_ROOTFS_FAMILLY} (${BOARD_ROOTFS_VERSION})\n"
+        TMP_INFO="${TMP_INFO} Distribution : ${BOARD_ROOTFS_FAMILY} (${BOARD_ROOTFS_VERSION})\n"
         TMP_INFO="${TMP_INFO}     Hostname : ${ARMSTRAP_HOSTNAME}\n"
         TMP_INFO="${TMP_INFO}Root Password : ${ARMSTRAP_PASSWORD}\n"
   if [ ! -z "${ARMSTRAP_SWAP}" ]; then

@@ -42,12 +42,12 @@ You need to be root to run this script. You have two options:
     BootLoader Builder:
       -B <BOOTLOADER>         Build BootLoader (.txz package).
          -                    Build all avalables BootLoaders.
-      -F <FAMILLY>            Select bootloader familly.
+      -F <FAMILY>             Select bootloader family.
     
     RootFS updater:
       -R <ROOTFS>             Update RootFS (.txz package).
          -                    Update all avalables RootFS.
-      -O <FAMILLY>            Select which RootFS to update.
+      -O <FAMILY>             Select which RootFS to update.
       -M                      Execute a shell into the RootFS instead of updating it.
     
     All Builder:
@@ -61,7 +61,7 @@ You need to be root to run this script. You have two options:
     
     Avalable boards, kernels and RootFS:
     
-              Board          Kernel    Familly      BootLoader
+              Board          Kernel    Family      BootLoader
     --------------- --------------- ---------- ---------------
               A70Xh           sun7i     armv7l    u-boot-sunxi
          CubieBoard           sun4i     armv7l    u-boot-sunxi
@@ -79,7 +79,7 @@ You need to be root to run this script. You have two options:
               sun4i    default     3.4.67
              bcmrpi    default    3.6.11+
     
-             RootFS    Familly    Version
+             RootFS    Family     Version
     --------------- ---------- ----------
              armv7l     ubuntu      saucy
              armv7l     ubuntu    rarring

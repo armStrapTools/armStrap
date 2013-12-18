@@ -1,5 +1,5 @@
 BUILD_ROOTFS_TYPE="debian"
 BUILD_ROOTFS_ARCH="armv7l"
-BUILD_ROOTFS_FAMILLY="sid"
+BUILD_ROOTFS_FAMILY="sid"
 
 source "${ARMSTRAP_ROOTFS}/${BUILD_ROOTFS_ARCH}/.defaults/config.sh"

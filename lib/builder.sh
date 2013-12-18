@@ -203,7 +203,7 @@ function kernelPack {
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Packaging Kernel")  
 }
 
-# usage kernelBuild <FAMILLY>
+# usage kernelBuild <FAMILY>
 function kernelBuild {
   local TMP_KRNDIR="${ARMSTRAP_KERNELS}/${1}"
   local TMP_LOG="${ARMSTRAP_LOG}/armStrap-Kernel_${1}_${ARMSTRAP_DATE}.log"
@@ -233,7 +233,7 @@ function kernelBuild {
   fi
 }
 
-# Usage bootBuilder <bootloader_type> <bootloader_familly>
+# Usage bootBuilder <bootloader_type> <bootloader_family>
 function bootBuilder {
   local TMP_BLRDIR="${ARMSTRAP_BOOTLOADERS}/${1}"
   local TMP_BLRCFG="${TMP_BLRDIR}/${2}"
@@ -262,7 +262,7 @@ function bootBuilder {
                       ccMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" distclean
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Building")
                       printStatus "bootBuilder" "Building ${BUILD_BOOTLOADER_TYPE}"
-                      ccMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" "${BUILD_BOOTLOADER_FAMILLY}"
+                      ccMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" "${BUILD_BOOTLOADER_FAMILY}"
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  50 "Building")
                       checkDirectory "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}"
                       printStatus "bootBuilder" "Packaging ${BUILD_BOOTLOADER_TYPE}"
@@ -297,7 +297,7 @@ function rootfsUpdater {
   
   if [ -f "${TMP_RFSCFG}/config.sh" ]; then
     BUILD_ROOTFS_ARCH="${2}"
-    BUILD_ROOTFS_FAMILLY="${1}"
+    BUILD_ROOTFS_FAMILY="${1}"
     local TMP_GUI
     ARMSTRAP_GUI_PCT=0
     guiStart
@@ -307,7 +307,7 @@ function rootfsUpdater {
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing")
     source ${TMP_RFSCFG}/config.sh
 
-    printStatus "rootfsUpdater" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILLY}-${BUILD_ROOTFS_ARCH})"
+    printStatus "rootfsUpdater" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILY}-${BUILD_ROOTFS_ARCH})"
     rm -f ${TMP_LOG}
     mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
     ARMSTRAP_LOG_FILE="${TMP_LOG}"
@@ -327,7 +327,7 @@ function rootfsUpdater {
     printStatus "rootfsUpdater" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
     
     rm -f "${ARMSTRAP_PKG}/`basename ${BUILD_ROOTFS_URL}`"
-    ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_ROOTFS_TYPE}-${BUILD_ROOTFS_FAMILLY}-${BUILD_ROOTFS_ARCH}${ARMSTRAP_TAR_EXTENSION}" -C "${BUILD_ROOTFS_SRC}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+    ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_ROOTFS_TYPE}-${BUILD_ROOTFS_FAMILY}-${BUILD_ROOTFS_ARCH}${ARMSTRAP_TAR_EXTENSION}" -C "${BUILD_ROOTFS_SRC}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
     
     if [ -d "${BUILD_ROOTFS_SRC}" ]; then
       rm -rf "${BUILD_ROOTFS_SRC}"
@@ -353,7 +353,7 @@ function rootfsMount {
   
   if [ -f "${TMP_RFSCFG}/config.sh" ]; then
     BUILD_ROOTFS_ARCH="${2}"
-    BUILD_ROOTFS_FAMILLY="${1}"
+    BUILD_ROOTFS_FAMILY="${1}"
     local TMP_GUI
     ARMSTRAP_GUI_PCT=0
     guiStart
@@ -363,7 +363,7 @@ function rootfsMount {
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing")
     source ${TMP_RFSCFG}/config.sh
 
-    printStatus "rootfsMount" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILLY}-${BUILD_ROOTFS_ARCH})"
+    printStatus "rootfsMount" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILY}-${BUILD_ROOTFS_ARCH})"
     rm -f ${TMP_LOG}
     mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
     ARMSTRAP_LOG_FILE="${TMP_LOG}"
