@@ -245,6 +245,7 @@ function bootBuilder {
     guiStart
     TMP_GUI=$(guiWriter "name" "armStrap")
     TMP_GUI=$(guiWriter "start" "BootLoader Builder (${1}/${2})" "Progress")
+    unsetEnv "BUILD_BOOTLOADER_"
     BUILD_BOOTLOADER_TYPE="${1}"
     printStatus "bootBuilder" "Loading configuration for ${1} (${2})"
     source ${TMP_BLRCFG}/config.sh
