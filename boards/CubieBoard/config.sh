@@ -5,7 +5,6 @@ BOARD_CPU_FAMILY="v7l"
 
 BOARD_KERNEL="${BOARD_CPU}"
 BOARD_KERNEL_CONFIG="default"
-BOARD_KERNEL_VERSION="3.4.67"
 BOARD_KERNEL_MODULES="sw_ahci_platform lcd hdmi ump disp mali mali_drm"
 BOARD_KERNEL_DTB="sun4i-a10-cubieboard.dtb"
 

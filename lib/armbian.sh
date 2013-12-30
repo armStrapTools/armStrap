@@ -213,7 +213,7 @@ function chrootKernel {
   local TMP_KERNEL="install-linux-kernel.sh"
   
   cat >> "${TMP_CHROOT}/${TMP_KERNEL}" <<EOF  
-#!/bin/sh
+#!/bin/bash
 
 KERNEL_TYPE="${BOARD_KERNEL}"
 KERNEL_CONFIG="${BOARD_KERNEL_CONFIG}"
@@ -232,10 +232,9 @@ GNUPGHOME="\${TMP_GNUPGHOME}"
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
 
-KERNEL_FRM="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-firmware-image-\${KERNEL_VERSION}"
-KERNEL_HDR="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-headers-\${KERNEL_VERSION}"
-KERNEL_IMG="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION}"
-KERNEL_LBC="\${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-libc-\${KERNEL_VERSION}"
+KERNEL_IMG=\$(/usr/bin/apt-cache search \${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION} | sort -r | head -n 1 | cut -d ' ' -f 1)
+KERNEL_HDR=\${KERNEL_IMG/-image-/-headers-}
+KERNEL_FWR=\${KERNEL_IMG/-image-/-firmware-image-}
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR} \${KERNEL_FRM}
 EOF
