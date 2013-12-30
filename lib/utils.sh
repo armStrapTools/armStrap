@@ -233,15 +233,6 @@ function isRemDevice {
   return 0
 }
 
-# Usage: partSync
-function partSync {
-  local TMP_DEV=""
-  printStatus "partSync" "Flush file system buffers"
-  sync >> ${ARMSTRAP_LOG_FILE} 2>&1
-  printStatus "partSync" "Inform the OS of partition table changes on ${ARMSTRAP_DEVICE}"  
-  partprobe ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
-}
-
 # Usage: promptYN "<question>"
 function promptYN {
   /usr/bin/dialog --yesno "${1}" 0 0

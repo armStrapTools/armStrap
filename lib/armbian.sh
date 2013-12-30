@@ -704,7 +704,6 @@ function default_installKernel {
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Installing Kernel")
   chrootKernel "${ARMSTRAP_MNT}"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Installing Kernel")
-  printStatus "CHECKPOING" "We are at ${ARMSTRAP_GUI_PCT}"
   guiStop
 }
 

@@ -1,4 +1,15 @@
 
+# Usage: syncFS
+function syncFS {
+  printStatus "syncFS" "Flush file system buffers"
+  /bin/sync >> ${ARMSTRAP_LOG_FILE} 2>&1
+}
+
+function probeFS {
+  printStatus "probeFS" "Probing for partitions changes"
+  /sbin/partprobe ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
+}
+
 # Usage: makeImg <FILE> <SIZE IN MB>
 function makeImg {
 
@@ -12,7 +23,7 @@ function makeImg {
 
   dd if=/dev/zero of=${1} bs=1M count=${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "dd exit with status $?"
-  partSync
+  syncFS
 }
 
 # Usage partDevice <DEVICE> <SIZE:FS> [<SIZE:FS> ...]
@@ -37,7 +48,7 @@ function partDevice {
       checkStatus "parted exit with status $?"
     fi
   done
-  partSync
+  probeFS  
 }
 
 # Usage loopImg <FILE>
@@ -45,19 +56,19 @@ function loopImg {
   printStatus "loopImg" "Attaching ${1} to loop device"
   ARMSTRAP_DEVICE=($(losetup -f --show "${1}"))
   checkStatus "losetup exit with status $?"
-  partSync
 }
 
 # Usage uloopImg
 function uloopImg {
   printStatus "uloopImg" "Detaching ${ARMSTRAP_DEVICE} from loop device"
+  syncFS
   losetup -d ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
   while [ $? -ne 0 ]; do
     printStatus "uloopImg" "${ARMSTRAP_DEVICE} is busy, waiting 10 seconds before retrying"
     sleep 10
+    syncFS
     losetup -d ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
   done
-  partSync
 }
 
 # Usage mapImg <FILE>
@@ -74,18 +85,18 @@ function mapImg {
   done <<< "`kpartx -avs ${1}`"
   checkStatus "kpartx exit with status $?"
   ARMSTRAP_DEVICE_MAPS=(${TMP_MAP})
-  partSync
+  probeFS
 }
 
 # Usage umapImg <FILE> <DEVICE>
 function umapImg {
   printStatus "umapImg" "UnMapping ${1} from loop device"
+  syncFS
   kpartx -d ${1} >> ${ARMSTRAP_LOG_FILE} 2>&1
   sleep 2
   kpartx -d ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
   sleep 2
   losetup -d ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  partSync
 }
 
 # Usage formatParts <DEVICE:FS> [<DEVICE:FS> ...]
@@ -100,11 +111,12 @@ function formatParts {
     fi
     checkStatus "mkfs.${TMP_ARR[1]} exit with status $?"
   done
-  partSync
+  syncFS
 }
 
 # Usage mountParts <DEVICE:MOUNTPOINT> [<DEVICE:MOUNTPOINT> ...]
 function mountParts {
+  probeFS
   for i in "$@"; do
     local TMP_ARR=(${i//:/ })
     checkDirectory "${TMP_ARR[1]}"
@@ -112,24 +124,24 @@ function mountParts {
     mount ${TMP_ARR[0]} ${TMP_ARR[1]} >> ${ARMSTRAP_LOG_FILE} 2>&1
     checkStatus "mount exit with status $?"
   done
-  partSync
 }
 
 # Usage umountParts <MOUNTPOINT> [<MOUNTPOINT> ...]
 function umountParts {
+  syncFS
   for i in "$@"; do
     printStatus "umountParts" "Unmounting ${i}"
     umount ${i} >> ${ARMSTRAP_LOG_FILE} 2>&1
     checkStatus "umount exit with status $?"
   done
-  partSync
 }
 
 # Usage : cleanDev <DEVICE>
 function cleanDev {
   printStatus "cleanDev" "Erasing ${1}"
-  dd if=/dev/zero of=${1} bs=1M count=4  >> ${ARMSTRAP_LOG_FILE} 2>&1
+  dd if=/dev/zero of=${1} bs=1M count=256  >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "dd exit with status $?"
+  syncFS
 }
 
 # Usage setupImg <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
@@ -223,7 +235,7 @@ function finishImg {
   TMP_GUI=$(guiWriter "start" "Finishing disk image" "Progress")
 
   ARMSTRAP_GUI_PCT=$(guiWriter "add" 3 "Flushing buffers")
-  partSync
+  syncFS
 
   for i in ${ARMSTRAP_MOUNT_MAP[@]}; do
     local TMP_ARR=(${i//:/ })
@@ -344,7 +356,7 @@ function finishSD {
 
   ARMSTRAP_GUI_PCT=$(guiWriter "add" 3 "Flushing buffers")
   
-  partSync
+  syncFS
 
   for i in ${ARMSTRAP_MOUNT_MAP[@]}; do
     local TMP_ARR=(${i//:/ })
