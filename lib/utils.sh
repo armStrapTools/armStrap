@@ -58,9 +58,9 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "-" "Build all avalables BootLoaders."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "<FAMILY>" "Select bootloader family."
   printf "\n${ANS_BLD}RootFS updater${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "<ROOTFS>" "Update RootFS (${ARMSTRAP_TAR_EXTENSION} package)."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "<VERSION>" "Update RootFS (${ARMSTRAP_TAR_EXTENSION} package)."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "-" "Update all avalables RootFS."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-O" "<FAMILY>" "Select which RootFS to update."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-O" "<ARCH>" "Select which architecture to update."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-M" "" "Execute a shell into the RootFS instead of updating it."
   printf "\n${ANS_BLD}All Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
@@ -98,7 +98,7 @@ function showUsage {
     printf "% 15s % 10s % 10s\n" ${TMP_KRN} ${TMP_CFG} ${TMP_VER}
   done
   
-  printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "RootFS" "Family" "Version"
+  printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Arch" "Family" "Version"
   for TMP_I in ${ARMSTRAP_ROOTFS_LIST}; do
     IFS="-"
     TMP_I=(${TMP_I})

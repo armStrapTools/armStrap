@@ -416,10 +416,19 @@ function repoPost {
 
 function kernelPost {
   local TMP_I=""
-
-  for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
-    kernelBuild "`basename ${TMP_I}`"
-  done
+  
+  rm -f ${ARMSTRAP_PKG}/*.sh
+  rm -f ${ARMSTRAP_PKG}/*.deb  
+  
+  if [ "$1" = "-" ]; then
+    for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
+      kernelBuild "`basename ${TMP_I}`"
+    done
+  else
+    if [ -f "${ARMSTRAP_KERNELS}/$1/config.sh" ]; then
+      kernelBuild $1
+    fi
+  fi
   
   if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
     printStatus "armStrapPost" "Publishing kernel installer script"
@@ -437,6 +446,7 @@ function kernelPost {
 
   fi
 }
+
 
 function loaderPost {
   local TMP_I=""

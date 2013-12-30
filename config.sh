@@ -56,7 +56,7 @@ ARMSTRAP_CONFIG="CubieBoard"
 #
 # See help for valid targets.
 #
-#ARMSTRAP_ROOTFS_FAMILLY="ubuntu"
+#ARMSTRAP_ROOTFS_FAMILY="ubuntu"
 #ARMSTRAP_ROOTFS_VERSION="saucy"
 
 ##############################################################################
