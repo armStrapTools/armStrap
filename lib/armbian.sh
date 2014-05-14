@@ -219,8 +219,8 @@ KERNEL_TYPE="${BOARD_KERNEL}"
 KERNEL_CONFIG="${BOARD_KERNEL_CONFIG}"
 KERNEL_VERSION="${BOARD_KERNEL_VERSION}"
 
-echo "deb http://packages.vls.beaupre.biz/apt/armstrap/ \${KERNEL_TYPE} main" > /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
-echo "deb-src http://packages.vls.beaupre.biz/apt/armstrap/ \${KERNEL_TYPE} main" >> /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
+echo "deb ${ARMSTRAP_ABUILDER_REPO_URL} \${KERNEL_TYPE} main" > /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
+echo "deb-src ${ARMSTRAP_ABUILDER_REPO_URL} \${KERNEL_TYPE} main" >> /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
 TMP_GNUPGHOME="\${GNUPGHOME}"
 export GNUPGHOME="\$(mktemp -d)" 1>&2
 chown \${USER}:\${USER} \${GNUPGHOME} 1>&2

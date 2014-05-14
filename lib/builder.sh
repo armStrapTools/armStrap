@@ -161,8 +161,8 @@ function kernelPack {
   echo "KERNEL_FWR=\"${TMP_KERNEL_FWR}\"" >> ${TMP_KERNEL_SCR}
   echo "" >> ${TMP_KERNEL_SCR}
   echo "touch /etc/apt/sources.list.d/armstrap.list" >> ${TMP_KERNEL_SCR}
-  echo "echo \"deb http://packages.vls.beaupre.biz/apt/armstrap/ ${TMP_BUILD_CFGTYP} main\" >> /etc/apt/sources.list.d/armstrap.list" >> ${TMP_KERNEL_SCR}
-  echo "echo \"deb-src http://packages.vls.beaupre.biz/apt/armstrap/ ${TMP_BUILD_CFGTYP} main\" >> /etc/apt/sources.list.d/armstrap.list" >> ${TMP_KERNEL_SCR}
+  echo "echo \"deb ${ARMSTRAP_ABUILDER_REPO_URL} ${TMP_BUILD_CFGTYP} main\" >> /etc/apt/sources.list.d/armstrap.list" >> ${TMP_KERNEL_SCR}
+  echo "echo \"deb-src ${ARMSTRAP_ABUILDER_REPO_URL} ${TMP_BUILD_CFGTYP} main\" >> /etc/apt/sources.list.d/armstrap.list" >> ${TMP_KERNEL_SCR}
   echo "TMP_GNUPGHOME=\"\${GNUPGHOME}\"" >> ${TMP_KERNEL_SCR}
   echo "export GNUPGHOME=\"\`mktemp -d\`\"" >> ${TMP_KERNEL_SCR}
   echo "chown \${USER}:\${USER} \${GNUPGHOME}" >> ${TMP_KERNEL_SCR}
