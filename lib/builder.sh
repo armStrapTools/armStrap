@@ -329,7 +329,7 @@ function rootfsUpdater {
     printStatus "rootfsUpdater" "Compressing root filesystem ${TMP_ROOTFS} to ${ARMSTRAP_PKG}"
     
     rm -f "${ARMSTRAP_PKG}/`basename ${BUILD_ROOTFS_URL}`"
-    ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_ROOTFS_TYPE}-${BUILD_ROOTFS_FAMILY}-${BUILD_ROOTFS_ARCH}${ARMSTRAP_TAR_EXTENSION}" -C "${BUILD_ROOTFS_SRC}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+    ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_ROOTFS_ARCH}-${BUILD_ROOTFS_TYPE}-${BUILD_ROOTFS_FAMILY}${ARMSTRAP_TAR_EXTENSION}" -C "${BUILD_ROOTFS_SRC}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
     
     if [ -d "${BUILD_ROOTFS_SRC}" ]; then
       rm -rf "${BUILD_ROOTFS_SRC}"
