@@ -14,11 +14,11 @@ You need to be root to run this script. You have two options:
    many changes and some options have changed meanings or simply do nothing. Use the config
    file until i remove this message) :
 
-    armStrap.sh version 0.82
+    armStrap.sh version 0.85
     Copyright (C) 2013 Eddy Beaupre
-
+    
     Usage : sudo armStrap.sh [PARAMETERS]
-
+    
     Image/SD Builder:
       -b <BOARD>              Use board definition <BOARD>.
       -d <DEVICE>             Write to <DEVICE> instead of creating an image.
@@ -45,9 +45,9 @@ You need to be root to run this script. You have two options:
       -F <FAMILY>             Select bootloader family.
     
     RootFS updater:
-      -R <ROOTFS>             Update RootFS (.txz package).
+      -R <VERSION>            Update RootFS (.txz package).
          -                    Update all avalables RootFS.
-      -O <FAMILY>             Select which RootFS to update.
+      -O <ARCH>               Select which architecture to update.
       -M                      Execute a shell into the RootFS instead of updating it.
     
     All Builder:
@@ -59,39 +59,68 @@ You need to be root to run this script. You have two options:
       -c                      Directory Cleanup.
       -l                      Show licence.
     
-    Avalable boards, kernels and RootFS:
+    Default boards configuration:
     
-              Board          Kernel    Family      BootLoader
-    --------------- --------------- ---------- ---------------
-              A70Xh           sun7i     armv7l    u-boot-sunxi
-         CubieBoard           sun4i     armv7l    u-boot-sunxi
-        CubieBoard2           sun7i     armv7l    u-boot-sunxi
-         CubieTruck     sun7i-stage     armv7l    u-boot-sunxi
-          HackBerry           sun4i     armv7l    u-boot-sunxi
-        RaspBerryPI          bcmrpi     armv6l            none
+              Board          Kernel     Family            BootLoader
+    --------------- --------------- ---------- ---------------------
+              A70Xh           sun7i     armv7l          u-boot-sunxi
+         CubieBoard           sun4i     armv7l          u-boot-sunxi
+        CubieBoard2           sun7i     armv7l          u-boot-sunxi
+         CubieTruck     sun7i-stage     armv7l          u-boot-sunxi
+          HackBerry           sun4i     armv7l          u-boot-sunxi
+        RaspBerryPI          bcmrpi     armv6l                      
+    
+    Avalable BootLoaders:
+    
+              Board            BootLoader
+    --------------- ---------------------
+          hackberry      u-boot-sunxi.txz
+          hackberry u-boot-sunxi-next.txz
+         cubietruck      u-boot-sunxi.txz
+         cubietruck u-boot-sunxi-next.txz
+         cubieboard      u-boot-sunxi.txz
+         cubieboard u-boot-sunxi-next.txz
+        cubieboard2      u-boot-sunxi.txz
+        cubieboard2 u-boot-sunxi-next.txz
+              a70xh      u-boot-sunxi.txz
+              a70xh u-boot-sunxi-next.txz
+    
+    Avalable Kernels:
     
              Kernel     Config    Version
     --------------- ---------- ----------
          sunxi-test    default     3.13.0
+         sunxi-next    default     3.15.0
+         sunxi-next    default     3.14.0
+        sun7i-stage    default    3.4.90+
+        sun7i-stage    default    3.4.79+
+        sun7i-stage    default    3.4.75+
         sun7i-stage    default    3.4.67+
+              sun7i    default    3.4.90+
+              sun7i    default    3.4.79+
+              sun7i    default     3.4.75
               sun7i    default     3.4.67
+        sun4i-stage    default    3.4.90+
+        sun4i-stage    default    3.4.79+
+        sun4i-stage    default    3.4.75+
         sun4i-stage    default    3.4.67+
+              sun4i    default    3.4.90+
+              sun4i    default    3.4.79+
+              sun4i    default     3.4.75
               sun4i    default     3.4.67
              bcmrpi    default    3.6.11+
     
-             RootFS    Family     Version
+    Avalable RootFS:
+    
+               Arch     Family    Version
     --------------- ---------- ----------
+             armv7l     ubuntu     trusty
              armv7l     ubuntu      saucy
-             armv7l     ubuntu    rarring
-             armv7l     debian     wheezy
+             armv7l     debian   unstable
              armv7l     debian    testing
              armv7l     debian     stable
-             armv7l     debian        sid
-             armv7l     debian     jessie
-             armv6l   raspbian     wheezy
              armv6l   raspbian    testing
              armv6l   raspbian     stable
-             armv6l   raspbian     jessie
     
     With no parameter, create an image using values found in config.sh.
 
