@@ -614,16 +614,15 @@ function default_installRoot {
 # usage : default_installBoot
 function default_installBoot {
   local TMP_GUI=""
-  local TMP_LOADER=$(getLoader ${BOARD_CONFIG})
   
-  if [ ! -z "${TMP_LOADER}" ]; then
-    case ${TMP_LOADER} in
-      u-boot-sunxi)
+  if [ ! -z "${BOARD_LOADER}" ]; then
+    case ${BOARD_LOADER} in
+      u-boot-sunxi*)
         guiStart
         TMP_GUI=$(guiWriter "start" "Installing BootLoader" "Progress")
   
         ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting BootLoader")
-        httpExtract "${ARMSTRAP_MNT}/boot" "${ARMSTRAP_ABUILDER_LOADER_URL}/${BOARD_CONFIG}-${TMP_LOADER}${ARMSTRAP_TAR_EXTENSION}" "${ARMSTRAP_TAR_EXTRACT}"
+        httpExtract "${ARMSTRAP_MNT}/boot" "${ARMSTRAP_ABUILDER_LOADER_URL}/${BOARD_CONFIG}-${BOARD_LOADER}${ARMSTRAP_TAR_EXTENSION}" "${ARMSTRAP_TAR_EXTRACT}"
     
         if [ -f ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_CMD}` ]; then
           cp ${ARMSTRAP_BOARDS}/${ARMSTRAP_CONFIG}/boot/`basename ${BOARD_LOADER_CMD}` ${BOARD_LOADER_CMD}
@@ -689,7 +688,7 @@ function default_installBoot {
         guiStop
         ;;
       *)
-        printStatus "default_installBoot" "I don't know how to install bootloader ${TMP_LOADER}"
+        printStatus "default_installBoot" "I don't know how to install bootloader ${BOARD_LOADER}"
         ;;
    esac
  fi

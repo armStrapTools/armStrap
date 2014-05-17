@@ -71,7 +71,7 @@ ARMSTRAP_CONFIG="CubieBoard"
 #ARMSTRAP_KERNEL_CONFIG="default"
 #ARMSTRAP_KERNEL_VERSION="3.4.67"
 #
-# If you want to test the unified 3.13 kernel, you must override the default
+# If you want to test the unified 3.15 kernel, you must override the default
 # CPU of the board (eventually, sunxi will become the default CPU but right
 # now, the kernel is too young to make it the default one, that's why the
 # repository is called sunxi-test... Once it's matured enough, i will create
@@ -92,6 +92,13 @@ ARMSTRAP_CONFIG="CubieBoard"
 # change it there... Default is to boot from first partition of SD card.
 #
 #ARMSTRAP_LOADER_ROOT="/dev/mmcblk0p1"
+#
+# Some kernels need a different bootloader. For instance, kernel 3.15 need
+# u-boot-sunxi-next to enable the second CPU of the A20.
+#
+# See help for valid targets.
+#
+#ARMSTRAP_BOARD_LOADER="u-boot-sunxi-next"
 
 ##############################################################################
 # Packages Sections

@@ -70,19 +70,29 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Directory Cleanup."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-l" "" "Show licence."
   
-  printf "\n${ANS_BLD}Avalable boards, kernels and RootFS:${ANS_RST}\n"
+  printf "\n${ANS_BLD}Default boards configuration:${ANS_RST}\n"
   
-  printf "\n${ANS_BLD}%15s %15s %10s %15s${ANS_RST}\n--------------- --------------- ---------- ---------------\n" "Board" "Kernel" "Family" "BootLoader"
+  printf "\n${ANS_BLD}%15s %15s %10s %21s${ANS_RST}\n--------------- --------------- ---------- ---------------------\n" "Board" "Kernel" "Family" "BootLoader"
   for TMP_I in ${ARMSTRAP_BOARDS}/*; do
     local TMP_BOARD=$(basename ${TMP_I})
-    local TMP_LOADER=$(getLoader ${TMP_BOARD,,})
-    if [ -z "${TMP_LOADER}" ]; then
-      TMP_LOADER="none"
-    fi
     source ${TMP_I}/config.sh
-    printf "% 15s % 15s % 10s % 15s\n" ${TMP_BOARD} ${BOARD_CPU} ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY} ${TMP_LOADER}
+    printf "% 15s % 15s % 10s % 21s\n" ${TMP_BOARD} ${BOARD_CPU} ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY} ${BOARD_LOADER}
   done
   
+  printf "\n${ANS_BLD}Avalable BootLoaders:${ANS_RST}\n"
+  
+  printf "\n${ANS_BLD}%15s %21s${ANS_RST}\n--------------- ---------------------\n" "Board" "BootLoader"
+  for TMP_I in ${ARMSTRAP_LOADER_LIST}; do
+    IFS="-"
+    TMP_BOARD=(${TMP_I})
+    TMP_BOARD=${TMP_BOARD[0]}
+    TMP_LOADER=${TMP_I##$TMP_BOARD-}
+    TMP_LOADER=${TMP_LOADER%%.$ARMSTRAP_TAR_EXTENSION}
+    IFS="${TMP_IFS}"
+    printf "% 15s % 21s\n" ${TMP_BOARD} ${TMP_LOADER}
+  done
+  
+  printf "\n${ANS_BLD}Avalable Kernels:${ANS_RST}\n"
   printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Kernel" "Config" "Version"
   for TMP_I in ${ARMSTRAP_KERNEL_LIST}; do
     local TMP_KRN=${TMP_I%%-linux-*}
@@ -98,6 +108,7 @@ function showUsage {
     printf "% 15s % 10s % 10s\n" ${TMP_KRN} ${TMP_CFG} ${TMP_VER}
   done
   
+  printf "\n${ANS_BLD}Avalable RootFS:${ANS_RST}\n"
   printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Arch" "Family" "Version"
   for TMP_I in ${ARMSTRAP_ROOTFS_LIST}; do
     IFS="-"
@@ -108,12 +119,6 @@ function showUsage {
     printf "% 15s % 10s % 10s\n" ${TMP_I[0]} ${TMP_I[1]} ${TMP_J[0]}
   done
   
-  
-#  printf "\n${ANS_BLD}Supported boards and kernel configurations:${ANS_RST}\n"
-#  for i in ${TMP_BOARDS}; do
-#    local TMP_BRDCFG="$(kernelConfigs ${i})"
-#    printf "  ${ANS_BLD}%- 24s${ANS_RST}%s\n" "${i}" "${TMP_BRDCFG}"
-#  done
   printf "\nWith no parameter, create an image using values found in ${ANS_BLD}config.sh${ANS_RST}.\n\n"
 }
 
@@ -741,7 +746,7 @@ function getLoader {
       TMP_I=${TMP_I/${TMP_J}-/}
       TMP_I=${TMP_I/${ARMSTRAP_TAR_EXTENSION}/}
       if [ "${TMP_BOARD}" = "${TMP_J}" ]; then
-        TMP_LOADER="${TMP_I}"
+        TMP_LOADER="${TMP_I} ${TMP_LOADER}"
       fi
     done
   printf "%s" "${TMP_LOADER}"
