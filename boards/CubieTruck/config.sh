@@ -7,7 +7,9 @@ BOARD_LOADER="u-boot-sunxi"
 
 BOARD_KERNEL="${BOARD_CPU}"
 BOARD_KERNEL_CONFIG="default"
-BOARD_KERNEL_MODULES="gpio_sunxi pwm_sunxi sunxi_gmac sw_ahci_platform lcd hdmi ump disp mali mali_drm sunxi_cedar_mod bcmdhd"
+#BOARD_KERNEL_MODULES="gpio_sunxi pwm_sunxi sunxi_gmac sw_ahci_platform lcd hdmi ump disp mali mali_drm sunxi_cedar_mod bcmdhd"
+BOARD_KERNEL_MODULES="gpio_sunxi pwm_sunxi sunxi_gmac disp lcd hdmi ump mali sunxi_cedar_mod bcmdhd"
+
 BOARD_KERNEL_DTB="sun7i-a20-cubietruck.dtb"
 
 BOARD_ROOTFS="${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}"
