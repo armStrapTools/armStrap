@@ -558,16 +558,16 @@ function gitClone {
   if [ -d "${1}" ]; then
     printStatus "gitClone" "Updating `basename ${1}`"
     cd "${1}"
-    git pull >> ${ARMSTRAP_LOG_FILE} 2>&1
+    git pull --progress >> ${ARMSTRAP_LOG_FILE} 2>&1
     cd "${ARMSTRAP_ROOT}"
   else
     if [ ! -z "${3}" ]; then
       local TMP_GIT="${TMP_GIT} -b ${3}"
       printStatus "gitClone" "Cloning `basename ${1}` (branch ${3})"
-      git clone "${2}" -b "${3}" "${1}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+      git clone --progress "${2}" -b "${3}" "${1}" >> ${ARMSTRAP_LOG_FILE} 2>&1
     else
       printStatus "gitClone" "Cloning `basename ${1}`"
-      git clone "${2}" "${1}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+      git clone --progress "${2}" "${1}" >> ${ARMSTRAP_LOG_FILE} 2>&1
     fi
   fi
 }
