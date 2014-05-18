@@ -271,6 +271,12 @@ function bootBuilder {
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  10 "Packaging")
                       cp -v "${BUILD_BOOTLOADER_SOURCE}/u-boot-sunxi-with-spl.bin" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
                       cp -v "${BUILD_BOOTLOADER_FEXSRC}/sys_config/${BUILD_BOOTLOADER_CPU}/${BUILD_BOOTLOADER_FEX,,}" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      if [ -f "${TMP_BLRDIR}/.defaults/readme.txt" ]; then
+                        cp -v "${TMP_BLRDIR}/.defaults/readme.txt" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      fi
+                      if [ -f "${TMP_BLRCFG}/readme.txt" ]; then
+                        cp -v "${TMP_BLRCFG}/readme.txt" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}/readme_${2}.txt" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      fi
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Packaging")
                       ${ARMSTRAP_TAR_COMPRESS} "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_NAME,,}-${BUILD_BOOTLOADER_TYPE}${ARMSTRAP_TAR_EXTENSION}" -C "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" --one-file-system . >> ${ARMSTRAP_LOG_FILE} 2>&1
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Cleaning up")

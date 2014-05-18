@@ -1,5 +1,5 @@
 # Theses must always be set for a board configuration
-BOARD_CPU="sun7i-stage"
+BOARD_CPU="sun7i-ct"
 BOARD_CPU_ARCH="arm"
 BOARD_CPU_FAMILY="v7l"
 
