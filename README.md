@@ -14,7 +14,7 @@ You need to be root to run this script. You have two options:
    many changes and some options have changed meanings or simply do nothing. Use the config
    file until i remove this message) :
 
-    armStrap.sh version 0.85
+    armStrap.sh version 0.86
     Copyright (C) 2013 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
@@ -66,7 +66,7 @@ You need to be root to run this script. You have two options:
               A70Xh           sun7i     armv7l          u-boot-sunxi
          CubieBoard           sun4i     armv7l          u-boot-sunxi
         CubieBoard2           sun7i     armv7l          u-boot-sunxi
-         CubieTruck     sun7i-stage     armv7l          u-boot-sunxi
+         CubieTruck        sun7i-ct     armv7l          u-boot-sunxi
           HackBerry           sun4i     armv7l          u-boot-sunxi
         RaspBerryPI          bcmrpi     armv6l                      
     
@@ -89,25 +89,11 @@ You need to be root to run this script. You have two options:
     
              Kernel     Config    Version
     --------------- ---------- ----------
-         sunxi-test    default     3.13.0
          sunxi-next    default     3.15.0
-         sunxi-next    default     3.14.0
-        sun7i-stage    default    3.4.90+
-        sun7i-stage    default    3.4.79+
-        sun7i-stage    default    3.4.75+
-        sun7i-stage    default    3.4.67+
+        sunxi-devel    default     3.15.0
               sun7i    default    3.4.90+
-              sun7i    default    3.4.79+
-              sun7i    default     3.4.75
-              sun7i    default     3.4.67
-        sun4i-stage    default    3.4.90+
-        sun4i-stage    default    3.4.79+
-        sun4i-stage    default    3.4.75+
-        sun4i-stage    default    3.4.67+
+           sun7i-ct    default    3.4.79+
               sun4i    default    3.4.90+
-              sun4i    default    3.4.79+
-              sun4i    default     3.4.75
-              sun4i    default     3.4.67
              bcmrpi    default    3.6.11+
     
     Avalable RootFS:
