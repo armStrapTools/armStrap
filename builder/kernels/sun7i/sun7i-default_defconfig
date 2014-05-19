@@ -1856,8 +1856,8 @@ CONFIG_B43LEGACY_DMA_AND_PIO_MODE=y
 # CONFIG_B43LEGACY_PIO_MODE is not set
 CONFIG_BCMDHD=m
 # CONFIG_BCM4339 is not set
-CONFIG_BCMDHD_FW_PATH="/lib/firmware/ap6210/fw_bcm40181a2.bin"
-CONFIG_BCMDHD_NVRAM_PATH="/lib/firmware/ap6210/nvram_ap6210.txt"
+CONFIG_BCMDHD_FW_PATH="/lib/firmware/ap6210/fw_bcmxxxx.bin"
+CONFIG_BCMDHD_NVRAM_PATH="/lib/firmware/ap6210/nvram_apxxxx.txt"
 # CONFIG_DHD_USE_STATIC_BUF is not set
 # CONFIG_DHD_USE_SCHED_SCAN is not set
 CONFIG_BRCMUTIL=m

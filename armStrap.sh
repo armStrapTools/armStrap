@@ -13,7 +13,7 @@ fi
 # Variables that should never be changed, unless you know what you're doing.
 #
 
-ARMSTRAP_VERSION="0.85"
+ARMSTRAP_VERSION="0.86"
 ARMSTRAP_NAME=`basename ${0}`
 
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
@@ -81,7 +81,7 @@ ARMSTRAP_ROOTFS_LIST=""
 # Theses are used by postArmStrap to populate the web server and by
 # armStrap to fetch them.
 ARMSTRAP_ABUILDER_URL="http://archive.armstrap.net"
-ARMSTRAP_ABUILDER_ROOT="/var/www/armstrap"
+ARMSTRAP_ABUILDER_ROOT="/var/www/armstrap-archive"
 ARMSTRAP_ABUILDER_KERNEL="${ARMSTRAP_ABUILDER_ROOT}/kernel"
 ARMSTRAP_ABUILDER_KERNEL_URL="${ARMSTRAP_ABUILDER_URL}/kernel"
 ARMSTRAP_ABUILDER_ROOTFS="${ARMSTRAP_ABUILDER_ROOT}/rootfs"
