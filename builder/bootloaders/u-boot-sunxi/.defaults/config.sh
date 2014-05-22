@@ -11,7 +11,7 @@ if [ -z "${BUILD_BOOTLOADER_NAME}" ]; then
 fi
 
 if [ -z "${BUILD_BOOTLOADER_FEX}" ]; then
-  BUILD_BOOTLOADER_FEX="${BUILD_BOOTLOADER_FAMILY}.fex"
+  BUILD_BOOTLOADER_FEX="${BUILD_BOOTLOADER_NAME}.fex"
 fi
 
 if [ -z "${BUILD_BOOTLOADER_FEXSRC}" ]; then
@@ -52,6 +52,10 @@ fi
 
 if [ -z "${BUILD_BOOTLOADER_GITBRN}" ]; then
   BUILD_BOOTLOADER_GITBRN="sunxi"
+fi
+
+if [ -z "${BUILD_BOOTLOADER_TARGET}" ]; then
+  BUILD_BOOTLOADER_TARGET="u-boot-sunxi-with-spl.bin"
 fi
 
 source ${ARMSTRAP_BOOTLOADERS}/.defaults/config.sh

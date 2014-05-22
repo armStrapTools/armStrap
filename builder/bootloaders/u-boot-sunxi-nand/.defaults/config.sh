@@ -1,5 +1,5 @@
 if [ -z "${BUILD_BOOTLOADER_TYPE}" ]; then
-  BUILD_BOOTLOADER_TYPE="u-boot-sunxi-next"
+  BUILD_BOOTLOADER_TYPE="u-boot-sunxi-nand"
 fi
 
 if [ -z "${BUILD_BOOTLOADER_FAMILY}" ]; then
@@ -47,15 +47,15 @@ if [ -z "${BUILD_BOOTLOADER_CFLAGS}" ]; then
 fi
 
 if [ -z "${BUILD_BOOTLOADER_GITSRC}" ]; then
-  BUILD_BOOTLOADER_GITSRC="https://github.com/jwrdegoede/u-boot-sunxi.git"
+  BUILD_BOOTLOADER_GITSRC="https://github.com/EddyBeaupre/u-boot.git"
 fi
 
 if [ -z "${BUILD_BOOTLOADER_GITBRN}" ]; then
-  BUILD_BOOTLOADER_GITBRN="sunxi-next"
+  BUILD_BOOTLOADER_GITBRN="lichee-dev-a20"
 fi
 
 if [ -z "${BUILD_BOOTLOADER_TARGET}" ]; then
-  BUILD_BOOTLOADER_TARGET="u-boot-sunxi-with-spl.bin"
+  BUILD_BOOTLOADER_TARGET="u-boot.bin"
 fi
 
 source ${ARMSTRAP_BOOTLOADERS}/.defaults/config.sh

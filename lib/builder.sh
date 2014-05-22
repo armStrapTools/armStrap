@@ -264,12 +264,23 @@ function bootBuilder {
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Building")
                       printStatus "bootBuilder" "Building ${BUILD_BOOTLOADER_TYPE}"
                       ccMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" "${BUILD_BOOTLOADER_FAMILY}_config"
-                      ccMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" "u-boot-sunxi-with-spl.bin"
+                      ccMake "${BUILD_BOOTLOADER_ARCH}" "${BUILD_BOOTLOADER_EABI}" "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_CFLAGS}" "${BUILD_BOOTLOADER_TARGET}"
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  50 "Building")
                       checkDirectory "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}"
                       printStatus "bootBuilder" "Packaging ${BUILD_BOOTLOADER_TYPE}"
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  10 "Packaging")
-                      cp -v "${BUILD_BOOTLOADER_SOURCE}/u-boot-sunxi-with-spl.bin" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      if [ -f "${BUILD_BOOTLOADER_SOURCE}/u-boot-sunxi-with-spl.bin" ]; then
+                        cp -v "${BUILD_BOOTLOADER_SOURCE}/u-boot-sunxi-with-spl.bin" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      fi
+                      if [ -f "${BUILD_BOOTLOADER_SOURCE}/u-boot.bin" ]; then
+                        cp -v "${BUILD_BOOTLOADER_SOURCE}/u-boot.bin" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      fi
+                      if [ -f "${BUILD_BOOTLOADER_SOURCE}/u-boot.img" ]; then
+                        cp -v "${BUILD_BOOTLOADER_SOURCE}/u-boot.img" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      fi
+                      if [ -f "${BUILD_BOOTLOADER_SOURCE}/spl/sunxi-spl.bin" ]; then
+                        cp -v "${BUILD_BOOTLOADER_SOURCE}/spl/sunxi-spl.bin" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+                      fi
                       cp -v "${BUILD_BOOTLOADER_FEXSRC}/sys_config/${BUILD_BOOTLOADER_CPU}/${BUILD_BOOTLOADER_FEX,,}" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
                       if [ -f "${TMP_BLRDIR}/.defaults/readme.txt" ]; then
                         cp -v "${TMP_BLRDIR}/.defaults/readme.txt" "${ARMSTRAP_PKG}/${BUILD_BOOTLOADER_TYPE}_${BUILD_BOOTLOADER_NAME}" >> ${ARMSTRAP_LOG_FILE} 2>&1
