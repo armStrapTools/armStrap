@@ -768,7 +768,7 @@ function fetchIndex {
       rootfs)  ARMSTRAP_ROOTFS_LIST="${TMP_I[1]} ${ARMSTRAP_ROOTFS_LIST}"
                ;;
     esac
-  done <<< "`wget -a ${ARMSTRAP_LOG_FILE} -O - ${ARMSTRAP_ABUILDER_URL}/.index.txt`"
+  done <<< "`wget -a ${ARMSTRAP_LOG_FILE} -O - ${ARMSTRAP_ABUILDER_URL}/.index.php`"
   printStatus "fetchIndex" "Done"
   
 }

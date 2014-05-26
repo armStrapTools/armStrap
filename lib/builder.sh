@@ -454,7 +454,7 @@ function kernelPost {
     for TMP_I in ${ARMSTRAP_PKG}/*.sh; do
       mv -v ${TMP_I} ${ARMSTRAP_ABUILDER_KERNEL}/
     done
-    indexPost
+    #indexPost
   
     printStatus "armStrapPost" "Publishing kernels"
     for TMP_I in ${ARMSTRAP_PKG}/*.deb; do
@@ -477,7 +477,7 @@ function loaderPost {
       if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
         printStatus "armStrapPost" "Publishing bootloaders"
         mv -v ${ARMSTRAP_PKG}/`basename ${TMP_J}`-`basename ${TMP_I}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_LOADER}/
-        indexPost
+        #indexPost
       fi
     done
   done
@@ -494,7 +494,7 @@ function rootfsPost {
       if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
         printStatus "armStrapPost" "Publishing rootfs"
         mv -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`-*-`basename ${TMP_J}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_ROOTFS}/
-        indexPost
+        #indexPost
       fi
     done
   done
