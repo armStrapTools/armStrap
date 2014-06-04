@@ -606,6 +606,10 @@ function default_installRoot {
     armStrapConfig "${ARMSTRAP_MNT}" "uboot_kernel_dtb=dtbs/${BOARD_KERNEL_DTB}"
   fi
   
+  if [ ! -z ${BOARD_LOADER_NAND_KERNEL} ]; then
+    armStrapConfig "${ARMSTRAP_MNT}" "nand_kernel_image=${BOARD_LOADER_NAND_KERNEL}"
+  fi
+  
   addIface "${ARMSTRAP_MNT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Configuring RootFS")
   guiStop

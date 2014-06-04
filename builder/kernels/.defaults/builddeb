@@ -179,6 +179,7 @@ if [ -f /etc/armStrap.conf ]; then
   . /etc/armStrap.conf
 fi
   
+echo "Updating uEnv.txt"
 touch /boot/uEnv.txt
 rm -f /boot/uEnv.bak
 cp /boot/uEnv.txt /boot/uEnv.bak
@@ -186,6 +187,12 @@ awk '/^kernel=/ { skip = 1; } /^dtb=/ { skip = 1; } /.*/ { if (skip) skip = 0; e
 echo "kernel=uImage-\${1}" >> \${tmp_uenv}
 if [ -f /boot/\${uboot_kernel_dtb} ]; then
   echo "dtb=\${uboot_kernel_dtb}" >> \${tmp_uenv}
+fi
+if [ ! -z \${nand_kernel_image} ]; then
+  if [ -d \$(dirname \${nand_kernel_image}) ]; then
+    echo "Updating bootloader partition"
+    cp /boot/uImage-\${1} \${nand_kernel_image}
+  fi
 fi
 rm -f /boot/uEnv.txt
 mv \${tmp_uenv} /boot/uEnv.txt
