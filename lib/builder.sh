@@ -132,7 +132,7 @@ function kernelPack {
     if [[ $TMP_STR == *image-* ]]; then
       TMP_KERNEL_SCR="${TMP_I/image/kernel}"
       TMP_KERNEL_SCR="${TMP_KERNEL_SCR/.deb/.sh}"
-      TMP_KERNEL_SCR="${ARMSTRAP_PKG}/${TMP_KERNEL_SCR}"
+      TMP_KERNEL_SCR="${ARMSTRAP_PKG}/${TMP_BUILD_CFGTYP}-${TMP_KERNEL_SCR}"
       TMP_KERNEL_IMG="$TMP_STR"
     fi
     
@@ -425,11 +425,11 @@ function rootfsMount {
   fi
 }
 
-# usage repoPost <DEB_PACKAGE>
+# usage repoPost <KERNEL_TYPE> <DEB_PACKAGE>
 function repoPost {
-    local TMP_FILE="`basename ${1}`"
-    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main remove ${TMP_FILE%%-linux-*} ${TMP_FILE%%_*}
-    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main includedeb ${TMP_FILE%%-linux-*} ${1}
+    local TMP_FILE="`basename ${2}`"
+    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main remove ${1} ${TMP_FILE%%_*}
+    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main includedeb ${1} ${2}
 }
 
 function kernelPost {
@@ -441,24 +441,28 @@ function kernelPost {
   if [ "$1" = "-" ]; then
     for TMP_I in ${ARMSTRAP_KERNELS}/*; do 
       kernelBuild "`basename ${TMP_I}`"
+      publishKernel "`basename ${TMP_I}`"
     done
   else
     if [ -f "${ARMSTRAP_KERNELS}/$1/config.sh" ]; then
       kernelBuild $1
+      publishKernel $1
     fi
   fi
-  
+}
+
+# usage publishKernel <KERNEL_TYPE>
+function publishKernel {
   if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
     printStatus "armStrapPost" "Publishing kernel installer script"
     checkDirectory "${ARMSTRAP_ABUILDER_KERNEL}"
     for TMP_I in ${ARMSTRAP_PKG}/*.sh; do
       mv -v ${TMP_I} ${ARMSTRAP_ABUILDER_KERNEL}/
     done
-    #indexPost
   
     printStatus "armStrapPost" "Publishing kernels"
     for TMP_I in ${ARMSTRAP_PKG}/*.deb; do
-      repoPost "${TMP_I}"
+      repoPost ${1} "${TMP_I}"
       rm -f ${TMP_I}
     done
 
@@ -477,7 +481,6 @@ function loaderPost {
       if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
         printStatus "armStrapPost" "Publishing bootloaders"
         mv -v ${ARMSTRAP_PKG}/`basename ${TMP_J}`-`basename ${TMP_I}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_LOADER}/
-        #indexPost
       fi
     done
   done
@@ -494,7 +497,6 @@ function rootfsPost {
       if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
         printStatus "armStrapPost" "Publishing rootfs"
         mv -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`-*-`basename ${TMP_J}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_ROOTFS}/
-        #indexPost
       fi
     done
   done

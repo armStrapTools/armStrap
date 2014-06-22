@@ -232,7 +232,8 @@ GNUPGHOME="\${TMP_GNUPGHOME}"
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
 
-KERNEL_IMG=\$(/usr/bin/apt-cache search \${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION} | sort -r | head -n 1 | cut -d ' ' -f 1)
+#KERNEL_IMG=\$(/usr/bin/apt-cache search \${KERNEL_TYPE}-linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION} | sort -r | head -n 1 | cut -d ' ' -f 1)
+KERNEL_IMG=\$(/usr/bin/apt-cache search linux-\${KERNEL_CONFIG}-image-\${KERNEL_VERSION} | sort -r | head -n 1 | cut -d ' ' -f 1)
 KERNEL_HDR=\${KERNEL_IMG/-image-/-headers-}
 KERNEL_FWR=\${KERNEL_IMG/-image-/-firmware-image-}
 
