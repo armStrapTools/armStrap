@@ -232,8 +232,11 @@ GNUPGHOME="\${TMP_GNUPGHOME}"
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
 
-KERNEL_IMG=$(/usr/bin/apt-cache search linux-image-\${KERNEL_VERSION} | grep "\${KERNEL_TYPE}-\${KERNEL_CONFIG}" | sort -r | head -n 1 | cut -d ' ' -f 1)
+KERNEL_IMG=\$(/usr/bin/apt-cache search "linux-image-\${KERNEL_VERSION}" | grep "\${KERNEL_TYPE}-\${KERNEL_CONFIG}" | sort -r | head -n 1 | cut -d ' ' -f 1)
 KERNEL_HDR=\${KERNEL_IMG/-image-/-headers-}
+
+echo "  Kernel Image : \${KERNEL_IMG}"
+echo "Kernel Headers : \${KERNEL_HDR}"
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
 EOF
@@ -607,6 +610,14 @@ function default_installRoot {
   
   if [ ! -z ${BOARD_LOADER_NAND_KERNEL} ]; then
     armStrapConfig "${ARMSTRAP_MNT}" "nand_kernel_image=${BOARD_LOADER_NAND_KERNEL}"
+  fi
+  
+  if [ ! -z ${BOARD_UIMAGE_LOAD_ADDRESS} ]; then
+    armStrapConfig "${ARMSTRAP_MNT}" "uimage_load_address=${BOARD_UIMAGE_LOAD_ADDRESS}"
+  fi
+  
+  if [ ! -z ${BOARD_UIMAGE_ENTRY_POINT} ]; then
+    armStrapConfig "${ARMSTRAP_MNT}" "uimage_entry_point=${BOARD_UIMAGE_ENTRY_POINT}"
   fi
   
   addIface "${ARMSTRAP_MNT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"

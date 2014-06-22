@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieBoard"
+ARMSTRAP_CONFIG="CubieTruck"
 
 ##############################################################################
 # Basic configuration
@@ -56,8 +56,8 @@ ARMSTRAP_CONFIG="CubieBoard"
 #
 # See help for valid targets.
 #
-#ARMSTRAP_ROOTFS_FAMILY="ubuntu"
-#ARMSTRAP_ROOTFS_VERSION="saucy"
+ARMSTRAP_ROOTFS_FAMILY="ubuntu"
+ARMSTRAP_ROOTFS_VERSION="trusty"
 
 ##############################################################################
 # Kernel Section
@@ -77,7 +77,7 @@ ARMSTRAP_CONFIG="CubieBoard"
 # repository is called sunxi-test... Once it's matured enough, i will create
 # a sunxi repository and keep sunxi-test for mainline development.)
 #
-#ARMSTRAP_BOARD_KERNEL="sunxi-test"
+#ARMSTRAP_BOARD_KERNEL="mainline"
 #ARMSTRAP_KERNEL_VERSION="3.13.0"
 #
 # You can add kernel modules to the default ones here
@@ -130,7 +130,7 @@ ARMSTRAP_CONFIG="CubieBoard"
 #
 # If you want to install directly into your SD card, put the device here. If
 # it's not defined, an image will be generated.
-#ARMSTRAP_DEVICE="/dev/sdc"
+ARMSTRAP_DEVICE="/dev/sdc"
 # If you want to name your image something else than the generated name
 #ARMSTRAP_IMAGE_NAME="wathever_you_want_to_name_your_image.img"
 # Specify the size of the image to be build in MB
