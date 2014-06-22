@@ -125,10 +125,6 @@ function kernelPack {
   
   local TMP_I=""
   
-#  for TMP_I in *.deb; do
-#    mv -v ${TMP_I} ${TMP_BUILD_CFGTYP}-${TMP_I} >> ${ARMSTRAP_LOG_FILE} 2>&1
-#  done
-  
   for TMP_I in *.deb; do 
     local TMP_STR="${TMP_I%%_*}"
 #    "`echo ${TMP_I} | cut -d'_' -f1`"
@@ -136,7 +132,7 @@ function kernelPack {
     if [[ $TMP_STR == *image-* ]]; then
       TMP_KERNEL_SCR="${TMP_I/image/kernel}"
       TMP_KERNEL_SCR="${TMP_KERNEL_SCR/.deb/.sh}"
-      TMP_KERNEL_SCR="${ARMSTRAP_PKG}/${TMP_BUILD_CFGTYP}-${TMP_KERNEL_SCR}"
+      TMP_KERNEL_SCR="${ARMSTRAP_PKG}/${TMP_KERNEL_SCR}"
       TMP_KERNEL_IMG="$TMP_STR"
     fi
     
