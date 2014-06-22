@@ -65,7 +65,7 @@ ARMSTRAP_SWAPMAX="2048"
 ARMSTRAP_ETH0_MODE="dhcp"
 
 # Any flags you want to add to make
-ARMSTRAP_MFLAGS="-j8"
+ARMSTRAP_MFLAGS="-j28"
 
 # Internal variables that may be changes by the script
 ARMSTRAP_KBUILDER=""
