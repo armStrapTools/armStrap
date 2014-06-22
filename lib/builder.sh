@@ -29,14 +29,14 @@ function kernelMake {
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Configuring")  
   printStatus "kernelMake" "Configuring Kernel"
   cp -v "${TMP_BUILD_CFGDEF}" "${TMP_BUILD_CFGDST}/" >> ${ARMSTRAP_LOG_FILE} 2>&1
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "`basename ${TMP_BUILD_CFGDEF}`"
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" "`basename ${TMP_BUILD_CFGDEF}`"
   checkStatus "Error while configuring Kernel"
   
   isTrue "${ARMSTRAP_KBUILDER_MENUCONFIG}"
   if [ $? -ne 0 ]; then
     local TMP_GUI
     guiStop
-    ccMakeNoLog "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" menuconfig
+    ccMakeNoLog "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" menuconfig
     TMP_BUILD_CONFIG="custom"
     TMP_BUILD_CFGDEF="${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}_defconfig"
     export EXPORT_ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
@@ -53,12 +53,12 @@ function kernelMake {
   
   printStatus "kernelMake" "Building Kernel image"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  4 "Building kernel image")  
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} uImage ${BUILD_KERNEL_EXTRA_MAKE}
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" uImage ${BUILD_KERNEL_EXTRA_MAKE}
   checkStatus "Error while building kernel image"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Building kernel modules")  
   printStatus "kernelMake" "Building Kernel Modules"
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} modules
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" modules
   checkStatus "Error while building Kernel Modules"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Building kernel modules")  
@@ -110,7 +110,7 @@ function kernelPack {
   cp -v "${TMP_BUILD_SCRSRC}" "${TMP_BUILD_SCRDST}/" >> ${ARMSTRAP_LOG_FILE} 2>&1
 
   printStatus "kernelMake" "Creating Debian packages"
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" deb-pkg
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" deb-pkg
   checkStatus "Error while creating Debian packages"
   
   cd "${TMP_BUILD_WRKDIR}/.."
@@ -124,6 +124,10 @@ function kernelPack {
   local TMP_KERNEL_FWR=""
   
   local TMP_I=""
+  
+#  for TMP_I in *.deb; do
+#    mv -v ${TMP_I} ${TMP_BUILD_CFGTYP}-${TMP_I} >> ${ARMSTRAP_LOG_FILE} 2>&1
+#  done
   
   for TMP_I in *.deb; do 
     local TMP_STR="${TMP_I%%_*}"
@@ -177,7 +181,7 @@ function kernelPack {
   for TMP_I in *.deb; do
     printStatus "kernelMake" "Moving `basename ${TMP_I}` to ${ARMSTRAP_PKG}"
     rm -f "${ARMSTRAP_PKG}/`basename ${TMP_I}`"
-    mv "${TMP_I}" "${ARMSTRAP_PKG}"
+    mv -v "${TMP_I}" "${ARMSTRAP_PKG}" >> ${ARMSTRAP_LOG_FILE} 2>&1
   done
   
   cd "${TMP_BUILD_CURDIR}"
@@ -457,7 +461,7 @@ function publishKernel {
     printStatus "armStrapPost" "Publishing kernel installer script"
     checkDirectory "${ARMSTRAP_ABUILDER_KERNEL}"
     for TMP_I in ${ARMSTRAP_PKG}/*.sh; do
-      mv -v ${TMP_I} ${ARMSTRAP_ABUILDER_KERNEL}/
+      mv -v ${TMP_I} ${ARMSTRAP_ABUILDER_KERNEL}/ >> ${ARMSTRAP_LOG_FILE} 2>&1
     done
   
     printStatus "armStrapPost" "Publishing kernels"
@@ -480,7 +484,7 @@ function loaderPost {
       bootBuilder "`basename ${TMP_I}`" "`basename ${TMP_J}`"
       if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
         printStatus "armStrapPost" "Publishing bootloaders"
-        mv -v ${ARMSTRAP_PKG}/`basename ${TMP_J}`-`basename ${TMP_I}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_LOADER}/
+        mv -v ${ARMSTRAP_PKG}/`basename ${TMP_J}`-`basename ${TMP_I}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_LOADER}/ >> ${ARMSTRAP_LOG_FILE} 2>&1
       fi
     done
   done
@@ -496,7 +500,7 @@ function rootfsPost {
       rootfsUpdater "`basename ${TMP_J}`" "`basename ${TMP_I}`"
       if [ ! -z "${ARMSTRAP_ABUILDER_REPO_ENABLE}" ]; then
         printStatus "armStrapPost" "Publishing rootfs"
-        mv -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`-*-`basename ${TMP_J}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_ROOTFS}/
+        mv -v ${ARMSTRAP_PKG}/`basename ${TMP_I}`-*-`basename ${TMP_J}`${ARMSTRAP_TAR_EXTENSION} ${ARMSTRAP_ABUILDER_ROOTFS}/ >> ${ARMSTRAP_LOG_FILE} 2>&1
       fi
     done
   done
