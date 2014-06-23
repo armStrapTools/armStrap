@@ -107,7 +107,9 @@ function kernelPack {
     export EXPORT_ARMSTRAP_FIRMWARE="${TMP_BUILD_FIRMWR}"
   fi
 
-  cp -v "${TMP_BUILD_SCRSRC}" "${TMP_BUILD_SCRDST}/" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  if [ -f "${TMP_BUILD_SCRSRC}" ]; then
+    cp -v "${TMP_BUILD_SCRSRC}" "${TMP_BUILD_SCRDST}/" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  fi
 
   printStatus "kernelMake" "Creating Debian packages"
   ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" deb-pkg

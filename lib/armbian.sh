@@ -206,6 +206,58 @@ EOF
   enableServices "${TMP_CHROOT}"
 }
 
+# Usage : addRepoKey <ARMSTRAP_ROOT> <KEYSERVER> <KEYHASH> 
+function addRepoKey {
+  local TMP_CHROOT="${1}"
+  local TMP_KEYSRV="${2}"
+  local TMP_KEYHSH="${3}"
+  local TMP_PGPSCR="pgpscript.sh"
+  
+  cat >> "${TMP_CHROOT}/${TMP_PGPSCR}" <<EOF
+#!/bin/bash
+TMP_GNUPGHOME="\${GNUPGHOME}"
+export GNUPGHOME="\$(mktemp -d)" 1>&2
+chown \${USER}:\${USER} \${GNUPGHOME} 1>&2
+chmod 0700 \${GNUPGHOME} 1>&2
+gpg --keyserver ${TMP_KEYSRV} --recv-key ${TMP_KEYHSH} 1>&2
+gpg --armor --export ${TMP_KEYHSH} | apt-key add - 1>&2
+rm -rf \${GNUPGHOME} 1>&2
+export GNUPGHOME="\${TMP_GNUPGHOME}"
+EOF
+
+  chmod +x "${TMP_CHROOT}/${TMP_PGPSCR}"
+  
+  disableServices "${TMP_CHROOT}"
+  installQEMU "${TMP_CHROOT}"
+  mountPFS "${TMP_CHROOT}"
+  
+  printStatus "addRepoKey" "Executing ${TMP_PGPSCR} script in `basename ${TMP_CHROOT}`"
+  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /${TMP_PGPSCR} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  
+  umountPFS "${TMP_CHROOT}"
+  removeQEMU "${TMP_CHROOT}"
+  enableServices "${TMP_CHROOT}"
+
+  rm -f "${TMP_CHROOT}/${TMP_PGPSCR}"
+}
+
+#usage addRepo <ARMSTRAP_ROOT> <REPO_FILE> <REPO_URL> <REPO_NAME> <REPO_COMPONENTS>
+function addRepo {
+  local TMP_CHROOT="${1}"
+  shift
+  local TMP_REPO_FILE="${TMP_CHROOT}/etc/apt/sources.list.d/${1}"
+  shift
+  local TMP_REPO_URL="${1}"
+  shift
+  local TMP_REPO_NAME="${1}"
+  shift
+  local TMP_REPO_CMPN="${@}"
+  
+  printStatus "addRepo" "Adding repository ${TMP_REPO_URL} ${TMP_REPO_NAME} ${TMP_REPO_CMPN}"
+  touch "${TMP_REPO_FILE}"
+  echo "deb ${TMP_REPO_URL} ${TMP_REPO_NAME} ${TMP_REPO_CMPN}" >> "${TMP_REPO_FILE}"
+  echo "deb-src ${TMP_REPO_URL} ${TMP_REPO_NAME} ${TMP_REPO_CMPN}" >> "${TMP_REPO_FILE}"
+}
 
 # Usage : chrootKernel <ARMSTRAP_ROOT>
 function chrootKernel {
@@ -221,22 +273,11 @@ KERNEL_VERSION="${BOARD_KERNEL_VERSION}"
 
 echo "deb ${ARMSTRAP_ABUILDER_REPO_URL} \${KERNEL_TYPE} main" > /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
 echo "deb-src ${ARMSTRAP_ABUILDER_REPO_URL} \${KERNEL_TYPE} main" >> /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
-TMP_GNUPGHOME="\${GNUPGHOME}"
-export GNUPGHOME="\$(mktemp -d)" 1>&2
-chown \${USER}:\${USER} \${GNUPGHOME} 1>&2
-chmod 0700 \${GNUPGHOME} 1>&2
-gpg --keyserver pgpkeys.mit.edu --recv-key 1F7F94D7A99BC726 1>&2
-gpg --armor --export 1F7F94D7A99BC726 | apt-key add - 1>&2
-rm -rf \${GNUPGHOME} 1>&2
-GNUPGHOME="\${TMP_GNUPGHOME}"
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
 
 KERNEL_IMG=\$(/usr/bin/apt-cache search "linux-image-\${KERNEL_VERSION}" | grep "\${KERNEL_TYPE}-\${KERNEL_CONFIG}" | sort -r | head -n 1 | cut -d ' ' -f 1)
 KERNEL_HDR=\${KERNEL_IMG/-image-/-headers-}
-
-echo "  Kernel Image : \${KERNEL_IMG}"
-echo "Kernel Headers : \${KERNEL_HDR}"
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
 EOF
@@ -548,10 +589,15 @@ function default_installRoot {
   
   setHostName "${ARMSTRAP_MNT}" "${ARMSTRAP_HOSTNAME}"
   
+  addRepoKey "${ARMSTRAP_MNT}" "${ARMSTRAP_ABUILDER_REPO_KEYSRV}" "${ARMSTRAP_ABUILDER_REPO_KEYHSH}"
+  addRepo "${ARMSTRAP_MNT}" "armStrap-${BOARD_ROOTFS_FAMILY}" "${ARMSTRAP_ABUILDER_REPO_URL}" "${BOARD_ROOTFS_FAMILY}" "main"
+  addRepo "${ARMSTRAP_MNT}" "armStrap-${BOARD_ROOTFS_FAMILY}" "${ARMSTRAP_ABUILDER_REPO_URL}" "armStrap" "main"
+  
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Updating RootFS")
   chrootUpgrade "${ARMSTRAP_MNT}"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Configuring RootFS")
+      
   if [ -n "${BOARD_DPKG_EXTRAPACKAGES}" ]; then
     chrootInstall "${ARMSTRAP_MNT}" "${BOARD_DPKG_EXTRAPACKAGES}"
   fi

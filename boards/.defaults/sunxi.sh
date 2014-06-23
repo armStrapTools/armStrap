@@ -19,5 +19,6 @@ else
   BOARD_UIMAGE_ENTRY_POINT="0x40008000"
 fi
 
-BOARD_DPKG_LOCALPACKAGES="${ARMSTRAP_BOARDS}/.defaults/sunxi-dpkg/sunxi-tools_1.0-2_armhf.deb ${ARMSTRAP_BOARDS}/.defaults/sunxi-dpkg/update-uimage_1.0-1_armhf.deb ${BOARD_DPKG_LOCALPACKAGES}"
+BOARD_DPKG_EXTRAPACKAGES="gensshkeys update-uimage sunxi-tools"
+
 source ${ARMSTRAP_BOARDS}/.defaults/config.sh
