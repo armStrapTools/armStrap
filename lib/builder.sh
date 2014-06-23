@@ -29,14 +29,14 @@ function kernelMake {
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Configuring")  
   printStatus "kernelMake" "Configuring Kernel"
   cp -v "${TMP_BUILD_CFGDEF}" "${TMP_BUILD_CFGDST}/" >> ${ARMSTRAP_LOG_FILE} 2>&1
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" "`basename ${TMP_BUILD_CFGDEF}`"
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}_${TMP_BUILD_CONFIG}" "`basename ${TMP_BUILD_CFGDEF}`"
   checkStatus "Error while configuring Kernel"
   
   isTrue "${ARMSTRAP_KBUILDER_MENUCONFIG}"
   if [ $? -ne 0 ]; then
     local TMP_GUI
     guiStop
-    ccMakeNoLog "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" menuconfig
+    ccMakeNoLog "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}_${TMP_BUILD_CONFIG}" menuconfig
     TMP_BUILD_CONFIG="custom"
     TMP_BUILD_CFGDEF="${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}_defconfig"
     export EXPORT_ARMSTRAP_RELEASE="-${TMP_BUILD_CONFIG}"
@@ -53,12 +53,12 @@ function kernelMake {
   
   printStatus "kernelMake" "Building Kernel image"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  4 "Building kernel image")  
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" uImage ${BUILD_KERNEL_EXTRA_MAKE}
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} "EXTRAVERSION=-${TMP_BUILD_CFGTYP}_${TMP_BUILD_CONFIG}" uImage ${BUILD_KERNEL_EXTRA_MAKE}
   checkStatus "Error while building kernel image"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Building kernel modules")  
   printStatus "kernelMake" "Building Kernel Modules"
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" modules
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} "EXTRAVERSION=-${TMP_BUILD_CFGTYP}_${TMP_BUILD_CONFIG}" modules
   checkStatus "Error while building Kernel Modules"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Building kernel modules")  
@@ -112,7 +112,7 @@ function kernelPack {
   fi
 
   printStatus "kernelMake" "Creating Debian packages"
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}" deb-pkg
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}_${TMP_BUILD_CONFIG}" deb-pkg
   checkStatus "Error while creating Debian packages"
   
   cd "${TMP_BUILD_WRKDIR}/.."
