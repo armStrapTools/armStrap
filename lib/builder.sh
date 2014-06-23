@@ -72,6 +72,57 @@ function kernelMake {
   printStatus "kernelMake" "Done."
 }
 
+#Usage : dtbsPack <linux_dir> <config_dir> <arch> <eabi> <config> <cflags>
+function dtbsPack {
+  local TMP_BUILD_WRKDIR="${1}"
+  local TMP_BUILD_CFGDIR="${2}"
+  local TMP_BUILD_CFGTYP="${3}"
+  local TMP_BUILD_CPUARC="${4}"
+  local TMP_BUILD_CPUABI="${5}"
+  local TMP_BUILD_CONFIG="${6}"
+  local TMP_BUILD_CFLAGS="${7}"
+  local TMP_BUILD_DTBSVN=""
+  
+  printStatus "dtbsPack" "Compilling DTBs"
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}.${TMP_BUILD_CONFIG}" dtbs
+  printStatus "dtbsPack" "Creating DTBs package."
+  rm -rf "${ARMSTRAP_PKG}/deb-pkg"
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}.${TMP_BUILD_CONFIG}" "INSTALL_PATH=${ARMSTRAP_PKG}/deb-pkg/boot" dtbs_install
+  TMP_BUILD_DTBSVN="$(ls ${ARMSTRAP_PKG}/deb-pkg/boot/dtbs/)"
+  checkDirectory "${ARMSTRAP_PKG}/deb-pkg/DEBIAN"
+  cat >> "${ARMSTRAP_PKG}/deb-pkg/DEBIAN/control" <<EOF
+Package: linux-dtbs-${TMP_BUILD_DTBSVN}-1
+Version: ${TMP_BUILD_DTBSVN}-1
+Architecture: armhf
+Maintainer: Eddy Beaupre <eddy@beaupre.biz>
+Installed-Size: $(du -c -s -k ${ARMSTRAP_PKG}/deb-pkg/  | head -1 | awk '{print $1;}')
+Section: misc
+Priority: optional
+Description: DTBs files for kernel ${TMP_BUILD_DTBSVN}.
+ This package contain the dtbs files for linux kernel
+ version ${TMP_BUILD_DTBSVN}. To be used with armStrap
+ kernels.
+EOF
+  cat >> "${ARMSTRAP_PKG}/deb-pkg/DEBIAN/postinst" <<EOF
+#!/bin/bash
+tmp_armStrap=\$(mktemp /etc/armStrap.XXXXXX)
+touch /etc/armStrap.conf
+rm /etc/armStrap.bak
+cp /etc/armStrap.conf /etc/armStrap.bak
+awk '/^uboot_kernel_dtb_path=/ { skip = 1; } /.*/ { if (skip) skip = 0; else print \$0; }' /etc/armStrap.conf > \${tmp_armStrap}
+echo "uboot_kernel_dtb_path=/boot/dtbs/${TMP_BUILD_DTBSVN}" >> \${tmp_armStrap}
+rm -f /etc/armStrap.conf
+mv \${tmp_armStrap} -f /etc/armStrap.conf
+EOF
+  chmod +x "${ARMSTRAP_PKG}/deb-pkg/DEBIAN/postinst"
+  cd "${ARMSTRAP_PKG}/deb-pkg"
+  find . -type f ! -regex '.*.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > ${ARMSTRAP_PKG}/deb-pkg/DEBIAN/md5sum
+  cd "${ARMSTRAP_ROOT}"
+  dpkg -b "${ARMSTRAP_PKG}/deb-pkg" "${ARMSTRAP_PKG}/linux-dtbs-${TMP_BUILD_DTBSVN}-1_armhf.deb" >> ${ARMSTRAP_LOG_FILE} 2>&1
+  rm -rf "${ARMSTRAP_PKG}/deb-pkg"
+}
+
+
 #Usage : kernelPack <linux_dir> <config_dir> <arch> <eabi> <config> <cflags> [<MKIMAGE> <FIRMWARE>]
 function kernelPack {
   local TMP_BUILD_WRKDIR="${1}"
@@ -224,8 +275,10 @@ function kernelBuild {
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing kernel builder for ${1}")
     gitClone "${BUILD_KERNEL_SOURCE}" "${BUILD_KERNEL_GITSRC}" "${BUILD_KERNEL_GITBRN}"
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Building kernel for ${1}")
-    kernelMake "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_IMAGE}" "${BUILD_KERNEL_PREHOOK}" "${BUILD_KERNEL_PSTHOOK}"
-    kernelPack "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_MKIMAGE}" "${BUILD_KERNEL_FIRMWARE_SRC}"
+    #kernelMake "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_IMAGE}" "${BUILD_KERNEL_PREHOOK}" "${BUILD_KERNEL_PSTHOOK}"
+    #kernelPack "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_MKIMAGE}" "${BUILD_KERNEL_FIRMWARE_SRC}"
+    ccMake "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_SOURCE}" "${BUILD_KERNEL_CFLAGS}" mainline-default_defconfig
+    dtbsPack "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}"
     ccMake "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_SOURCE}" "${BUILD_KERNEL_CFLAGS}" distclean
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Done")
     printStatus "kernelBuild" "Kernel Builder Done"
