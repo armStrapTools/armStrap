@@ -1,5 +1,5 @@
 
-#Usage : kernelMake <linux_dir> <config_dir> <type> <arch> <eabi> <config> <cflags> [<pre_hook> [<post_hook>]]
+#Usage : kernelMake <linux_dir> <config_dir> <type> <arch> <eabi> <config> <cflags> <image_type> [<pre_hook> [<post_hook>]]
 function kernelMake {
   local TMP_BUILD_CURDIR="`pwd`"
   local TMP_BUILD_WRKDIR="${1}"
@@ -9,8 +9,9 @@ function kernelMake {
   local TMP_BUILD_CPUABI="${5}"
   local TMP_BUILD_CONFIG="${6}"
   local TMP_BUILD_CFLAGS="${7}"
-  local TMP_BUILD_PRHOOK="${8}"
-  local TMP_BUILD_PSHOOK="${9}"
+  local TMP_BUILD_KIMAGE="${8}"
+  local TMP_BUILD_PRHOOK="${9}"
+  local TMP_BUILD_PSHOOK="${10}"
   
   local TMP_BUILD_CFGDEF="${TMP_BUILD_CFGDIR}/${TMP_BUILD_CFGTYP}-${TMP_BUILD_CONFIG}_defconfig"
   local TMP_BUILD_CFGDST="${TMP_BUILD_WRKDIR}/arch/${TMP_BUILD_CPUARC}/configs"
@@ -53,7 +54,7 @@ function kernelMake {
   
   printStatus "kernelMake" "Building Kernel image"
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  4 "Building kernel image")  
-  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} "EXTRAVERSION=-${TMP_BUILD_CFGTYP}.${TMP_BUILD_CONFIG}" uImage ${BUILD_KERNEL_EXTRA_MAKE}
+  ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" ${BUILD_KERNEL_PARAM} "EXTRAVERSION=-${TMP_BUILD_CFGTYP}.${TMP_BUILD_CONFIG}" ${TMP_BUILD_KIMAGE} ${BUILD_KERNEL_EXTRA_MAKE}
   checkStatus "Error while building kernel image"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Building kernel modules")  
@@ -223,7 +224,7 @@ function kernelBuild {
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing kernel builder for ${1}")
     gitClone "${BUILD_KERNEL_SOURCE}" "${BUILD_KERNEL_GITSRC}" "${BUILD_KERNEL_GITBRN}"
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Building kernel for ${1}")
-    kernelMake "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_PREHOOK}" "${BUILD_KERNEL_PSTHOOK}"
+    kernelMake "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_IMAGE}" "${BUILD_KERNEL_PREHOOK}" "${BUILD_KERNEL_PSTHOOK}"
     kernelPack "${BUILD_KERNEL_SOURCE}" "${TMP_KRNDIR}" "${BUILD_KERNEL_TYPE}" "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_CONF}" "${BUILD_KERNEL_CFLAGS}" "${BUILD_KERNEL_MKIMAGE}" "${BUILD_KERNEL_FIRMWARE_SRC}"
     ccMake "${BUILD_KERNEL_ARCH}" "${BUILD_KERNEL_EABI}" "${BUILD_KERNEL_SOURCE}" "${BUILD_KERNEL_CFLAGS}" distclean
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  5 "Done")

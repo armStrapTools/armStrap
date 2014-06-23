@@ -32,6 +32,10 @@ if [ -z "${BUILD_KERNEL_CFLAGS}" ]; then
   BUILD_KERNEL_CFLAGS=""
 fi
 
+if [ -z "${BUILD_KERNEL_IMAGE}" ]; then
+  BUILD_KERNEL_IMAGE="uImage"
+fi
+
 if [ -z "${BUILD_KERNEL_MKIMAGE}" ]; then
   BUILD_KERNEL_MKIMAGE=""
 fi
