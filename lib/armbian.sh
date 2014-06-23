@@ -276,7 +276,7 @@ echo "deb-src ${ARMSTRAP_ABUILDER_REPO_URL} \${KERNEL_TYPE} main" >> /etc/apt/so
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
 
-KERNEL_IMG=\$(/usr/bin/apt-cache search "linux-image-\${KERNEL_VERSION}" | grep "\${KERNEL_TYPE}_\${KERNEL_CONFIG}" | sort -r | head -n 1 | cut -d ' ' -f 1)
+KERNEL_IMG=\$(/usr/bin/apt-cache search "linux-image-\${KERNEL_VERSION}" | grep "\${KERNEL_TYPE}.\${KERNEL_CONFIG}" | sort -r | head -n 1 | cut -d ' ' -f 1)
 KERNEL_HDR=\${KERNEL_IMG/-image-/-headers-}
 
 /usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
