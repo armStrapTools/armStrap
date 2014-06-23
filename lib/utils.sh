@@ -95,17 +95,9 @@ function showUsage {
   printf "\n${ANS_BLD}Avalable Kernels:${ANS_RST}\n"
   printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Kernel" "Config" "Version"
   for TMP_I in ${ARMSTRAP_KERNEL_LIST}; do
-    local TMP_KRN=${TMP_I%%-linux-*}
-    local TMP_CFG=${TMP_I##$TMP_KRN-linux-}
-    IFS="_"
-    local TMP_VER=(${TMP_I})
-    IFS="-"
-    TMP_VER=(${TMP_VER[1]})
-    TMP_VER=${TMP_VER[0]}
-    TMP_CFG=(${TMP_CFG})
-    TMP_CFG=${TMP_CFG[0]}
-    IFS="${TMP_IFS}"
-    printf "% 15s % 10s % 10s\n" ${TMP_KRN} ${TMP_CFG} ${TMP_VER}
+    local TMP_KRN="$(kernelInfo ${TMP_I})"
+    local TMP_KRN=${TMP_KRN}
+    printf "% 15s % 10s % 10s\n" ${TMP_KRN[0]} ${TMP_KRN[1]} ${TMP_KRN[2]}
   done
   
   printf "\n${ANS_BLD}Avalable RootFS:${ANS_RST}\n"
@@ -605,6 +597,35 @@ function kernelConfigs {
       done
     done
   fi
+}
+
+# usage kernelInfo <FILENAME>
+function kernelInfo {
+  local TMP_DATA=${1#linux-kernel-}
+  local TMP_IFS="${IFS}"
+  local TMP_VERSION=""
+  local TMP_KERNEL=""
+  local TMP_CONFIG=""
+  
+  IFS="-"
+  TMP_VERSION=(${TMP_DATA})
+  TMP_VERSION=${TMP_VERSION[0]}
+  IFS="."	
+  TMP_DATA=${TMP_DATA#${TMP_VERSION}-}
+  TMP_KERNEL=(${TMP_DATA})
+  TMP_KERNEL=${TMP_KERNEL[0]}
+  IFS="_"
+  TMP_DATA=${TMP_DATA#${TMP_KERNEL}.}
+  TMP_CONFIG=(${TMP_DATA})
+  TMP_CONFIG=${TMP_CONFIG[0]}
+  IFS="${TMP_IFS}"
+  TMP_DATA="$((${#TMP_CONFIG}-1))"
+  TMP_DATA="${TMP_CONFIG:$TMP_DATA:1}"
+  if [ "${TMP_DATA}" == "+" ]; then
+    TMP_VERSION="${TMP_VERSION}+"
+    TMP_CONFIG="${TMP_CONFIG%?}"
+  fi
+  printf "%s %s %s" "${TMP_KERNEL}" "${TMP_CONFIG}" "${TMP_VERSION}"
 }
 
 # usage checkConfig 

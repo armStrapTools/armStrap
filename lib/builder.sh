@@ -130,27 +130,27 @@ function kernelPack {
   
   for TMP_I in *.deb; do 
     local TMP_STR="${TMP_I%%_*}"
-#    "`echo ${TMP_I} | cut -d'_' -f1`"
-    
+  
     if [[ $TMP_STR == *image-* ]]; then
-      TMP_KERNEL_SCR="${TMP_I/image/kernel}"
-      TMP_KERNEL_SCR="${TMP_KERNEL_SCR/.deb/.sh}"
-      TMP_KERNEL_SCR="${ARMSTRAP_PKG}/${TMP_KERNEL_SCR}"
-      TMP_KERNEL_IMG="$TMP_STR"
+      if [[ $TMP_STR != *-dbg ]]; then
+        TMP_KERNEL_SCR="${TMP_I/image/kernel}"
+        TMP_KERNEL_SCR="${TMP_KERNEL_SCR/.deb/.sh}"
+        TMP_KERNEL_SCR="${ARMSTRAP_PKG}/${TMP_KERNEL_SCR}"
+        TMP_KERNEL_IMG="$TMP_STR"
+      fi
     fi
-    
+  
     if [[ $TMP_STR == *headers-* ]]; then
       TMP_KERNEL_HDR="$TMP_STR"
     fi
-	
+
     if [[ $TMP_STR == *libc-* ]]; then
       TMP_KERNEL_LBC="$TMP_STR"
     fi
-	
+
     if [[ $TMP_STR == *firmware-* ]]; then
       TMP_KERNEL_FWR="$TMP_STR"
     fi
-  
   done
 
   rm -f ${TMP_KERNEL_SCR}
