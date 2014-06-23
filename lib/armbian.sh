@@ -651,7 +651,7 @@ function default_installRoot {
   fi
   
   if [ ! -z ${BOARD_KERNEL_DTB} ]; then
-    armStrapConfig "${ARMSTRAP_MNT}" "uboot_kernel_dtb=dtbs/${BOARD_KERNEL_DTB}"
+    armStrapConfig "${ARMSTRAP_MNT}" "uboot_kernel_dtb=\${uboot_kernel_dtb_path}/${BOARD_KERNEL_DTB}"
   fi
   
   if [ ! -z ${BOARD_LOADER_NAND_KERNEL} ]; then
