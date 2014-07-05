@@ -21,4 +21,4 @@ buildall.sh
 boards/*/kernel/*custom_defconfig
 sdchroot
 config_local.sh
-
+cleanrepo.sh
