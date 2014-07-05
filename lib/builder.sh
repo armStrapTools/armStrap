@@ -103,23 +103,12 @@ Description: DTBs files for kernel ${TMP_BUILD_DTBSVN}.
  version ${TMP_BUILD_DTBSVN}. To be used with armStrap
  kernels.
 EOF
-  cat >> "${ARMSTRAP_PKG}/deb-pkg/DEBIAN/postinst" <<EOF
-#!/bin/bash
-tmp_armStrap=\$(mktemp /etc/armStrap.XXXXXX)
-touch /etc/armStrap.conf
-rm /etc/armStrap.bak
-cp /etc/armStrap.conf /etc/armStrap.bak
-rm -f /etc/armStrap.conf
-mv \${tmp_armStrap} -f /etc/armStrap.conf
-EOF
-  chmod +x "${ARMSTRAP_PKG}/deb-pkg/DEBIAN/postinst"
   cd "${ARMSTRAP_PKG}/deb-pkg"
   find . -type f ! -regex '.*.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > ${ARMSTRAP_PKG}/deb-pkg/DEBIAN/md5sum
   cd "${ARMSTRAP_ROOT}"
   dpkg -b "${ARMSTRAP_PKG}/deb-pkg" "${ARMSTRAP_PKG}/linux-dtbs-${TMP_BUILD_DTBSVN}_armhf.deb" >> ${ARMSTRAP_LOG_FILE} 2>&1
   rm -rf "${ARMSTRAP_PKG}/deb-pkg"
 }
-
 
 #Usage : kernelPack <linux_dir> <config_dir> <arch> <eabi> <config> <cflags> [<MKIMAGE> <FIRMWARE>]
 function kernelPack {

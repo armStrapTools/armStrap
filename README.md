@@ -14,8 +14,8 @@ You need to be root to run this script. You have two options:
    many changes and some options have changed meanings or simply do nothing. Use the config
    file until i remove this message) :
 
-    armStrap.sh version 0.86
-    Copyright (C) 2013 Eddy Beaupre
+    armStrap.sh version 0.93
+    Copyright (C) 2013-2014 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
     
@@ -78,23 +78,26 @@ You need to be root to run this script. You have two options:
           hackberry u-boot-sunxi-next.txz
          cubietruck      u-boot-sunxi.txz
          cubietruck u-boot-sunxi-next.txz
-         cubieboard      u-boot-sunxi.txz
-         cubieboard u-boot-sunxi-next.txz
+         cubietruck u-boot-sunxi-nand.txz
         cubieboard2      u-boot-sunxi.txz
         cubieboard2 u-boot-sunxi-next.txz
+        cubieboard2 u-boot-sunxi-nand.txz
+         cubieboard      u-boot-sunxi.txz
+         cubieboard u-boot-sunxi-next.txz
               a70xh      u-boot-sunxi.txz
               a70xh u-boot-sunxi-next.txz
+              a70xh u-boot-sunxi-nand.txz
     
     Avalable Kernels:
     
              Kernel     Config    Version
     --------------- ---------- ----------
-         sunxi-next    default     3.15.0
-        sunxi-devel    default     3.15.0
-              sun7i    default    3.4.90+
-           sun7i-ct    default    3.4.79+
-              sun4i    default    3.4.90+
              bcmrpi    default    3.6.11+
+              sun7i    default    3.4.90+
+           sun7i-ct    default    3.4.90+
+              sun4i    default    3.4.90+
+         sunxi-next    default    3.16.0+
+           mainline    default    3.16.0+
     
     Avalable RootFS:
     
@@ -112,12 +115,12 @@ You need to be root to run this script. You have two options:
 
 Licence
 -------
-Copyright (c) 2013 Eddy Beaupre. All rights reserved.
+Copyright (c) 2013-2014 Eddy Beaupre. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- 
+
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

@@ -1,6 +1,6 @@
 
-if [ ! -z "${ARMSTRAP_BOARD_KERNEL}" ]; then
-  BOARD_KERNEL="${ARMSTRAP_BOARD_KERNEL}"
+if [ ! -z "${ARMSTRAP_KERNEL}" ]; then
+  BOARD_KERNEL="${ARMSTRAP_KERNEL}"
 fi
 
 if [ ! -z "${ARMSTRAP_BOARD_LOADER}" ]; then

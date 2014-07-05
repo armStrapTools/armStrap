@@ -1,7 +1,7 @@
 function showLicence {
   cat <<EOF
 -------------------------------------------------------------------------------
-Copyright (c) 2013 Eddy Beaupre. All rights reserved.
+Copyright (c) 2013-2014 Eddy Beaupre. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions are met:
@@ -117,7 +117,7 @@ function showUsage {
 function showTitle {
   if [ -z "${ARMSTRAP_LOG_SILENT}" ]; then
     printf "\n${ANS_BLD}%s version %s${ANS_RST}\n" "${1}" "${2}"
-    printf "Copyright (C) 2013 Eddy Beaupre\n\n"
+    printf "Copyright (C) 2013-2014 Eddy Beaupre\n\n"
   fi
 }
 
