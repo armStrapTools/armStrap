@@ -590,8 +590,8 @@ function default_installRoot {
   setHostName "${ARMSTRAP_MNT}" "${ARMSTRAP_HOSTNAME}"
   
   addRepoKey "${ARMSTRAP_MNT}" "${ARMSTRAP_ABUILDER_REPO_KEYSRV}" "${ARMSTRAP_ABUILDER_REPO_KEYHSH}"
-  addRepo "${ARMSTRAP_MNT}" "armStrap-${BOARD_ROOTFS_FAMILY}" "${ARMSTRAP_ABUILDER_REPO_URL}" "${BOARD_ROOTFS_FAMILY}" "main"
-  addRepo "${ARMSTRAP_MNT}" "armStrap-${BOARD_ROOTFS_FAMILY}" "${ARMSTRAP_ABUILDER_REPO_URL}" "armStrap" "main"
+  addRepo "${ARMSTRAP_MNT}" "armStrap-${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}" "${ARMSTRAP_ABUILDER_REPO_URL}" "${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}" "main"
+  addRepo "${ARMSTRAP_MNT}" "armStrap-${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}" "${ARMSTRAP_ABUILDER_REPO_URL}" "armStrap" "main"
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Updating RootFS")
   chrootUpgrade "${ARMSTRAP_MNT}"
