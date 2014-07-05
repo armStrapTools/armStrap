@@ -278,8 +278,9 @@ echo "deb-src ${ARMSTRAP_ABUILDER_REPO_URL} \${KERNEL_TYPE} main" >> /etc/apt/so
 
 KERNEL_IMG=\$(/usr/bin/apt-cache search "linux-image-\${KERNEL_VERSION}" | grep "\${KERNEL_TYPE}.\${KERNEL_CONFIG}" | sort -r | head -n 1 | cut -d ' ' -f 1)
 KERNEL_HDR=\${KERNEL_IMG/-image-/-headers-}
+KERNEL_DTB=\$(/usr/bin/apt-cache search -qn \${KERNEL_IMG/-image-/-dtbs-} | /usr/bin/awk '{print \$1;}')
 
-/usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR}
+/usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR} \${KERNEL_DTB}
 EOF
 
   chmod +x "${TMP_CHROOT}/${TMP_KERNEL}"
