@@ -113,6 +113,15 @@ You need to be root to run this script. You have two options:
     
     With no parameter, create an image using values found in config.sh.
 
+Nand Installer
+--------------
+
+A script to install the operating system in Nand, supporting the CubieBoard/HackBerry, CubieBoard2 and CubieTruck.
+
+    Usage : armStrap-nandinstaller <cubieboard|cubieboard2|cubietruck>
+
+Use the cubieboard target to install on CubieBoard/HackBerry.
+
 Licence
 -------
 Copyright (c) 2013-2014 Eddy Beaupre. All rights reserved.
