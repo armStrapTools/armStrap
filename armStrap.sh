@@ -227,11 +227,14 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:clWANIMgq" opt; do
     \?)
       showUsage
       ARMSTRAP_EXIT="Yes"
+      ARMSTRAP_EXIT_LEVEL=0
       ;;
     :)
       printf "Option -%s requires an argument.\n\n" "${OPTARG}"
       showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
       showUsage
+      ARMSTRAP_EXIT="Yes"
+      ARMSTRAP_EXIT_LEVEL=1
       exit 1
     ;;
   esac
@@ -239,7 +242,8 @@ done
 
 isTrue "${ARMSTRAP_EXIT}"
 if [ $? -ne 0 ]; then
-  exit 0
+  rm -f "${ARMSTRAP_LOG_FILE}"
+  exit ${ARMSTRAP_EXIT_LEVEL}
 fi
 
 showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"
