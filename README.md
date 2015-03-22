@@ -145,15 +145,15 @@ To add the key needed to use the repository, you can do something like this:
 
 The repository is located at https://archive.armstrap.net/apt/ and has the following suites avalables:
 
-. armStrap : General scripts and tools used by armStrap
-. armv6l : Specific scripts and tools for the armv6l architecture.
-. armv7l : Specific scripts and tolls for the armv7l architecture.
-. bcmrpi : Kernels for bcmrpi CPU (Raspberry PI).
-. sun4i : Linux 3.4 Kernel for sun4i CPU (A10).
-. sun7i : Linux 3.4 Kernel for sun7i CPU (A20).
-. sun7i-ct : Linux 3.4 Kernel for sun7i CPU with AP6210 WiFI/Bluetooth support.
-. sunxi-next : Mainline Linux Kernel for sunxi CPU (Linux-Sunxi version).
-. mainline : Official Linux Kernel for sunxi CPU.
+* armStrap : General scripts and tools used by armStrap
+* armv6l : Specific scripts and tools for the armv6l architecture.
+* armv7l : Specific scripts and tolls for the armv7l architecture.
+* bcmrpi : Kernels for bcmrpi CPU (Raspberry PI).
+* sun4i : Linux 3.4 Kernel for sun4i CPU (A10).
+* sun7i : Linux 3.4 Kernel for sun7i CPU (A20).
+* sun7i-ct : Linux 3.4 Kernel for sun7i CPU with AP6210 WiFI/Bluetooth support.
+* sunxi-next : Mainline Linux Kernel for sunxi CPU (Linux-Sunxi version).
+* mainline : Official Linux Kernel for sunxi CPU.
 
 Please note that i offer no support for theses kernels unless the issue is specific to armStrap. Use the official channels to report bugs and wishes for theses.
 
