@@ -146,3 +146,26 @@ ARMSTRAP_ROOTFS_VERSION="trusty"
 # Specify the size of the image to be build in MB
 #
 #ARMSTRAP_IMAGE_SIZE="2048"
+
+##############################################################################
+# Repository Configuration
+#
+# Theses are used by armStrap to populate to and fetch from the
+# official webserver. Unless you're me or want to create your
+# own fork, there's absolutly no need to fiddle with theses.
+#
+#ARMSTRAP_ABUILDER_URL="http://archive.armstrap.net"
+#ARMSTRAP_ABUILDER_ROOT="/var/www/armstrap.net"
+#ARMSTRAP_ABUILDER_KERNEL="${ARMSTRAP_ABUILDER_ROOT}/kernel"
+#ARMSTRAP_ABUILDER_KERNEL_URL="${ARMSTRAP_ABUILDER_URL}/kernel"
+#ARMSTRAP_ABUILDER_ROOTFS="${ARMSTRAP_ABUILDER_ROOT}/rootfs"
+#ARMSTRAP_ABUILDER_ROOTFS_URL="${ARMSTRAP_ABUILDER_URL}/rootfs"
+#ARMSTRAP_ABUILDER_LOADER="${ARMSTRAP_ABUILDER_ROOT}/loader"
+#ARMSTRAP_ABUILDER_LOADER_URL="${ARMSTRAP_ABUILDER_URL}/loader"
+#ARMSTRAP_ABUILDER_LOGS="${ARMSTRAP_ABUILDER_ROOT}/logs"
+#ARMSTRAP_ABUILDER_LOGS_URL="${ARMSTRAP_ABUILDER_URL}/logs"
+#ARMSTRAP_ABUILDER_REPO="/var/www/armstrap.net/"
+#ARMSTRAP_ABUILDER_REPO_URL="${ARMSTRAP_ABUILDER_URL}/apt/armstrap/"
+#ARMSTRAP_ABUILDER_REPO_KEYSRV="pgpkeys.mit.edu"
+#ARMSTRAP_ABUILDER_REPO_KEYHSH="1F7F94D7A99BC726"
+#ARMSTRAP_ABUILDER_REPO_ENABLE="true"

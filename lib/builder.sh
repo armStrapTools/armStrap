@@ -88,7 +88,7 @@ function dtbsPack {
   printStatus "dtbsPack" "Creating DTBs package."
   rm -rf "${ARMSTRAP_PKG}/deb-pkg"
   ccMake "${TMP_BUILD_CPUARC}" "${TMP_BUILD_CPUABI}" "${TMP_BUILD_WRKDIR}" "${TMP_BUILD_CFLAGS}" "EXTRAVERSION=-${TMP_BUILD_CFGTYP}.${TMP_BUILD_CONFIG}" "INSTALL_PATH=${ARMSTRAP_PKG}/deb-pkg/boot" dtbs_install
-  TMP_BUILD_DTBSVN="$(ls ${ARMSTRAP_PKG}/deb-pkg/boot/dtbs/)"
+  TMP_BUILD_DTBSVN="$(ls ${ARMSTRAP_PKG}/deb-pkg/boot/dtbs/ 2>/dev/null)"
   checkDirectory "${ARMSTRAP_PKG}/deb-pkg/DEBIAN"
   cat >> "${ARMSTRAP_PKG}/deb-pkg/DEBIAN/control" <<EOF
 Package: linux-dtbs-${TMP_BUILD_DTBSVN}
@@ -471,8 +471,8 @@ function rootfsMount {
 # usage repoPost <KERNEL_TYPE> <DEB_PACKAGE>
 function repoPost {
     local TMP_FILE="`basename ${2}`"
-    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main remove ${1} ${TMP_FILE%%_*}
-    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main includedeb ${1} ${2}
+    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main remove ${1} ${TMP_FILE%%_*} >> ${ARMSTRAP_LOG_FILE} 2>&1
+    REPREPRO_BASE_DIR="${ARMSTRAP_ABUILDER_REPO}" reprepro -C main includedeb ${1} ${2} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 function kernelPost {
