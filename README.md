@@ -140,8 +140,8 @@ I also maintain a few repositories, mainly to support armStrap but which can als
 
 To add the key needed to use the repository, you can do something like this:
 
-  gpg --keyserver pgpkeys.mit.edu --recv-key 1F7F94D7A99BC726
-  gpg --armor --export 1F7F94D7A99BC726 | apt-key add -
+    gpg --keyserver pgpkeys.mit.edu --recv-key 1F7F94D7A99BC726
+    gpg --armor --export 1F7F94D7A99BC726 | apt-key add -
 
 The repository is located at https://archive.armstrap.net/apt/ and has the following suites avalables:
 
