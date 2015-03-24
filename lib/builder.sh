@@ -247,7 +247,6 @@ function kernelPack {
 # usage kernelBuild <FAMILY>
 function kernelBuild {
   local TMP_KRNDIR="${ARMSTRAP_KERNELS}/${1}"
-  local TMP_LOG="${ARMSTRAP_LOG}/armStrap-Kernel_${1}_${ARMSTRAP_DATE}.log"
   if [ -f "${TMP_KRNDIR}/config.sh" ]; then
     local TMP_GUI
     ARMSTRAP_GUI_PCT=0
@@ -256,9 +255,6 @@ function kernelBuild {
     TMP_GUI=$(guiWriter "start" "Kernel Builder (${1})" "Progress")
     printStatus "kernelBuild" "Kernel Builder"
     source ${TMP_KRNDIR}/config.sh
-    rm -f ${TMP_LOG}
-    mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
-    ARMSTRAP_LOG_FILE="${TMP_LOG}"
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing kernel builder for ${1}")
     gitClone "${BUILD_KERNEL_SOURCE}" "${BUILD_KERNEL_GITSRC}" "${BUILD_KERNEL_GITBRN}"
     ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Building kernel for ${1}")
@@ -280,7 +276,6 @@ function kernelBuild {
 function bootBuilder {
   local TMP_BLRDIR="${ARMSTRAP_BOOTLOADERS}/${1}"
   local TMP_BLRCFG="${TMP_BLRDIR}/${2}"
-  local TMP_LOG="${ARMSTRAP_LOG}/armStrap-BootLoader_${1}-${2}_${ARMSTRAP_DATE}.log"
 
   if [ -f "${TMP_BLRCFG}/config.sh" ]; then
     local TMP_GUI
@@ -292,9 +287,6 @@ function bootBuilder {
     BUILD_BOOTLOADER_TYPE="${1}"
     printStatus "bootBuilder" "Loading configuration for ${1} (${2})"
     source ${TMP_BLRCFG}/config.sh
-    rm -f ${TMP_LOG}
-    mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
-    ARMSTRAP_LOG_FILE="${TMP_LOG}"
     case ${BUILD_BOOTLOADER_TYPE} in
       u-boot*)        ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing ${BUILD_BOOTLOADER_TYPE} for ${BUILD_BOOTLOADER_NAME}")
                       printStatus "bootBuilder" "Initializing ${BUILD_BOOTLOADER_TYPE} for ${BUILD_BOOTLOADER_NAME}"
@@ -353,7 +345,6 @@ function bootBuilder {
 function rootfsUpdater {
   local TMP_RFSDIR="${ARMSTRAP_ROOTFS}/${2}"
   local TMP_RFSCFG="${TMP_RFSDIR}/${1}"
-  local TMP_LOG="${ARMSTRAP_LOG}/armStrap-RootFSUpdater_${1}-${2}_${ARMSTRAP_DATE}.log"
   
   printStatus "rootfsUpdater" "${TMP_RFSCFG}"
   
@@ -370,9 +361,6 @@ function rootfsUpdater {
     source ${TMP_RFSCFG}/config.sh
 
     printStatus "rootfsUpdater" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILY}-${BUILD_ROOTFS_ARCH})"
-    rm -f ${TMP_LOG}
-    mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
-    ARMSTRAP_LOG_FILE="${TMP_LOG}"
 
     if [ -d "${BUILD_ROOTFS_SRC}" ]; then
       rm -rf "${BUILD_ROOTFS_SRC}"
@@ -409,7 +397,6 @@ function rootfsUpdater {
 function rootfsMount {
   local TMP_RFSDIR="${ARMSTRAP_ROOTFS}/${2}"
   local TMP_RFSCFG="${TMP_RFSDIR}/${1}"
-  local TMP_LOG="${ARMSTRAP_LOG}/armStrap-RootFSUpdater_${1}-${2}_${ARMSTRAP_DATE}.log"
   
   printStatus "rootfsMount" "${TMP_RFSCFG}"
   
@@ -426,9 +413,6 @@ function rootfsMount {
     source ${TMP_RFSCFG}/config.sh
 
     printStatus "rootfsMount" "Loading configuration for ${BUILD_ROOTFS_TYPE} (${BUILD_ROOTFS_FAMILY}-${BUILD_ROOTFS_ARCH})"
-    rm -f ${TMP_LOG}
-    mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
-    ARMSTRAP_LOG_FILE="${TMP_LOG}"
 
     if [ -d "${BUILD_ROOTFS_SRC}" ]; then
       rm -rf "${BUILD_ROOTFS_SRC}"

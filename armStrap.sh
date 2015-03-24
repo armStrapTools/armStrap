@@ -256,16 +256,25 @@ checkDirectory ${ARMSTRAP_SRC}
 checkDirectory ${ARMSTRAP_PKG}
 
 if [ ! -z "${ARMSTRAP_ABUILDER}" ]; then
+  rm -f "${ARMSTRAP_LOG}/armStrap-Builder-${ARMSTRAP_DATE}.log"
+  mv "${ARMSTRAP_LOG_FILE}" "${ARMSTRAP_LOG}/armStrap-Builder-${ARMSTRAP_DATE}.log"
+  ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/armStrap-Builder-${ARMSTRAP_DATE}.log"
   armStrapBuild
   exit 0
 fi
 
 if [ ! -z "${ARMSTRAP_KBUILDER}" ]; then
+  rm -f "${ARMSTRAP_LOG}/armStrap-Kernel-${ARMSTRAP_DATE}.log"
+  mv "${ARMSTRAP_LOG_FILE}" "${ARMSTRAP_LOG}/armStrap-Kernel-${ARMSTRAP_DATE}.log"
+  ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/armStrap-Kernel-${ARMSTRAP_DATE}.log"
   kernelPost ${ARMSTRAP_KBUILDER}
   exit 0
 fi
 
 if [ ! -z "${ARMSTRAP_BBUILDER}" ]; then
+  rm -f "${ARMSTRAP_LOG}/armStrap-Loader-${ARMSTRAP_DATE}.log"
+  mv "${ARMSTRAP_LOG_FILE}" "${ARMSTRAP_LOG}/armStrap-Loader-${ARMSTRAP_DATE}.log"
+  ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/armStrap-Loader-${ARMSTRAP_DATE}.log"
   if [ "${ARMSTRAP_BBUILDER}" = "-" ]; then
     loaderPost
   else
@@ -275,7 +284,11 @@ if [ ! -z "${ARMSTRAP_BBUILDER}" ]; then
 fi
 
 if [ ! -z "${ARMSTRAP_RUPDATER}" ]; then
+  rm -f "${ARMSTRAP_LOG}/armStrap-RootFS-${ARMSTRAP_DATE}.log"
+  mv "${ARMSTRAP_LOG_FILE}" "${ARMSTRAP_LOG}/armStrap-RootFS-${ARMSTRAP_DATE}.log"
+  ARMSTRAP_LOG_FILE="${ARMSTRAP_LOG}/armStrap-RootFS-${ARMSTRAP_DATE}.log"
   if [ "${ARMSTRAP_RUPDATER}" = "-" ]; then
+
     rootfsPost
   else
     if [ -z "${ARMSTRAP_RMOUNT}" ]; then
