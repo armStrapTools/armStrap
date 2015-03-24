@@ -210,10 +210,18 @@ function testInstall {
   fi
 }
 
+# Usage : isFile <FILE>
+function isFile {
+  if ! [ -f ${1} ]; then
+    printStatus "isFile" "${i} is not a file"
+    return 1
+  fi
+}
+
 # Usage : isBlockDev <DEVICE>
 function isBlockDev {
+
   if ! [ -b ${1} ]; then
-    echo ""
     printStatus "isBlockDev" "Device ${1} is not a block device"
     return 1
   fi  
@@ -223,9 +231,11 @@ function isBlockDev {
 # Usage: isRemDevice <DEVICE>
 function isRemDevice {
   local TMP_DEVICE=`basename ${1}`
-  if [ `cat /sys/block/${TMP_DEVICE}/removable` != "1" ]; then
-    printStatus "isRemDevice" "Device ${1} is not a removeable device"
-    return 1
+  if [[ ${TMP_DEVICE} != "mmcblk"* ]]; then
+    if [ `cat /sys/block/${TMP_DEVICE}/removable` != "1" ]; then
+      printStatus "isRemDevice" "Device ${1} is not a removeable device"
+      return 1
+    fi
   fi
   return 0
 }

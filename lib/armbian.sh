@@ -678,7 +678,7 @@ function default_installBoot {
   
   if [ ! -z "${BOARD_LOADER}" ]; then
     case ${BOARD_LOADER} in
-      u-boot-sunxi*)
+      u-boot*)
         guiStart
         TMP_GUI=$(guiWriter "start" "Installing BootLoader" "Progress")
   
