@@ -296,7 +296,7 @@ function bootBuilder {
     mv ${ARMSTRAP_LOG_FILE} ${TMP_LOG}
     ARMSTRAP_LOG_FILE="${TMP_LOG}"
     case ${BUILD_BOOTLOADER_TYPE} in
-      u-boot-sunxi*) ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing ${BUILD_BOOTLOADER_TYPE} for ${BUILD_BOOTLOADER_NAME}")
+      u-boot*)        ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing ${BUILD_BOOTLOADER_TYPE} for ${BUILD_BOOTLOADER_NAME}")
                       printStatus "bootBuilder" "Initializing ${BUILD_BOOTLOADER_TYPE} for ${BUILD_BOOTLOADER_NAME}"
                       gitClone "${BUILD_BOOTLOADER_SOURCE}" "${BUILD_BOOTLOADER_GITSRC}" "${BUILD_BOOTLOADER_GITBRN}"
                       ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Initializing ${BUILD_BOOTLOADER_TYPE} for ${BUILD_BOOTLOADER_NAME}")
