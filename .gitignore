@@ -15,6 +15,7 @@ bin/
 pkg/
 bak/
 img/
+env/
 
 # Misc
 buildall.sh

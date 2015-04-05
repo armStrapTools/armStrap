@@ -2,7 +2,7 @@
 # Build configuration
 #
 # Set this to the name of the board you want to build
-ARMSTRAP_CONFIG="CubieTruck"
+#ARMSTRAP_CONFIG="CubieTruck"
 
 ##############################################################################
 # Basic configuration
@@ -62,8 +62,8 @@ ARMSTRAP_CONFIG="CubieTruck"
 # Currently we support ubuntu and debian for armv7l and Raspbian for armv6l.
 # Board configuration generally have debian stable as default value.
 #
-ARMSTRAP_ROOTFS_FAMILY="ubuntu"
-ARMSTRAP_ROOTFS_VERSION="trusty"
+#ARMSTRAP_ROOTFS_FAMILY="ubuntu"
+#ARMSTRAP_ROOTFS_VERSION="utopic"
 
 ##############################################################################
 # Kernel Section
@@ -153,7 +153,7 @@ ARMSTRAP_ROOTFS_VERSION="trusty"
 # Theses are used by armStrap to populate to and fetch from the
 # official webserver. Unless you're me or want to create your
 # own fork, there's absolutly no need to fiddle with theses.
-#
+#[B
 #ARMSTRAP_ABUILDER_URL="http://archive.armstrap.net"
 #ARMSTRAP_ABUILDER_ROOT="/var/www/armstrap.net"
 #ARMSTRAP_ABUILDER_KERNEL="${ARMSTRAP_ABUILDER_ROOT}/kernel"
@@ -169,3 +169,13 @@ ARMSTRAP_ROOTFS_VERSION="trusty"
 #ARMSTRAP_ABUILDER_REPO_KEYSRV="pgpkeys.mit.edu"
 #ARMSTRAP_ABUILDER_REPO_KEYHSH="1F7F94D7A99BC726"
 #ARMSTRAP_ABUILDER_REPO_ENABLE="true"
+
+##############################################################################
+# ARM test and compilation environment
+#
+# Theses are used by armStrap to create an ARM environment where armStrap 
+# packages can be tested or build without any ARM hardware.
+#
+#ARMSTRAP_ARMENV_FAMILY="ubuntu"
+#ARMSTRAP_ARMENV_VERSION="utopic"
+#ARMSTRAP_ARMENV_PERSISTENT="Yes"

@@ -452,6 +452,97 @@ function rootfsMount {
   fi
 }
 
+function armEnvExecute {
+    local TMP_GUI
+    local TMP_ARMENV_ARCH="${1}"
+    shift
+    local TMP_ARMENV_TYPE="${1}"
+    shift
+    local TMP_ARMENV_FAMILY="${1}"
+    shift
+    local TMP_ARMENV_ENV="${1}"
+    shift
+    local TMP_ARMENV_PERSISTENT="${1}"
+    shift
+    local TMP_ARMENV_DIR="${TMP_ARMENV_ENV}/${TMP_ARMENV_ARCH}-${TMP_ARMENV_TYPE}-${TMP_ARMENV_FAMILY}"
+    local TMP_ARMENV_URL="${TMP_ARMENV_DIR}${ARMSTRAP_TAR_EXTENSION}"
+    
+    ARMSTRAP_GUI_PCT=0
+    guiStart
+    TMP_GUI=$(guiWriter "name" "armStrap")
+    TMP_GUI=$(guiWriter "start" "ARM Environment (${TMP_ARMENV_ARCH}/${TMP_ARMENV_TYPE}/${TMP_ARMENV_FAMILY})" "Progress")
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing")
+
+    if ! [ -d "${TMP_ARMENV_DIR}" ]; then
+      checkDirectory "${TMP_ARMENV_DIR}"
+      if ! [ -f ${TMP_ARMENV_URL} ]; then
+        ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Fetching and extracting ARM Environment filesystem")
+        TMP_ARMENV_URL="${ARMSTRAP_ABUILDER_ROOTFS_URL}/${TMP_ARMENV_ARCH}-${TMP_ARMENV_TYPE}-${TMP_ARMENV_FAMILY}${ARMSTRAP_TAR_EXTENSION}"
+        httpExtract "${TMP_ARMENV_DIR}" "${TMP_ARMENV_URL}" "${ARMSTRAP_TAR_EXTRACT}"
+      else
+        ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Extracting local ARM Environment filesystem")
+        ${ARMSTRAP_TAR_EXTRACT_LOCAL} ${TMP_ARMENV_URL} -C "${TMP_ARMENV_DIR}" >> ${ARMSTRAP_LOG_FILE} 2>&1
+      fi
+    else
+      ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Using local ARM Environment filesystem")
+    fi
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Entering shell")
+    guiStop
+    if [ "${1}" = "-" ]; then
+      shellRun "${TMP_ARMENV_DIR}"
+    else
+      shellRun "${TMP_ARMENV_DIR}" "${@}"
+    fi
+    guiStart
+    TMP_GUI=$(guiWriter "name" "armStrap")
+    TMP_GUI=$(guiWriter "start" "ARM Environment (${TMP_ARMENV_ARCH}/${TMP_ARMENV_TYPE}/${TMP_ARMENV_FAMILY})" "Progress")
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Cleaning up")
+    if [ -z "${TMP_ARMENV_PERSISTENT}" ]; then
+      printStatus "armEnvExecute" "Removing ARM Environment filesystem"
+      rm -rf "${TMP_ARMENV_DIR}"
+    fi
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  30 "Done")
+    guiStop
+}
+
+function armEnvBackup {
+    local TMP_GUI
+    local TMP_ARMENV_ARCH="${1}"
+    shift
+    local TMP_ARMENV_TYPE="${1}"
+    shift
+    local TMP_ARMENV_FAMILY="${1}"
+    shift
+    local TMP_ARMENV_ENV="${1}"
+    shift
+    local TMP_ARMENV_DIR="${TMP_ARMENV_ENV}/${TMP_ARMENV_ARCH}-${TMP_ARMENV_TYPE}-${TMP_ARMENV_FAMILY}"
+    local TMP_ARMENV_URL="${TMP_ARMENV_DIR}${ARMSTRAP_TAR_EXTENSION}"
+    
+    ARMSTRAP_GUI_PCT=0
+    guiStart
+    TMP_GUI=$(guiWriter "name" "armStrap")
+    TMP_GUI=$(guiWriter "start" "ARM Environment (${TMP_ARMENV_ARCH}/${TMP_ARMENV_TYPE}/${TMP_ARMENV_FAMILY})" "Progress")
+
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Initializing")
+    printStatus "armEnvBackup" "Source : ${TMP_ARMENV_DIR}"
+    printStatus "armEnvBackup" "Destination : ${TMP_ARMENV_URL}"
+    
+    if [ -d "${TMP_ARMENV_DIR}" ]; then
+      ARMSTRAP_GUI_PCT=$(guiWriter "add"  29 "Creating backup")
+      printStatus "armEnvBackup" "Source : ${TMP_ARMENV_DIR}"
+      printStatus "armEnvBackup" "Destination : ${TMP_ARMENV_URL}"
+      ${ARMSTRAP_TAR_COMPRESS} "${TMP_ARMENV_URL}" -C "${TMP_ARMENV_DIR}" --one-file-system ./ >> ${ARMSTRAP_LOG_FILE} 2>&1
+    else
+      printStatus "armEnvBackup" "Nothing to backup"
+    fi
+    
+    ARMSTRAP_GUI_PCT=$(guiWriter "add"  90 "Done")
+    guiStop
+  
+}
+
 # usage repoPost <KERNEL_TYPE> <DEB_PACKAGE>
 function repoPost {
     local TMP_FILE="`basename ${2}`"
