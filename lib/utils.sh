@@ -62,6 +62,9 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "-" "Update all avalables RootFS."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-O" "<ARCH>" "Select which architecture to update."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-M" "" "Execute a shell into the RootFS instead of updating it."
+  printf "\n${ANS_BLD}ARM Environment${ANS_RST}:\n"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-E" "[COMMAND]" "Shell into or execute COMMAND into the ARM Environment."
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-S" "" "Create a backup of the ARM Environment."
   printf "\n${ANS_BLD}All Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
@@ -802,4 +805,18 @@ function fetchIndex {
   done <<< "`wget -a ${ARMSTRAP_LOG_FILE} -O - ${ARMSTRAP_ABUILDER_URL}/.index.php`"
   printStatus "fetchIndex" "Done"
   
+}
+
+# usage setValue <TAG_NAME> <NEW_VALUE>
+function setValue {
+  local tmpfile="$(mktemp ${1}.XXXXXXXXXX)"
+  
+  sed 's/^'"${2}"'.*/'"${2} ${3}/" < "${1}" > "${tmpfile}"
+  rm -f "${1}"
+  mv "${tmpfile}" "${1}"
+}
+
+# usage getValue <TAG_NAME>
+function getValue {
+  cat "${1}" | grep "${2}" | awk '{ print $2 }'
 }

@@ -24,6 +24,7 @@ ARMSTRAP_LOG="${ARMSTRAP_ROOT}/log"
 ARMSTRAP_IMG="${ARMSTRAP_ROOT}/img"
 ARMSTRAP_SRC="${ARMSTRAP_ROOT}/src"
 ARMSTRAP_PKG="${ARMSTRAP_ROOT}/pkg"
+ARMSTRAP_ENV="${ARMSTRAP_ROOT}/env"
 
 ARMSTRAP_BOARDS="${ARMSTRAP_ROOT}/boards"
 ARMSTRAP_KERNELS="${ARMSTRAP_ROOT}/builder/kernels"
@@ -42,6 +43,11 @@ ARMSTRAP_GUI_FF1=$(mktemp --tmpdir armStrap_UI.XXXXXXXX)
 ARMSTRAP_GUI_FF2=$(mktemp --tmpdir armStrap_UI.XXXXXXXX)
 ARMSTRAP_GUI_PCT=0
 ARMSTRAP_GUI_DISABLE=""
+
+# The default configuration we use.
+ARMSTRAP_CONFIG="CubieTruck"
+ARMSTRAP_ROOTFS_FAMILY="ubuntu"
+ARMSTRAP_ROOTFS_VERSION="utopic"
 
 # The image name is defined later.
 ARMSTRAP_IMAGE_NAME=""
@@ -96,7 +102,15 @@ ARMSTRAP_ABUILDER_REPO_URL="${ARMSTRAP_ABUILDER_URL}/apt"
 ARMSTRAP_ABUILDER_REPO_KEYSRV="pgpkeys.mit.edu"
 ARMSTRAP_ABUILDER_REPO_KEYHSH="1F7F94D7A99BC726"
 
+# Theses are for the test and compilation environment
+ARMSTRAP_ARMENV_ARCH="armv7l"
+ARMSTRAP_ARMENV_TYPE="ubuntu"
+ARMSTRAP_ARMENV_FAMILY="utopic"
+ARMSTRAP_ARMENV_PERSISTENT="Yes"
+
+# Theses are used to create and extract archives
 ARMSTRAP_TAR_EXTRACT="tar -xJ"
+ARMSTRAP_TAR_EXTRACT_LOCAL="tar -xJvf"
 ARMSTRAP_TAR_COMPRESS="tar -cJvf"
 ARMSTRAP_TAR_EXTENSION=".txz"
 
@@ -140,7 +154,11 @@ detectAnsi
 fetchIndex
 
 ARMSTRAP_EXIT=""
+<<<<<<< HEAD
 while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:S:R:clWANIMgq" opt; do
+=======
+while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:E:clWANIMSgq" opt; do
+>>>>>>> fbcf9bda055cdf4ea84dc6668c5fd3d531ccdc5b
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -221,6 +239,16 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:S:R:clWANIMgq" opt; do
         ARMSTRAP_ABUILDER_HOOK="${OPTARG}"
       fi
       ;;
+    E)
+      ARMSTRAP_ARMENV="Yes"
+      if [ ! -z "${OPTARG}" ]; then
+        ARMSTRAP_ARMENV_COMMAND="${OPTARG}"
+      fi
+      ;;
+    S) 
+      ARMSTRAP_ARMENV="Yes"
+      ARMSTRAP_ARMENV_BACKUP="Yes"
+      ;;
     g)
       ARMSTRAP_GUI_DISABLE="Yes"
       ;;
@@ -258,6 +286,7 @@ checkDirectory ${ARMSTRAP_MNT}
 checkDirectory ${ARMSTRAP_IMG}
 checkDirectory ${ARMSTRAP_SRC}
 checkDirectory ${ARMSTRAP_PKG}
+checkDirectory ${ARMSTRAP_ENV}
 
 if [ ! -z "${ARMSTRAP_SHELL}" ]; then
   if [ -b "${ARMSTRAP_SHELL}" ]; then
@@ -312,6 +341,15 @@ if [ ! -z "${ARMSTRAP_RUPDATER}" ]; then
     else
       rootfsMount "${ARMSTRAP_RUPDATER}" "${ARMSTRAP_OS}"
     fi
+  fi
+  exit 0
+fi
+
+if [ ! -z "${ARMSTRAP_ARMENV}" ]; then
+  if [ -z "${ARMSTRAP_ARMENV_BACKUP}" ]; then
+    armEnvExecute "${ARMSTRAP_ARMENV_ARCH}" "${ARMSTRAP_ARMENV_TYPE}" "${ARMSTRAP_ARMENV_FAMILY}" "${ARMSTRAP_ENV}" "${ARMSTRAP_ARMENV_PERSISTENT}" "${ARMSTRAP_ARMENV_COMMAND}"
+  else
+    armEnvBackup "${ARMSTRAP_ARMENV_ARCH}" "${ARMSTRAP_ARMENV_TYPE}" "${ARMSTRAP_ARMENV_FAMILY}" "${ARMSTRAP_ENV}"
   fi
   exit 0
 fi
