@@ -78,6 +78,7 @@ ARMSTRAP_ABUILDER_HOOK=""
 ARMSTRAP_KERNEL_LIST=""
 ARMSTRAP_LOADER_LIST=""
 ARMSTRAP_ROOTFS_LIST=""
+ARMSTRAP_SHELL=""
 # Theses are used by postArmStrap to populate the web server and by
 # armStrap to fetch them.
 ARMSTRAP_ABUILDER_URL="http://archive.armstrap.net"
@@ -139,7 +140,7 @@ detectAnsi
 fetchIndex
 
 ARMSTRAP_EXIT=""
-while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:clWANIMgq" opt; do
+while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:S:R:clWANIMgq" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -199,6 +200,9 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:clWANIMgq" opt; do
     R)
       ARMSTRAP_RUPDATER="${OPTARG}"
       ;;
+    S)
+      ARMSTRAP_SHELL="${OPTARG}"
+      ;;
     M)
       ARMSTRAP_RMOUNT="Yes"
       ;;
@@ -254,6 +258,18 @@ checkDirectory ${ARMSTRAP_MNT}
 checkDirectory ${ARMSTRAP_IMG}
 checkDirectory ${ARMSTRAP_SRC}
 checkDirectory ${ARMSTRAP_PKG}
+
+if [ ! -z "${ARMSTRAP_SHELL}" ]; then
+  if [ -b "${ARMSTRAP_SHELL}" ]; then
+    mount "${ARMSTRAP_SHELL}" "${ARMSTRAP_MNT}"
+    chrootShell "${ARMSTRAP_MNT}"
+    umount "${ARMSTRAP_MNT}"
+    exit 0
+  else
+    echo "${ARMSTRAP_SHELL} is not a block device"
+    exit 1
+  fi
+fi
 
 if [ ! -z "${ARMSTRAP_ABUILDER}" ]; then
   rm -f "${ARMSTRAP_LOG}/armStrap-Builder-${ARMSTRAP_DATE}.log"
