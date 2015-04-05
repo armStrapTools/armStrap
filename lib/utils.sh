@@ -65,6 +65,8 @@ function showUsage {
   printf "\n${ANS_BLD}ARM Environment${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-E" "[COMMAND]" "Shell into or execute COMMAND into the ARM Environment."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-S" "" "Create a backup of the ARM Environment."
+  printf "\n${ANS_BLD}Shell to SD card${ANS_RST}:\n"
+  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-Z" "[DEVICE]" "Shell into a SD card."  
   printf "\n${ANS_BLD}All Builder${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
