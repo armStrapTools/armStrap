@@ -154,11 +154,7 @@ detectAnsi
 fetchIndex
 
 ARMSTRAP_EXIT=""
-<<<<<<< HEAD
-while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:S:R:clWANIMgq" opt; do
-=======
-while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:E:clWANIMSgq" opt; do
->>>>>>> fbcf9bda055cdf4ea84dc6668c5fd3d531ccdc5b
+while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:Z:R:E:clWANIMSgq" opt; do
   case $opt in
     b)
       ARMSTRAP_CONFIG="${OPTARG}"
@@ -218,7 +214,7 @@ while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:R:E:clWANIMSgq" opt; do
     R)
       ARMSTRAP_RUPDATER="${OPTARG}"
       ;;
-    S)
+    Z)
       ARMSTRAP_SHELL="${OPTARG}"
       ;;
     M)
