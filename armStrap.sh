@@ -13,7 +13,7 @@ fi
 # Variables that should never be changed, unless you know what you're doing.
 #
 
-ARMSTRAP_VERSION="0.94"
+ARMSTRAP_VERSION="0.94-stage"
 ARMSTRAP_NAME=`basename ${0}`
 
 ARMSTRAP_DATE=`date +%y%m%d_%H%M%S`
