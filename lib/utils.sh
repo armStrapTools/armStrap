@@ -31,6 +31,7 @@ function showUsage {
   local TMP_IFS="${IFS}"
   local TMP_I=""
   local TMP_J=""
+  local TMP_K=""
   
   showTitle "${ARMSTRAP_NAME}" "${ARMSTRAP_VERSION}"  
   
@@ -49,72 +50,63 @@ function showUsage {
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-N" "" "Set DHCP IP."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-r" "\"<NS1> [NS2] [NS3]\"" "Set nameservers."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-e" "<DOMAIN>" "Set search domain."
-  printf "\n${ANS_BLD}Kernel Builder${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-K" "<ARCH>" "Build Kernel (debian packages). (Build all if arg is -)"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "-" "Build all avalables Kernel."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-I" "" "Call menuconfig before building Kernel."
-  printf "\n${ANS_BLD}BootLoader Builder${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-B" "<BOOTLOADER>" "Build BootLoader (${ARMSTRAP_TAR_EXTENSION} package)."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "-" "Build all avalables BootLoaders."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-F" "<FAMILY>" "Select bootloader family."
-  printf "\n${ANS_BLD}RootFS updater${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-R" "<VERSION>" "Update RootFS (${ARMSTRAP_TAR_EXTENSION} package)."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "" "-" "Update all avalables RootFS."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-O" "<ARCH>" "Select which architecture to update."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-M" "" "Execute a shell into the RootFS instead of updating it."
-  printf "\n${ANS_BLD}ARM Environment${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-E" "[COMMAND]" "Shell into or execute COMMAND into the ARM Environment."
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-S" "" "Create a backup of the ARM Environment."
   printf "\n${ANS_BLD}Shell to SD card${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-Z" "[DEVICE]" "Shell into a SD card."  
-  printf "\n${ANS_BLD}All Builder${ANS_RST}:\n"
-  printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-A" "" "Build Kernel/RootFS/U-Boot for all boards/configurations"
   printf "\n${ANS_BLD}Utilities${ANS_RST}:\n"
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-g" "" "Disable GUI."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-q" "" "Quiet."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-c" "" "Directory Cleanup."
   printf "${ANS_BLD}% 4s %- 20s${ANS_RST} %s\n" "-l" "" "Show licence."
   
-  printf "\n${ANS_BLD}Default boards configuration:${ANS_RST}\n"
+  printf "\n${ANS_BLD}Avalable boards configuration:${ANS_RST}\n"
   
-  printf "\n${ANS_BLD}%15s %15s %10s %21s${ANS_RST}\n--------------- --------------- ---------- ---------------------\n" "Board" "Kernel" "Family" "BootLoader"
+  printf "\n ${ANS_BLD}%-15s %-15s %-15s %s${ANS_RST}\n" "Board" "Kernel" "BootLoader" "RootFS"
+
   for TMP_I in ${ARMSTRAP_BOARDS}/*; do
-    local TMP_BOARD=$(basename ${TMP_I})
+    TMP_BOARD=$(basename ${TMP_I})
     source ${TMP_I}/config.sh
-    printf "% 15s % 15s % 10s % 21s\n" ${TMP_BOARD} ${BOARD_CPU} ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY} ${BOARD_LOADER}
+    local TMP_ROOT=""
+    for TMP_J in $(fetchRootInfo ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}); do
+      IFS="/"
+      TMP_J=(${TMP_J})
+      IFS="${TMP_IFS}"
+      if ! [[ ${TMP_K} == *"${TMP_J[2]}"* ]]; then
+        TMP_K="${TMP_J[2]} ${TMP_K}"
+        if [ ! -z "${TMP_ROOT}" ]; then
+          if [[ ${TMP_J[2]} == ${ARMSTRAP_ROOTFS_FAMILY} ]]; then
+            TMP_ROOT="${TMP_ROOT} ${ANS_BLD}*${TMP_J[2]}${ANS_RST}:"
+          else
+            TMP_ROOT="${TMP_ROOT} ${TMP_J[2]}:"
+          fi
+        else 
+          if [[ ${TMP_J[2]} == ${ARMSTRAP_ROOTFS_FAMILY} ]]; then
+            TMP_ROOT="${ANS_BLD}*${TMP_J[2]}${ANS_RST}:"
+          else
+            TMP_ROOT="${TMP_J[2]}:"
+          fi
+        fi
+      fi
+      if [[ ${TMP_J[3]} == ${ARMSTRAP_ROOTFS_VERSION} ]]; then
+        TMP_ROOT="${TMP_ROOT} ${ANS_BLD}*${TMP_J[3]}${ANS_RST}"
+      else
+        TMP_ROOT="${TMP_ROOT} ${TMP_J[3]}"
+      fi
+    done
+    TMP_K=""
+    for TMP_J in $(fetchLinuxInfo ${BOARD_CPU}); do
+      IFS="/"
+      local TMP_INFO=(${TMP_J}) 
+      IFS="${TMP_IFS}"
+      if [ -z "${TMP_K}" ]; then
+        printf "${ANS_BLD}*%-15s %-15s %-15s${ANS_RST} %s\n" ${TMP_BOARD} ${TMP_INFO[0]##armstrap-linux-} ${TMP_INFO[1]##armstrap-} "${TMP_ROOT}"
+        TMP_K="1"
+      else
+        printf " %-15s %-15s %-15s\n" ${TMP_BOARD} ${TMP_INFO[0]##armstrap-linux-} ${TMP_INFO[1]]##armstrap-}
+      fi
+    done
   done
   
-  printf "\n${ANS_BLD}Avalable BootLoaders:${ANS_RST}\n"
-  
-  printf "\n${ANS_BLD}%15s %21s${ANS_RST}\n--------------- ---------------------\n" "Board" "BootLoader"
-  for TMP_I in ${ARMSTRAP_LOADER_LIST}; do
-    IFS="-"
-    TMP_BOARD=(${TMP_I})
-    TMP_BOARD=${TMP_BOARD[0]}
-    TMP_LOADER=${TMP_I##$TMP_BOARD-}
-    TMP_LOADER=${TMP_LOADER%%.$ARMSTRAP_TAR_EXTENSION}
-    IFS="${TMP_IFS}"
-    printf "% 15s % 21s\n" ${TMP_BOARD} ${TMP_LOADER}
-  done
-  
-  printf "\n${ANS_BLD}Avalable Kernels:${ANS_RST}\n"
-  printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Kernel" "Config" "Version"
-  for TMP_I in ${ARMSTRAP_KERNEL_LIST}; do
-    local TMP_KRN="$(kernelInfo ${TMP_I})"
-    local TMP_KRN=${TMP_KRN}
-    printf "% 15s % 10s % 10s\n" ${TMP_KRN[0]} ${TMP_KRN[1]} ${TMP_KRN[2]}
-  done
-  
-  printf "\n${ANS_BLD}Avalable RootFS:${ANS_RST}\n"
-  printf "\n${ANS_BLD}%15s %10s %10s${ANS_RST}\n--------------- ---------- ----------\n" "Arch" "Family" "Version"
-  for TMP_I in ${ARMSTRAP_ROOTFS_LIST}; do
-    IFS="-"
-    TMP_I=(${TMP_I})
-    IFS="."
-    TMP_J=(${TMP_I[2]})
-    IFS="${TMP_IFS}"
-    printf "% 15s % 10s % 10s\n" ${TMP_I[0]} ${TMP_I[1]} ${TMP_J[0]}
-  done
+  printf "\n(${ANS_BLD}*${ANS_RST}) = Default configuration.\n"
   
   printf "\nWith no parameter, create an image using values found in ${ANS_BLD}config.sh${ANS_RST}.\n\n"
 }
@@ -124,6 +116,14 @@ function showTitle {
     printf "\n${ANS_BLD}%s version %s${ANS_RST}\n" "${1}" "${2}"
     printf "Copyright (C) 2013-2014 Eddy Beaupre\n\n"
   fi
+}
+
+function fetchRootInfo {
+  wget -a ${ARMSTRAP_LOG_FILE} -O - ${ARMSTRAP_URL_HELPER}?type=directory\&directory=$(basename ${ARMSTRAP_URL_ROOTFS})\&filter=${1}
+}
+
+function fetchLinuxInfo {
+  wget -a ${ARMSTRAP_LOG_FILE} -O - ${ARMSTRAP_URL_HELPER}?type=linux\&arch=${1}
 }
 
 # Usage: printStatus <function> <message>

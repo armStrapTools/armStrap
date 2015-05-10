@@ -12,9 +12,5 @@ BOARD_KERNEL_DTB="sun7i-a20-cubieboard2.dtb"
 
 BOARD_LOADER_NAND_KERNEL="/boot/bootloader/uImage"
 
-BOARD_ROOTFS="${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}"
-BOARD_ROOTFS_FAMILY="debian"
-BOARD_ROOTFS_VERSION="stable"
-
 # Include the default values last.
 source ${ARMSTRAP_BOARDS}/.defaults/sunxi.sh

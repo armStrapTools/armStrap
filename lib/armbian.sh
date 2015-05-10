@@ -590,10 +590,6 @@ function default_installRoot {
   
   setHostName "${ARMSTRAP_MNT}" "${ARMSTRAP_HOSTNAME}"
   
-  addRepoKey "${ARMSTRAP_MNT}" "${ARMSTRAP_ABUILDER_REPO_KEYSRV}" "${ARMSTRAP_ABUILDER_REPO_KEYHSH}"
-  addRepo "${ARMSTRAP_MNT}" "armStrap-${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}.list" "${ARMSTRAP_ABUILDER_REPO_URL}" "${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}" "main"
-  addRepo "${ARMSTRAP_MNT}" "armStrap-${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}.list" "${ARMSTRAP_ABUILDER_REPO_URL}" "armStrap" "main"
-  
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Updating RootFS")
   chrootUpgrade "${ARMSTRAP_MNT}"
   
@@ -604,16 +600,19 @@ function default_installRoot {
   fi
   
   isTrue "${ARMSTRAP_SWAP}"  
-  if [ ${ARMSTRAP_SWAPSIZE} -gt 0 ]; then
-    printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_SWAPFACTOR=%s\n" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-  else
-    printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "#CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_SWAPFACTOR=%s\n" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
-    printf "CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+  if [ $? -ne 0 ]; then
+    chrootInstall "${ARMSTRAP_MNT}" dphys-swapfile
+    if [ ${ARMSTRAP_SWAPSIZE} -gt 0 ]; then
+      printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+      printf "CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+      printf "#CONF_SWAPFACTOR=%s\n" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+      printf "#CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    else
+      printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+      printf "#CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+      printf "CONF_SWAPFACTOR=%s\n" "${ARMSTRAP_SWAPFACTOR}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+      printf "CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
+    fi
   fi
 
   if [ ! -z "${BOARD_ROOTFS_RECONFIG}" ]; then
@@ -649,22 +648,6 @@ function default_installRoot {
     for i in "${ARMSTRAP_KERNEL_MODULES}"; do
       addKernelModule "${ARMSTRAP_MNT}" "${i}"
     done
-  fi
-  
-  if [ ! -z ${BOARD_KERNEL_DTB} ]; then
-    armStrapConfig "${ARMSTRAP_MNT}" "uboot_kernel_dtb=${BOARD_KERNEL_DTB}"
-  fi
-  
-  if [ ! -z ${BOARD_LOADER_NAND_KERNEL} ]; then
-    armStrapConfig "${ARMSTRAP_MNT}" "nand_kernel_image=${BOARD_LOADER_NAND_KERNEL}"
-  fi
-  
-  if [ ! -z ${BOARD_UIMAGE_LOAD_ADDRESS} ]; then
-    armStrapConfig "${ARMSTRAP_MNT}" "uimage_load_address=${BOARD_UIMAGE_LOAD_ADDRESS}"
-  fi
-  
-  if [ ! -z ${BOARD_UIMAGE_ENTRY_POINT} ]; then
-    armStrapConfig "${ARMSTRAP_MNT}" "uimage_entry_point=${BOARD_UIMAGE_ENTRY_POINT}"
   fi
   
   addIface "${ARMSTRAP_MNT}" "eth0" "${ARMSTRAP_MAC_ADDRESS}" "${ARMSTRAP_ETH0_MODE}" "${ARMSTRAP_ETH0_IP}" "${ARMSTRAP_ETH0_MASK}" "${ARMSTRAP_ETH0_GW}" "${ARMSTRAP_ETH0_DOMAIN}" "${ARMSTRAP_ETH0_DNS}"

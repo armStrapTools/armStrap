@@ -47,7 +47,7 @@ ARMSTRAP_GUI_DISABLE=""
 # The default configuration we use.
 ARMSTRAP_CONFIG="CubieTruck"
 ARMSTRAP_ROOTFS_FAMILY="ubuntu"
-ARMSTRAP_ROOTFS_VERSION="utopic"
+ARMSTRAP_ROOTFS_VERSION="vivid"
 
 # The image name is defined later.
 ARMSTRAP_IMAGE_NAME=""
@@ -70,6 +70,8 @@ ARMSTRAP_SWAPMAX="2048"
 
 ARMSTRAP_ETH0_MODE="dhcp"
 
+ARMSTRAP_BASE_PACKAGES="armstrap-gensshkeys armstrap-nand-installer armstrap-sunxi-tools armstrap-uimage-installer"
+
 # Any flags you want to add to make
 ARMSTRAP_MFLAGS="-j64"
 
@@ -87,7 +89,7 @@ ARMSTRAP_ROOTFS_LIST=""
 ARMSTRAP_SHELL=""
 # Theses are used by postArmStrap to populate the web server and by
 # armStrap to fetch them.
-ARMSTRAP_ABUILDER_URL="http://archive.armstrap.net"
+ARMSTRAP_ABUILDER_URL="https://archive.armstrap.net"
 ARMSTRAP_ABUILDER_ROOT="/var/www/armstrap.net"
 ARMSTRAP_ABUILDER_KERNEL="${ARMSTRAP_ABUILDER_ROOT}/kernel"
 ARMSTRAP_ABUILDER_KERNEL_URL="${ARMSTRAP_ABUILDER_URL}/kernel"
@@ -113,6 +115,11 @@ ARMSTRAP_TAR_EXTRACT="tar -xJ"
 ARMSTRAP_TAR_EXTRACT_LOCAL="tar -xJvf"
 ARMSTRAP_TAR_COMPRESS="tar -cJvf"
 ARMSTRAP_TAR_EXTENSION=".txz"
+
+# Theses are used to fetch from the archive server and interrogate it.
+ARMSTRAP_URL="https://archive.armstrap.net"
+ARMSTRAP_URL_HELPER="${ARMSTRAP_URL}/.armStrap.php"
+ARMSTRAP_URL_ROOTFS="${ARMSTRAP_URL}/root"
 
 # Theses are packages that armStrap need for itself.
 ARMSTRAP_PREREQ="dialog"
@@ -151,7 +158,6 @@ if [ ! -z "${ARMSTRAP_PREREQ}" ]; then
 fi
 
 detectAnsi
-fetchIndex
 
 ARMSTRAP_EXIT=""
 while getopts ":b:d:i:s:h:p:w:n:r:e:K:O:B:F:H:Z:R:E:clWANIMSgq" opt; do
