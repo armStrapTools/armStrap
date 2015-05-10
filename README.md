@@ -3,6 +3,11 @@ armStrap
 
 An universal sd/image creator for small arm development platform
 
+WARNING
+=======
+
+You are on the development branch of armStrap, it may be broken at any moment and i do not offer any support until this branch is merged with Master!
+
 QuickStart
 ----------
 
@@ -14,7 +19,7 @@ You need to be root to run this script. You have two options:
    many changes and some options have changed meanings or simply do nothing. Use the config
    file until i remove this message) :
 
-    armStrap.sh version 0.93
+    armStrap.sh version 1.0-stage
     Copyright (C) 2013-2014 Eddy Beaupre
     
     Usage : sudo armStrap.sh [PARAMETERS]
@@ -33,25 +38,9 @@ You need to be root to run this script. You have two options:
       -N                      Set DHCP IP.
       -r "<NS1> [NS2] [NS3]"  Set nameservers.
       -e <DOMAIN>             Set search domain.
-    
-    Kernel Builder:
-      -K <ARCH>               Build Kernel (debian packages). (Build all if arg is -)
-         -                    Build all avalables Kernel.
-      -I                      Call menuconfig before building Kernel.
-    
-    BootLoader Builder:
-      -B <BOOTLOADER>         Build BootLoader (.txz package).
-         -                    Build all avalables BootLoaders.
-      -F <FAMILY>             Select bootloader family.
-    
-    RootFS updater:
-      -R <VERSION>            Update RootFS (.txz package).
-         -                    Update all avalables RootFS.
-      -O <ARCH>               Select which architecture to update.
-      -M                      Execute a shell into the RootFS instead of updating it.
-    
-    All Builder:
-      -A                      Build Kernel/RootFS/U-Boot for all boards/configurations
+     
+    Shell to SD card:
+      -Z [DEVICE]             Shell into a SD card.
     
     Utilities:
       -g                      Disable GUI.
@@ -59,60 +48,35 @@ You need to be root to run this script. You have two options:
       -c                      Directory Cleanup.
       -l                      Show licence.
     
-    Default boards configuration:
+    Avalable boards configuration:
     
-              Board          Kernel     Family            BootLoader
-    --------------- --------------- ---------- ---------------------
-              A70Xh           sun7i     armv7l          u-boot-sunxi
-         CubieBoard           sun4i     armv7l          u-boot-sunxi
-        CubieBoard2           sun7i     armv7l          u-boot-sunxi
-         CubieTruck        sun7i-ct     armv7l          u-boot-sunxi
-          HackBerry           sun4i     armv7l          u-boot-sunxi
-        RaspBerryPI          bcmrpi     armv6l                      
+     Board           Kernel          BootLoader      RootFS
+    *A70Xh           sun7i           u-boot-sunxi    debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
+     A70Xh           sun7i-stage     u-boot         
+     A70Xh           sunxi-next      u-boot         
+     A70Xh           mainline        u-boot         
+    *CubieBoard      sun4i           u-boot-sunxi    debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
+     CubieBoard      sun4i-stage     u-boot         
+     CubieBoard      sunxi-next      u-boot         
+     CubieBoard      mainline        u-boot         
+    *CubieBoard2     sun7i           u-boot-sunxi    debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
+     CubieBoard2     sun7i-stage     u-boot         
+     CubieBoard2     sunxi-next      u-boot         
+     CubieBoard2     mainline        u-boot         
+    *CubieTruck      sun7i-ct        u-boot          debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
+     CubieTruck      sun7i           u-boot-sunxi   
+     CubieTruck      sun7i-stage     u-boot         
+     CubieTruck      sunxi-next      u-boot         
+     CubieTruck      mainline        u-boot         
+    *HackBerry       sun4i           u-boot-sunxi    debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
+     HackBerry       sun4i-stage     u-boot         
+     HackBerry       sunxi-next      u-boot         
+     HackBerry       mainline        u-boot         
     
-    Avalable BootLoaders:
-    
-              Board            BootLoader
-    --------------- ---------------------
-          hackberry      u-boot-sunxi.txz
-          hackberry u-boot-sunxi-next.txz
-         cubietruck      u-boot-sunxi.txz
-         cubietruck u-boot-sunxi-next.txz
-         cubietruck u-boot-sunxi-nand.txz
-        cubieboard2      u-boot-sunxi.txz
-        cubieboard2 u-boot-sunxi-next.txz
-        cubieboard2 u-boot-sunxi-nand.txz
-         cubieboard      u-boot-sunxi.txz
-         cubieboard u-boot-sunxi-next.txz
-              a70xh      u-boot-sunxi.txz
-              a70xh u-boot-sunxi-next.txz
-              a70xh u-boot-sunxi-nand.txz
-    
-    Avalable Kernels:
-    
-             Kernel     Config    Version
-    --------------- ---------- ----------
-             bcmrpi    default    3.6.11+
-              sun7i    default    3.4.90+
-           sun7i-ct    default    3.4.90+
-              sun4i    default    3.4.90+
-         sunxi-next    default    3.16.0+
-           mainline    default    3.16.0+
-    
-    Avalable RootFS:
-    
-               Arch     Family    Version
-    --------------- ---------- ----------
-             armv7l     ubuntu     trusty
-             armv7l     ubuntu      saucy
-             armv7l     debian   unstable
-             armv7l     debian    testing
-             armv7l     debian     stable
-             armv6l   raspbian    testing
-             armv6l   raspbian     stable
+    (*) = Default configuration.
     
     With no parameter, create an image using values found in config.sh.
-
+    
 Nand Installer
 --------------
 
@@ -133,6 +97,9 @@ To add the key needed to use the repository, you can do something like this:
 
 The repository is located at https://archive.armstrap.net/apt/ and has the following suites avalables:
 
+* sunxi : This will be the main suite for version 1.x, while most of the feature are there, it is to be considered as unstable until version 1 is release.
+
+Theses are the suites used by armStrap before version 1. They will be kept around for a while but probably not updated anymore.
 * armStrap : General scripts and tools used by armStrap
 * armv6l : Specific scripts and tools for the armv6l architecture.
 * armv7l : Specific scripts and tolls for the armv7l architecture.
