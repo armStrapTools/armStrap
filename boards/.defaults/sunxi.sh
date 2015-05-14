@@ -19,6 +19,4 @@ else
   BOARD_UIMAGE_ENTRY_POINT="0x40008000"
 fi
 
-BOARD_DPKG_EXTRAPACKAGES="gensshkeys update-uimage sunxi-tools armstrap-nandinstaller"
-
 source ${ARMSTRAP_BOARDS}/.defaults/config.sh

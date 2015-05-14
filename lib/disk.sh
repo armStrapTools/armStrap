@@ -1,13 +1,19 @@
 
 # Usage: syncFS
 function syncFS {
-  printStatus "syncFS" "Flush file system buffers"
+  printStatus "syncFS" "Flushing file system buffers"
   /bin/sync >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 function probeFS {
-  printStatus "probeFS" "Probing for partitions changes"
-  /sbin/partprobe ${ARMSTRAP_DEVICE} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  local TMP_PROBE="${ARMSTRAP_DEVICE}"
+  
+  if [ -n ${1} ]; then
+    TMP_PROBE="${1}"
+  fi
+  
+  printStatus "probeFS" "Probing ${TMP_PROBE} for partitions changes"
+  /sbin/partprobe ${TMP_PROBE} >> ${ARMSTRAP_LOG_FILE} 2>&1
 }
 
 # Usage: makeImg <FILE> <SIZE IN MB>
@@ -30,25 +36,36 @@ function makeImg {
 function partDevice {
   local TMP_DEV="${1}"
   local TMP_OFF=1
+  local TMP_I
+  local TMP_J=1
   shift
+
   printStatus "partDevice" "Creating new MSDOS label on ${TMP_DEV}"
   parted ${TMP_DEV} --script -- mklabel msdos >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "parted exit with status $?"
-  for i in "$@"; do
-    local TMP_ARR=(${i//:/ })
+
+  for TMP_I in "$@"; do
+    IFS=":"
+    local TMP_ARR=(${TMP_I})
+    IFS="${ARMSTRAP_IFS}"
+    if [[ "${TMP_ARR[1]}" == *"fat"* ]]; then
+      TMP_ARR[1]="fat32"
+    fi
     if [ "${TMP_ARR[0]}" -gt "0" ]; then
       local TMP_SIZE=$(($TMP_OFF + ${TMP_ARR[0]}))
-      printStatus "partDevice" "Creating a ${TMP_ARR[0]}Mb partition (${TMP_ARR[1]})" 
+      printStatus "partDevice" "Creating a ${TMP_ARR[0]}Mb partition on ${TMP_DEV} (${TMP_ARR[1]})" 
       parted ${TMP_DEV} --script -- mkpart primary ${TMP_ARR[1]} ${TMP_OFF} ${TMP_SIZE} >> ${ARMSTRAP_LOG_FILE} 2>&1
       checkStatus "parted exit with status $?"
-      TMP_OFF=$(($TMP_SIZE + 1))
+      TMP_OFF=$((${TMP_OFF} + ${TMP_SIZE}))
     else
-      printStatus "partDevice" "Creating a partition using remaining free space (${TMP_ARR[1]})"
+      printStatus "partDevice" "Creating a partition on ${TMP_DEV} using remaining free space (${TMP_ARR[1]})"
       parted ${TMP_DEV} --script -- mkpart primary ${TMP_ARR[1]} ${TMP_OFF} -1 >> ${ARMSTRAP_LOG_FILE} 2>&1
       checkStatus "parted exit with status $?"
+      break
     fi
   done
-  probeFS  
+  syncFS
+  probeFS ${TMP_DEV}
 }
 
 # Usage loopImg <FILE>
@@ -101,37 +118,69 @@ function umapImg {
 
 # Usage formatParts <DEVICE:FS> [<DEVICE:FS> ...]
 function formatParts {
-  for i in "$@"; do
-    local TMP_ARR=(${i//:/ })
+  local TMP_I
+  for TMP_I in "$@"; do
+    IFS=":"
+    local TMP_ARR=(${TMP_I})
+    IFS="${ARMSTRAP_IFS}"
+    waitParts ${TMP_ARR[0]} 10
     printStatus "fmtParts" "Formatting ${TMP_ARR[0]} (${TMP_ARR[1]})"
-    if [[ ${TMP_ARR[1]} = fat* ]]; then
+    if [[ ${TMP_ARR[1]} = *"fat"* ]]; then
       mkfs.vfat ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
     else
       mkfs.${TMP_ARR[1]} -q ${TMP_ARR[0]} >> ${ARMSTRAP_LOG_FILE} 2>&1
     fi
     checkStatus "mkfs.${TMP_ARR[1]} exit with status $?"
+    syncFS
   done
-  syncFS
+}
+
+# Usage waitParts <DEVICE> <TIMEOUT>
+function waitParts {
+  local TMP_I=0
+  
+  while [ ! -e ${1} ]; do
+    printStatus "waitParts" "Waiting for ${1}."
+    sleep 1
+    (( TMP_I++ ))
+    if [ "${TMP_I}" -gt "${2}" ]; then
+      break;
+    fi
+  done
+  
+  if [ ! -e ${1} ]; then
+    exitStatus "Device ${1} not found!"
+  fi
 }
 
 # Usage mountParts <DEVICE:MOUNTPOINT> [<DEVICE:MOUNTPOINT> ...]
 function mountParts {
-  probeFS
-  for i in "$@"; do
-    local TMP_ARR=(${i//:/ })
-    checkDirectory "${TMP_ARR[1]}"
-    printStatus "mountParts" "Mounting ${TMP_ARR[0]} on ${TMP_ARR[1]}"
-    mount ${TMP_ARR[0]} ${TMP_ARR[1]} >> ${ARMSTRAP_LOG_FILE} 2>&1
-    checkStatus "mount exit with status $?"
+  local TMP_I
+  local TMP_J=0
+  
+  for TMP_I in "$@"; do
+    IFS=":"
+    local TMP_ARR=(${TMP_I})
+    IFS="${ARMSTRAP_IFS}"
+    waitParts ${TMP_ARR[0]} 10
+    printStatus "mountParts" "Mounting ${TMP_ARR[0]} on ${ARMSTRAP_MNT}${TMP_ARR[1]}"
+    checkDirectory "${ARMSTRAP_MNT}${TMP_ARR[1]}"
+    if [ -e ${TMP_ARR[0]} ]; then
+      mount ${TMP_ARR[0]} ${ARMSTRAP_MNT}${TMP_ARR[1]} >> ${ARMSTRAP_LOG_FILE} 2>&1
+      checkStatus "mount exit with status $?"
+    else
+      exitStatus "Device ${TMP_ARR[0]} not found!"
+    fi
   done
 }
 
 # Usage umountParts <MOUNTPOINT> [<MOUNTPOINT> ...]
 function umountParts {
+  local TMP_I
   syncFS
-  for i in "$@"; do
-    printStatus "umountParts" "Unmounting ${i}"
-    umount ${i} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  for TMP_I in "$@"; do
+    printStatus "umountParts" "Unmounting ${ARMSTRAP_MNT}${TMP_I}"
+    umount ${ARMSTRAP_MNT}${TMP_I} >> ${ARMSTRAP_LOG_FILE} 2>&1
     checkStatus "umount exit with status $?"
   done
 }
@@ -139,9 +188,90 @@ function umountParts {
 # Usage : cleanDev <DEVICE>
 function cleanDev {
   printStatus "cleanDev" "Erasing ${1}"
-  dd if=/dev/zero of=${1} bs=1M count=256  >> ${ARMSTRAP_LOG_FILE} 2>&1
+  dd if=/dev/zero of=${1} bs=512 count=1  >> ${ARMSTRAP_LOG_FILE} 2>&1
   checkStatus "dd exit with status $?"
   syncFS
+  probeFS ${1}
+}
+
+#Usage: partList <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
+function partList {
+  local TMP_I
+  local TMP_J
+  
+  for TMP_I in ${@}; do
+    IFS=":"
+    TMP_I=(${TMP_I})
+    if [ -n "${TMP_J}" ]; then
+      TMP_J="${TMP_J} ${TMP_I[3]}:${TMP_I[2]}"
+    else
+      TMP_J="${TMP_I[3]}:${TMP_I[2]}"
+    fi
+    IFS="${ARMSTRAP_IFS}"
+  done
+  
+  echo "${TMP_J}"
+}
+
+#Usage: mkfsList <DEVICE> <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
+function mkfsList {
+  local TMP_I
+  local TMP_J
+  local TMP_K=1
+  local TMP_DEV="${1}"
+  shift
+  
+  for TMP_I in ${@}; do
+    IFS=":"
+    TMP_I=(${TMP_I})
+    if [ -n "${TMP_J}" ]; then
+      TMP_J="${TMP_J} ${TMP_DEV}${TMP_K}:${TMP_I[2]}:${TMP_I[3]}"
+    else
+      TMP_J="${TMP_DEV}${TMP_K}:${TMP_I[2]}:${TMP_I[3]}"
+    fi
+    TMP_K=$((${TMP_K} + 1))
+    IFS="${ARMSTRAP_IFS}"
+  done
+  echo "${TMP_J}"
+}
+
+#Usage: mountList <DEVICE> <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
+function mountList {
+  local TMP_I
+  local TMP_J
+  local TMP_K=1
+  local TMP_DEV="${1}"
+  shift
+  
+  for TMP_I in ${@}; do
+    IFS=":"
+    TMP_I=(${TMP_I})
+    if [ -n "${TMP_J}" ]; then
+      TMP_J="${TMP_J} ${TMP_I[0]}:${TMP_DEV}${TMP_K}:${TMP_I[1]}"
+    else
+      TMP_J="${TMP_I[0]}:${TMP_DEV}${TMP_K}:${TMP_I[1]}"
+    fi
+    TMP_K=$((${TMP_K} + 1))
+    IFS="${ARMSTRAP_IFS}"
+  done
+  
+  TMP_K=(${TMP_J})
+  IFS=$'\n'
+  TMP_K=($(sort <<<"${TMP_K[*]}"))
+  
+  TMP_J=""
+  for TMP_I in ${TMP_K[*]}; do
+    IFS=":"
+    TMP_I=(${TMP_I})
+    if [ -n "${TMP_J}" ]; then
+      TMP_J="${TMP_J} ${TMP_I[1]}:${TMP_I[2]}"
+    else
+      TMP_J="${TMP_I[1]}:${TMP_I[2]}"
+    fi
+    IFS="${ARMSTRAP_IFS}"
+  done
+  
+  echo "${TMP_J}"
 }
 
 # Usage setupImg <MNT_ORDER:MNT_POINT:FSTYPE:SIZE> [<MNT_ORDER:MNT_POINT:FSTYPE:SIZE>]
@@ -154,6 +284,7 @@ function setupImg {
   local TMP_SORT=("")
   local TMP_CNT=0
   local TMP_GUI
+  local TMP_I
   
   guiStart
   TMP_GUI=$(guiWriter "start" "Setting up disk image" "Progress")
@@ -162,8 +293,10 @@ function setupImg {
   makeImg "${ARMSTRAP_IMAGE_NAME}" "${ARMSTRAP_IMAGE_SIZE}"
   loopImg "${ARMSTRAP_IMAGE_NAME}"
   
-  for i in "$@"; do
-    local TMP_ARR=(${i//:/ })
+  for TMP_I in "$@"; do
+    IFS=":"
+    local TMP_ARR=(${TMP_I})
+    IFS="${ARMSTRAP_IFS}"
     if [ -z "${TMP_PARTS}" ]; then
       TMP_PARTS="${TMP_ARR[3]}:${TMP_ARR[2]}"
       TMP_FST="${TMP_ARR[2]}"
@@ -183,11 +316,11 @@ function setupImg {
   
   mapImg "${ARMSTRAP_IMAGE_NAME}"
 
-  for i in "${ARMSTRAP_DEVICE_MAPS[@]}"; do
+  for TMP_I in "${ARMSTRAP_DEVICE_MAPS[@]}"; do
     if [ -z "${TMP_FS}" ]; then
-      TMP_FS="${i}:${TMP_FST[$TMP_COUNT]}"
+      TMP_FS="${TMP_I}:${TMP_FST[$TMP_COUNT]}"
     else
-      TMP_FS="${TMP_FS} ${i}:${TMP_FST[$TMP_COUNT]}"
+      TMP_FS="${TMP_FS} ${TMP_I}:${TMP_FST[$TMP_COUNT]}"
     fi
     (( TMP_COUNT++ ))
   done
@@ -196,8 +329,10 @@ function setupImg {
   formatParts ${TMP_FS}
   
   TMP_COUNT=0
-  for i in "${TMP_MNT[@]}"; do
-    local TMP_ARR=(${i//:/ })
+  for TMP_I in "${TMP_MNT[@]}"; do
+    IFS=":"
+    local TMP_ARR=(${TMP_I})
+    IFS="${ARMSTRAP_IFS}"
     if [ -z "${TMP_MT}" ]; then
       TMP_MT="${TMP_ARR[0]}:${ARMSTRAP_DEVICE_MAPS[$TMP_COUNT]}:${ARMSTRAP_MNT}${TMP_ARR[1]}"
     else
@@ -206,12 +341,16 @@ function setupImg {
     (( TMP_COUNT++ ))
   done
   
+  printStatus "setupIMG" "TMP_MT: ${TMP_MT}"
+  
   TMP_MT=(${TMP_MT})
   readarray -t TMP_SORT < <(printf '%s\0' "${TMP_MT[@]}" | sort -z | xargs -0n1)
   TMP_MT=(${TMP_SORT[@]})
   
-  for i in "${TMP_MT[@]}"; do
-    local TMP_ARR=(${i//:/ })
+  for TMP_I in "${TMP_MT[@]}"; do
+    IFS=":"
+    local TMP_ARR=(${TMP_I})
+    IFS="${ARMSTRAP_IFS}"
     if [ -z "${ARMSTRAP_MOUNT_MAP}" ]; then
       ARMSTRAP_MOUNT_MAP="${TMP_ARR[1]}:${TMP_ARR[2]}"
     else
@@ -230,6 +369,7 @@ function setupImg {
 function finishImg {
   local TMP_RMAP=""
   local TMP_GUI
+  local TMP_I
   
   guiStart
   TMP_GUI=$(guiWriter "start" "Finishing disk image" "Progress")
@@ -237,8 +377,10 @@ function finishImg {
   ARMSTRAP_GUI_PCT=$(guiWriter "add" 3 "Flushing buffers")
   syncFS
 
-  for i in ${ARMSTRAP_MOUNT_MAP[@]}; do
-    local TMP_ARR=(${i//:/ })
+  for TMP_I in ${ARMSTRAP_MOUNT_MAP[@]}; do
+    IFS=":"
+    local TMP_ARR=(${TMP_I})
+    IFS="${ARMSTRAP_IFS}"
     if [ -z "${TMP_RMAP}" ]; then
       TMP_RMAP="${TMP_ARR[1]}"
     else
@@ -265,6 +407,7 @@ function setupSD {
   local TMP_SORT=("")
   local TMP_CNT=0
   local TMP_GUI
+  local TMP_I
   
   guiStart
   TMP_GUI=$(guiWriter "start" "Setting up SD card" "Progress")
@@ -272,74 +415,12 @@ function setupSD {
   ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Cleaning device ${ARMSTRAP_DEVICE}")
   cleanDev ${ARMSTRAP_DEVICE}
   
-  for i in "$@"; do
-    local TMP_ARR=(${i//:/ })
-    if [ -z "${TMP_PARTS}" ]; then
-      TMP_PARTS="${TMP_ARR[3]}:${TMP_ARR[2]}"
-      TMP_FST="${TMP_ARR[2]}"
-      TMP_MNT="${TMP_ARR[0]}:${TMP_ARR[1]}"
-    else
-      TMP_PARTS="${TMP_PARTS} ${TMP_ARR[3]}:${TMP_ARR[2]}"
-      TMP_FST="${TMP_FST} ${TMP_ARR[2]}"
-      TMP_MNT="${TMP_MNT} ${TMP_ARR[0]}:${TMP_ARR[1]}"
-    fi
-  done
-  TMP_FST=(${TMP_FST})
-  TMP_MNT=(${TMP_MNT})
-
   ARMSTRAP_GUI_PCT=$(guiWriter "add" 4 "Creating partitions")
-  partDevice "${ARMSTRAP_DEVICE}" ${TMP_PARTS}
+  partDevice "${ARMSTRAP_DEVICE}" $(partList ${@})
 
-  ARMSTRAP_DEVICE_MAPS=""
-  for i in `ls ${ARMSTRAP_DEVICE}*`; do
-    if [ "${i}" != "${ARMSTRAP_DEVICE}" ]; then
-      if [ -z "${ARMSTRAP_DEVICE_MAPS}" ]; then
-        ARMSTRAP_DEVICE_MAPS="${i}"
-      else
-        ARMSTRAP_DEVICE_MAPS="${ARMSTRAP_DEVICE_MAPS} ${i}"
-      fi
-    fi
-  done
+  formatParts $(mkfsList ${ARMSTRAP_DEVICE} ${@})
 
-  ARMSTRAP_DEVICE_MAPS=(${ARMSTRAP_DEVICE_MAPS})
- 
-  for i in "${ARMSTRAP_DEVICE_MAPS[@]}"; do
-    if [ -z "${TMP_FS}" ]; then
-      TMP_FS="${i}:${TMP_FST[$TMP_COUNT]}"
-    else
-      TMP_FS="${TMP_FS} ${i}:${TMP_FST[$TMP_COUNT]}"
-    fi
-    (( TMP_COUNT++ ))
-  done
-  
-  ARMSTRAP_GUI_PCT=$(guiWriter "add" 4 "Formating partitions")
-  formatParts ${TMP_FS}
-  
-  TMP_COUNT=0
-  for i in "${TMP_MNT[@]}"; do
-    local TMP_ARR=(${i//:/ })
-    if [ -z "${TMP_MT}" ]; then
-      TMP_MT="${TMP_ARR[0]}:${ARMSTRAP_DEVICE_MAPS[$TMP_COUNT]}:${ARMSTRAP_MNT}${TMP_ARR[1]}"
-    else
-      TMP_MT="${TMP_MT} ${TMP_ARR[0]}:${ARMSTRAP_DEVICE_MAPS[$TMP_COUNT]}:${ARMSTRAP_MNT}${TMP_ARR[1]}"
-    fi
-    (( TMP_COUNT++ ))
-  done
-  
-  TMP_MT=(${TMP_MT})
-  readarray -t TMP_SORT < <(printf '%s\0' "${TMP_MT[@]}" | sort -z | xargs -0n1)
-  TMP_MT=(${TMP_SORT[@]})
-  
-  for i in "${TMP_MT[@]}"; do
-    local TMP_ARR=(${i//:/ })
-    if [ -z "${ARMSTRAP_MOUNT_MAP}" ]; then
-      ARMSTRAP_MOUNT_MAP="${TMP_ARR[1]}:${TMP_ARR[2]}"
-    else
-      ARMSTRAP_MOUNT_MAP="${ARMSTRAP_MOUNT_MAP} ${TMP_ARR[1]}:${TMP_ARR[2]}"
-    fi
-  done
-  
-  ARMSTRAP_MOUNT_MAP=(${ARMSTRAP_MOUNT_MAP})
+  ARMSTRAP_MOUNT_MAP=($(mountList ${ARMSTRAP_DEVICE} ${@}))
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add" 1 "Mounting partitions")
   mountParts ${ARMSTRAP_MOUNT_MAP[@]}
@@ -349,7 +430,8 @@ function setupSD {
 
 function finishSD {
   local TMP_RMAP=""
-    local TMP_GUI
+  local TMP_GUI
+  local TMP_I
   
   guiStart
   TMP_GUI=$(guiWriter "start" "Finishing SD" "Progress")
@@ -358,8 +440,10 @@ function finishSD {
   
   syncFS
 
-  for i in ${ARMSTRAP_MOUNT_MAP[@]}; do
-    local TMP_ARR=(${i//:/ })
+  for TMP_I in ${ARMSTRAP_MOUNT_MAP[@]}; do
+    IFS=":"
+    local TMP_ARR=(${TMP_I})
+    IFS="${ARMSTRAP_IFS}"
     if [ -z "${TMP_RMAP}" ]; then
       TMP_RMAP="${TMP_ARR[1]}"
     else

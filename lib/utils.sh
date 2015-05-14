@@ -28,7 +28,6 @@ EOF
 
 function showUsage {
   local TMP_BOARDS="$(boardConfigs)"
-  local TMP_IFS="${IFS}"
   local TMP_I=""
   local TMP_J=""
   local TMP_K=""
@@ -69,7 +68,7 @@ function showUsage {
     for TMP_J in $(fetchRootInfo ${BOARD_CPU_ARCH}${BOARD_CPU_FAMILY}); do
       IFS="/"
       TMP_J=(${TMP_J})
-      IFS="${TMP_IFS}"
+      IFS="${ARMSTRAP_IFS}"
       if ! [[ ${TMP_K} == *"${TMP_J[2]}"* ]]; then
         TMP_K="${TMP_J[2]} ${TMP_K}"
         if [ ! -z "${TMP_ROOT}" ]; then
@@ -96,7 +95,7 @@ function showUsage {
     for TMP_J in $(fetchLinuxInfo ${BOARD_CPU}); do
       IFS="/"
       local TMP_INFO=(${TMP_J}) 
-      IFS="${TMP_IFS}"
+      IFS="${ARMSTRAP_IFS}"
       if [ -z "${TMP_K}" ]; then
         printf "${ANS_BLD}*%-15s %-15s %-15s${ANS_RST} %s\n" ${TMP_BOARD} ${TMP_INFO[0]##armstrap-linux-} ${TMP_INFO[1]##armstrap-} "${TMP_ROOT}"
         TMP_K="1"
@@ -153,15 +152,17 @@ function printStatus {
 
 function checkStatus {
   if [ $? -ne 0 ]; then
-    /usr/bin/dialog --backtitle "armStrap" --title "Abort" --msgbox "${@}" 0 0
+    exitStatus "$@"
+  fi
+}
 
+function exitStatus {
+  /usr/bin/dialog --backtitle "armStrap" --title "Abort" --msgbox "${@}" 0 0
   if [ -f "${ARMSTRAP_LOG_FILE}" ]; then
-  local TMP_TIME="`date '+%y/%m/%d %H:%M:%S'`"
-    printf "[${TMP_TIME} %.15s] %s\n" "checkStatus" "$@" >> ${ARMSTRAP_LOG_FILE}
-  fi
-    
-    exit 1
-  fi
+    local TMP_TIME="`date '+%y/%m/%d %H:%M:%S'`"
+    printf "[${TMP_TIME} %.15s] %s\n" "exitStatus" "$@" >> ${ARMSTRAP_LOG_FILE}
+  fi 
+  exit 1
 }
 
 # Usage: rmDirectory <path>
@@ -270,7 +271,6 @@ function macAddress {
   
   if [ -z ${ARMSTRAP_MAC_ADDRESS} ]; then
     ARMSTRAP_MAC_ADDRESS=$( printf "%012x" $((${1} * 16777216 + $[ $RANDOM % 16777216 ])) )
-    printStatus "macAddress" "Generated Mac Address : ${ARMSTRAP_MAC_ADDRESS}"
   fi
 }
 
@@ -617,7 +617,6 @@ function kernelConfigs {
 # usage kernelInfo <FILENAME>
 function kernelInfo {
   local TMP_DATA=${1#linux-kernel-}
-  local TMP_IFS="${IFS}"
   local TMP_VERSION=""
   local TMP_KERNEL=""
   local TMP_CONFIG=""
@@ -633,7 +632,7 @@ function kernelInfo {
   TMP_DATA=${TMP_DATA#${TMP_KERNEL}.}
   TMP_CONFIG=(${TMP_DATA})
   TMP_CONFIG=${TMP_CONFIG[0]}
-  IFS="${TMP_IFS}"
+  IFS="${ARMSTRAP_IFS}"
   TMP_DATA="$((${#TMP_CONFIG}-1))"
   TMP_DATA="${TMP_CONFIG:$TMP_DATA:1}"
   if [ "${TMP_DATA}" == "+" ]; then
@@ -653,11 +652,6 @@ function checkConfig {
     checkStatus "Board configuration ${ARMSTRAP_CONFIG} not found"
   fi
   
-}
-
-# usage checkRootFS 
-function checkRootFS {
-  printStatus "checkRootFS" "XXX Disabled function"
 }
 
 # usage loadLibrary <LIBPATH> <LIB1> [<LIB2> ...]
@@ -692,7 +686,6 @@ function resetEnv {
 # usage unsetEnv <PATTERN>
 function unsetEnv {
   local TMP_I=""
-  local TMP_IFS="${IFS}"
   local TMP_LST=""
   IFS="="
   
@@ -703,7 +696,7 @@ function unsetEnv {
     fi
   done <<< "`set`"
   
-  IFS="${TMP_IFS}"
+  IFS="${ARMSTRAP_IFS}"
   unset ${TMP_LST}
 }
 
@@ -768,7 +761,6 @@ function ccMakeNoLog {
 
 # usage : getLoader <BOARD_NAME>
 function getLoader {
-  local TMP_IFS="${IFS}"
   local TMP_I=""
   local TMP_J=""
   local TMP_BOARD="${1,,}"
@@ -778,7 +770,7 @@ function getLoader {
       IFS="-"
       local TMP_J=(${TMP_I})
       TMP_J=${TMP_J[0]}
-      IFS="${TMP_IFS}"
+      IFS="${ARMSTRAP_IFS}"
       TMP_I=${TMP_I/${TMP_J}-/}
       TMP_I=${TMP_I/${ARMSTRAP_TAR_EXTENSION}/}
       if [ "${TMP_BOARD}" = "${TMP_J}" ]; then
@@ -790,7 +782,6 @@ function getLoader {
 
 # usage : fetchIndex
 function fetchIndex {
-  local TMP_IFS="${IFS}"
   local TMP_I=""
   
   printStatus "fetchIndex" "Fetching and indexing armStrap repository informations."

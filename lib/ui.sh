@@ -101,7 +101,7 @@ function guiWorker {
              ;;
     esac
   done
-  IFS="${TMP_IFS}"
+  IFS="${ARMSTRAP_IFS}"
   
   rm -f ${ARMSTRAP_GUI_FF1}
   rm -f ${ARMSTRAP_GUI_FF2}
@@ -116,7 +116,6 @@ function guiWriter {
     shift
     shift
     local TMP_STP=$(date +%s)
-    local TMP_IFS="${IFS}"
     IFS="@"
 
     if [ -z "${@}" ]; then  
@@ -144,7 +143,7 @@ function guiWriter {
       printf "%s\n" "${TMP_DTA}"
     fi
   
-    IFS="${TMP_IFS}"
+    IFS="${ARMSTRAP_IFS}"
   fi
 }
 

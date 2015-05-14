@@ -54,7 +54,6 @@ function httpExtract {
   shift
   shift
   
-  printStatus "httpExtract" "Fetching and extracting `basename ${TMP_URL}`"
   checkDirectory "${TMP_DIR}/"
 
   if [ -f "${ARMSTRAP_PKG}/${TMP_PKG}" ]; then
@@ -64,7 +63,7 @@ function httpExtract {
     checkStatus "Error while downloading/extracting ${TMP_URL}"
   else
     printStatus "httpExtract" "Fetching and extracting `basename ${TMP_URL}`"
-    wget --progress=dot:mega -a ${ARMSTRAP_LOG_FILE} -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
+    wget --progress=dot:giga -a ${ARMSTRAP_LOG_FILE} -O - "${TMP_URL}" | ${@} -C "${TMP_DIR}/"
     checkStatus "Error while downloading/extracting ${TMP_URL}"
   fi
 }
@@ -124,8 +123,8 @@ function chrootUpgrade {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootUpgrade" "Updating packages in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y update ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
-  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y dist-upgrade ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  DEBIAN_FRONTEND="noninteractive" LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -qq update ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  DEBIAN_FRONTEND="noninteractive" LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -qq dist-upgrade ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
     
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -141,7 +140,7 @@ function chrootInstall {
   mountPFS "${TMP_CHROOT}"
   
   printStatus "chrootInstall" "Installing packages in `basename ${TMP_CHROOT}`"
-  LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -q -y -o APT::Install-Recommends=true -o APT::Get::AutomaticRemove=true install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
+  DEBIAN_FRONTEND="noninteractive" LC_ALL="" LANGUAGE="${BOARD_LANGUAGE}" LANG="${BOARD_LANG}" chroot ${TMP_CHROOT}/ /usr/bin/apt-get -qq install ${@} >> ${ARMSTRAP_LOG_FILE} 2>&1
     
   umountPFS "${TMP_CHROOT}"
   removeQEMU "${TMP_CHROOT}"
@@ -274,13 +273,13 @@ KERNEL_VERSION="${BOARD_KERNEL_VERSION}"
 echo "deb ${ARMSTRAP_ABUILDER_REPO_URL} \${KERNEL_TYPE} main" > /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
 echo "deb-src ${ARMSTRAP_ABUILDER_REPO_URL} \${KERNEL_TYPE} main" >> /etc/apt/sources.list.d/armstrap-\${KERNEL_TYPE}.list
 
-/usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Get::AutomaticRemove=true update
+/usr/bin/apt-get -qq update
 
 KERNEL_IMG=\$(/usr/bin/apt-cache search "linux-image-\${KERNEL_VERSION}" | grep "\${KERNEL_TYPE}.\${KERNEL_CONFIG}" | sort -r | head -n 1 | cut -d ' ' -f 1)
 KERNEL_HDR=\${KERNEL_IMG/-image-/-headers-}
 KERNEL_DTB=\$(/usr/bin/apt-cache search -qn \${KERNEL_IMG/-image-/-dtbs-} | /usr/bin/awk '{print \$1;}')
 
-/usr/bin/apt-get -q -y -o=APT::Install-Recommends=true -o=APT::Install-Suggests=true -o=APT::Get::AutomaticRemove=true install \${KERNEL_IMG} \${KERNEL_HDR} \${KERNEL_DTB}
+/usr/bin/apt-get -qq install \${KERNEL_IMG} \${KERNEL_HDR} \${KERNEL_DTB}
 EOF
 
   chmod +x "${TMP_CHROOT}/${TMP_KERNEL}"
@@ -576,32 +575,34 @@ function fex2bin {
 # Usage : default_installRoot
 function default_installRoot {
   local TMP_GUI
+  local TMP_DATA
   guiStart
   TMP_GUI=$(guiWriter "start" "Installing RootFS" "Progress")
   
   ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Extracting RootFS")
   httpExtract "${ARMSTRAP_MNT}" "${ARMSTRAP_ABUILDER_ROOTFS_URL}/${BOARD_ROOTFS_PACKAGE}" "${ARMSTRAP_TAR_EXTRACT}"
 
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  29 "Setting up locales")
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  29 "Setting up locales, timezone and hostname")
   chrootLocales "${ARMSTRAP_MNT}" "${BOARD_LANG}" "${BOARD_LANG_EXTRA}"
-  
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  9 "Setting up locales")
   chrootTimeZone "${ARMSTRAP_MNT}" "${BOARD_TIMEZONE}"
-  
   setHostName "${ARMSTRAP_MNT}" "${ARMSTRAP_HOSTNAME}"
   
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  1 "Updating RootFS")
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  10 "Updating RootFS")
   chrootUpgrade "${ARMSTRAP_MNT}"
   
-  ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Configuring RootFS")
-      
+  ARMSTRAP_GUI_PCT=$(guiWriter "add"  19 "Installing and configuring packages")
+  
+  if [ -n "${ARMSTRAP_BASE_PACKAGES}" ]; then
+    TMP_DATA="${ARMSTRAP_BASE_PACKAGES}"
+  fi
+
   if [ -n "${BOARD_DPKG_EXTRAPACKAGES}" ]; then
-    chrootInstall "${ARMSTRAP_MNT}" "${BOARD_DPKG_EXTRAPACKAGES}"
+    TMP_DATA="${BOARD_DPKG_EXTRAPACKAGES} ${TMP_DATA}"
   fi
   
   isTrue "${ARMSTRAP_SWAP}"  
   if [ $? -ne 0 ]; then
-    chrootInstall "${ARMSTRAP_MNT}" dphys-swapfile
+    TMP_DATA="dphys-swapfile ${TMP_DATA}"
     if [ ${ARMSTRAP_SWAPSIZE} -gt 0 ]; then
       printf "CONF_SWAPFILE=%s\n" "${ARMSTRAP_SWAPFILE}" > "${ARMSTRAP_MNT}/etc/dphys-swapfile"
       printf "CONF_SWAPSIZE=%s\n" "${ARMSTRAP_SWAPSIZE}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
@@ -614,6 +615,8 @@ function default_installRoot {
       printf "CONF_MAXSWAP=%s\n" "${ARMSTRAP_SWAPMAX}" >> "${ARMSTRAP_MNT}/etc/dphys-swapfile"
     fi
   fi
+  
+  chrootInstall "${ARMSTRAP_MNT}" "${TMP_DATA}"
 
   if [ ! -z "${BOARD_ROOTFS_RECONFIG}" ]; then
     chrootReconfig "${ARMSTRAP_MNT}" "${BOARD_ROOTFS_RECONFIG}"
@@ -640,11 +643,13 @@ function default_installRoot {
   initFSTab "${ARMSTRAP_MNT}" 
   addFSTab "${ARMSTRAP_MNT}" ${BOARD_FSTAB[@]}
 
-  for i in "${BOARD_KERNEL_MODULES}"; do
-    addKernelModule "${ARMSTRAP_MNT}" "${i}"
-  done
+  if [ -n "${BOARD_KERNEL_MODULES}" ]; then
+    for i in "${BOARD_KERNEL_MODULES}"; do
+      addKernelModule "${ARMSTRAP_MNT}" "${i}"
+    done
+  fi
   
-  if [ ! -z ${ARMSTRAP_KERNEL_MODULES} ]; then
+  if [ -n ${ARMSTRAP_KERNEL_MODULES} ]; then
     for i in "${ARMSTRAP_KERNEL_MODULES}"; do
       addKernelModule "${ARMSTRAP_MNT}" "${i}"
     done
@@ -760,18 +765,18 @@ function default_installOS {
     default_installRoot
   fi
   
-  funExist ${BOARD_CONFIG}_installBoot
-  if [ ${?} -eq 0 ]; then
-    ${BOARD_CONFIG}_installBoot
-  else
-    default_installBoot
-  fi
+  #funExist ${BOARD_CONFIG}_installBoot
+  #if [ ${?} -eq 0 ]; then
+  #  ${BOARD_CONFIG}_installBoot
+  #else
+  #  default_installBoot
+  #fi
   
-  funExist ${BOARD_CONFIG}_installKernel
-  if [ ${?} -eq 0 ]; then
-    ${BOARD_CONFIG}_installKernel
-  else
-    default_installKernel
-  fi
+  #funExist ${BOARD_CONFIG}_installKernel
+  #if [ ${?} -eq 0 ]; then
+  #  ${BOARD_CONFIG}_installKernel
+  #else
+  #  default_installKernel
+  #fi
   
 }
