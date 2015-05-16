@@ -17,6 +17,10 @@ bak/
 img/
 env/
 
+#python
+__pycache__/
+*.py[cod]
+
 # Misc
 buildall.sh
 boards/*/kernel/*custom_defconfig
