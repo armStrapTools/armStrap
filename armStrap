@@ -61,6 +61,9 @@ def test_Mixed():
 if __name__ == '__main__':
     #Always work from where the script live!
     os.chdir(os.path.abspath(os.path.dirname(__file__)))
+
     config = Utils.readConfig("armStrap.ini")
+    sunxi = Utils.readConfig("sunxi.ini")
+    
     UI.armStrap_Summary(config)
     
