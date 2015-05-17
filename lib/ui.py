@@ -276,5 +276,9 @@ def armStrap_Summary(config):
     i += 2
     
     
-    dialog.mixedform(text = "", elements = elements, title="Configuration Summary", backtitle="armStrap version " + CONST.VERSION)
+    results = dialog.mixedform(text = "", elements = elements, title="Configuration Summary", backtitle="armStrap version " + CONST.VERSION)
+    
+    return results[0]
+
+    
     

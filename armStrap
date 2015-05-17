@@ -2,35 +2,42 @@
 
 import locale
 import os
+import sys
+import subprocess
 import lib.ui as UI
 import lib.utils as Utils
+import lib.disk as Disk
 
 locale.setlocale(locale.LC_ALL, '')
 
 def test_Gauge():
     g = UI.armStrap_gauge(title="Gauge Test")
-    
+
     g.show(text="This is a test")
-    time.sleep(1)
+    time.sleep(1) 
+
     for item in range(0,9):
         g.increment(percent=10, text="Going up!")
         time.sleep(0.1)
+
     for item in range(0,9):
         g.decrement(percent=10, text="Going down!")
         time.sleep(0.1)
+
     for item in range(100):
         g.update(percent = item, text = "Updating")
         time.sleep(0.01)
+
     g.end()
     g.join()
     
-def test_Mixed():
+def test_Mixed(): 
     m = UI.armStrap_mixed(title="Mixed test")
+
     m.show(text = "This is a mixed test")
     m.update_item(name = "Task 1", value = "-10")
     m.update_item(name = "Task 2", value = "Pending")
     m.update_item(name = "Task 3", value = "pending")
-
     time.sleep(1)
     
     m.update_main(percent=1, text="Doing task 1")
@@ -40,37 +47,39 @@ def test_Mixed():
     m.update_item(name = "Task 1", value = "Completed")
     
     m.update_main(percent=34, text="Doing task 2")
-    
     for item in range(0,-100,-10):
         m.update_item(name = "Task 2", value = item)
         time.sleep(0.1)
     m.update_item(name = "Task 2", value = "Completed")
     
     m.update_main(percent=67, text="Doing task 3")
-    
     for item in range(0,-100,-10):
         m.update_item(name = "Task 3", value = item)
         time.sleep(0.1)
     m.update_item(name = "Task 3", value = "Completed")
     
     m.update_main(percent=100, text="All done")
-    
     m.end()
     m.join()
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     #Always work from where the script live!
     os.chdir(os.path.abspath(os.path.dirname(__file__)))
 
-    config = Utils.readConfig("armStrap.ini")
+    config = Utils.readConfig("armStrap.ini") 
     sunxi = Utils.readConfig("sunxi.ini")
     
-    UI.armStrap_Summary(config)
+    if UI.armStrap_Summary(config) == "cancel":
+        subprocess.check_call("/usr/bin/clear")
+        sys.exit(os.EX_OK)
+
+    if config.has_option('Output', 'Device'):
+        Disk.setupSD(config = config, boards = sunxi)
     
-    print("Downloading")
-    Utils.download(url = "https://archive.armstrap.net/root/armv7l-ubuntu-precise.txz")
-    print("Extracting")
-    Utils.extractTar(src = "armv7l-ubuntu-precise.txz" dst = "mnt")
-    print("Deleting")
-    Utils.unlinkFile("armv7l-ubuntu-precise.txz")
+    #DiskLayout = Disk.getLayout(sunxi)
     
+    #print(DiskLayout)
+    
+     
+    
+

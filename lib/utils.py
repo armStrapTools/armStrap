@@ -12,19 +12,19 @@ import subprocess
 # Extract a tar file (src) to a directory (dst)
 def extractTar(src, dst):
   checkPath(dst)
-  xz = tarfile.open(getpath(src), 'r:*')
-  xz.extractall(getpath(dst))
+  xz = tarfile.open(getPath(src), 'r:*')
+  xz.extractall(getPath(dst))
   xz.close()
 
 # Download a file to the current directory
 def download(url):
-  with urllib.request.urlopen(url) as src, open(getpath(os.path.basename(url)), 'wb') as out_file:
+  with urllib.request.urlopen(url) as src, open(getPath(os.path.basename(url)), 'wb') as out_file:
     shutil.copyfileobj(src, out_file)
 
 # Unlink a file 
 def unlinkFile(src):
-  if os.path.isfile(getpath(src)):
-    os.unlink(getpath(src))
+  if os.path.isfile(getPath(src)):
+    os.unlink(getPath(src))
 
 # Check if a path exist and create it. Aways work from the work directory    
 def checkPath(path):
