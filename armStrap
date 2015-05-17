@@ -19,15 +19,21 @@ if __name__ == '__main__':
     sunxi = Utils.readConfig("sunxi.ini")
     
     if UI.Summary(config) == "cancel":
-
         Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, status = os.EX_OK)
     
     status = UI.Status()
     
     if config.has_option('Output', 'Device'):
-        Disk.formatSD(config = config, boards = sunxi, status = status)
+        (Device, partList) = Disk.formatSD(config = config, boards = sunxi, status = status)
     else:
-        Disk.formatIMG(config = config, boards = sunxi, status = status)
+        (Device, partList) = Disk.formatIMG(config = config, boards = sunxi, status = status)
+        
+    status.update_main(text = "", percent = 10)
+        
+    partMount = Disk.mountPartitions(Device = Device, partList = partList, status = status)
+    Disk.unmountPartitions(Device = Device, partList = partMount, status = status)
+
+    status.update_main(text = "", percent = 15)
 
     status.end()
     status.join()

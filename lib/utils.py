@@ -38,7 +38,7 @@ def checkPath(path):
   
 # Return a path starting at the work directory
 def getPath(path):
-  return os.path.join(os.getcwd(), path)
+  return os.path.join(os.getcwd(), path.strip('/'))
 
 # Read a config file
 def readConfig(src):
@@ -46,7 +46,14 @@ def readConfig(src):
   config.sections()
   config.read(getPath(src))
   return config
+  
+def captureCommand(*args):
+  p = subprocess.Popen( args , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
+  (cmd_stdout, cmd_stderr) = ( cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
+  return ( str(cmd_stdout), str(cmd_stderr) )
 
+# Exit from armStrap.
 def Exit(text = "", title = "", timeout = 0, status = os.EX_OK):
   UI.MessageBox(text = text, title = title, timeout = timeout)
   subprocess.check_output(["/usr/bin/clear"], stderr=subprocess.STDOUT)

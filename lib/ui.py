@@ -15,6 +15,9 @@ def constant(f):
 
 class _Const(object):
     @constant
+    def QUEUE_TIMEOUT():
+        return 0.1
+    @constant
     def NONE():
         return 0x00
     @constant
@@ -59,7 +62,7 @@ class Mixed(threading.Thread):
     def run(self):
         while self.running:
             try:
-                command = self.queue.get(block=True, timeout=0.5)
+                command = self.queue.get(block = True, timeout = CONST.QUEUE_TIMEOUT)
                 if (command['task'] == CONST.GUI_START) and (self.active == False):
                     self.active = True
                     self.dialog.mixedgauge(text=self.text, percent=self.percent, elements=self.elements, title=self.title, backtitle="armStrap version " + CONST.VERSION)
@@ -74,6 +77,21 @@ class Mixed(threading.Thread):
             except Empty:
                 continue
                 
+    def getPercent(self):
+        return self.percent
+    
+    def getRunning(self):
+        return self.running
+    
+    def getText(self):
+        return self.text
+    
+    def getTitle(self):
+        return self.title
+    
+    def getElements(self):
+        return self.elements
+    
     def show(self, percent = 0, text = ""):
         self.percent = percent
         self.text = text
@@ -129,7 +147,7 @@ class Gauge(threading.Thread):
     def run(self):
         while self.running:
             try:
-                command = self.queue.get(block=True, timeout=0.5)
+                command = self.queue.get(block = True, timeout = CONST.QUEUE_TIMEOUT)
                 if (command['task'] == CONST.GUI_START) and (self.active == False):
                         self.active = True
                         self.dialog.gauge_start(percent=self.percent, text=self.text, title=self.title, backtitle="armStrap version " + CONST.VERSION)
@@ -204,7 +222,7 @@ def YesNo(text = "", title = ""):
 def Status():
     m = Mixed(title = "Progress")
     m.show(text = "Initializing...")
-    m.update_item(name = "Formatting disk", value = "Pending")
+    m.update_item(name = "Formatting Disk", value = "Pending")
     m.update_item(name = "Installing RootFS", value = "Pending")
     m.update_item(name = "Installing BootLoader", value = "Pending")
     m.update_item(name = "Installing Kernel", value = "Pending")
