@@ -2,10 +2,8 @@
 
 import locale
 import os
-import sys
-import time
-
 import lib.ui as UI
+import lib.utils as Utils
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -61,10 +59,8 @@ def test_Mixed():
     m.join()
 
 if __name__ == '__main__':
-#    test_Gauge()
-    test_Mixed()
-    
-    
-
-    
+    #Always work from where the script live!
+    os.chdir(os.path.abspath(os.path.dirname(__file__)))
+    config = Utils.readConfig("armStrap.ini")
+    UI.armStrap_Summary(config)
     

@@ -2,6 +2,7 @@ from dialog import Dialog
 from queue import Queue
 from queue import Empty
 import threading
+import lib.utils as Utils
 
 def constant(f):
     def fset(self, value):
@@ -11,6 +12,15 @@ def constant(f):
     return property(fget, fset)
 
 class _Const(object):
+    @constant
+    def NONE():
+        return 0x00
+    @constant
+    def HIDDEN():
+        return 0x01
+    @constant
+    def READONLY():
+        return 0x02
     @constant
     def GUI_START():
         return 1
@@ -25,6 +35,7 @@ class _Const(object):
     @constant
     def VERSION():
         return "1.0-Stage"
+
 
 CONST = _Const()
 
@@ -196,3 +207,74 @@ class armStrap_List():
         
         if found == False:
             self.data.append( (name, value) )
+
+
+def armStrap_Summary(config):
+    dialog = armStrap_Dialog()
+           #(label, yl, xl, item, yi, xi, field_length, input_length, attributes)
+    elements = [
+            ("-- Board --", 1,  15, " ", 2, 2, 0, 0, CONST.HIDDEN),
+            ("-- Kernel --", 1,  54, " ", 2, 2, 0, 0, CONST.HIDDEN),
+            ("      Model :",  2,   1, config['Board']['Model'],           2, 15, 20, 20, CONST.READONLY),
+            ("    Version :",  2,  41, config['Kernel']['Version'],        2, 55, 20, 20, CONST.READONLY),
+            ("   HostName :",  3,   1, config['Board']['HostName'],        3, 15, 20, 20, CONST.READONLY),
+            ("-- Distribution --", 3,  51, " ", 2, 2, 0, 0, CONST.HIDDEN),
+            ("   Password :",  4,   1, config['Board']['Password'],        4, 15, 20, 20, CONST.READONLY),
+            ("     Family :",  4,  41, config['Distribution']['Family'],   4, 55, 20, 20, CONST.READONLY),
+            ("   TimeZone :",  5,   1, config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
+            ("    Version :",  5,  41, config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
+            ("     Locale :",  6,   1, config['Board']['Locale'],          6, 15, 20, 20, CONST.READONLY),
+            ("Root Device :",  6,  41, config['BootLoader']['RootDevice'], 6, 55, 20, 20, CONST.READONLY)]
+    
+    i = 7
+    
+    if config.has_section("SwapFile"):
+        elements.append( ("-- SwapFile --",  i,  31, "", i, 45, 0, 0, CONST.READONLY) )
+        i += 1
+        if config.has_option('SwapFile', 'Size'):
+            elements.append( ("       Size :",  i,  1, config['SwapFile']['Size'] + "MB",    i, 15, 20, 20, CONST.READONLY) )
+        else:
+            elements.append( ("     Factor :",  i,  1, config['SwapFile']['Factor'] + " maximum " + config['SwapFile']['Maximum'] + "MB",    i, 13, 20, 20, CONST.READONLY))
+        elements.append( ("       File :",  i,  40, config['SwapFile']['File'],    i, 55, 20, 20, CONST.READONLY) )
+        i += 1
+
+    elements.append( ("-- Networking --", i, 30, "", i, 46, 0 ,0, CONST.READONLY) )
+    i += 1
+    if config.has_section("Networking"):
+        if config['Networking']['Mode'].lower() == "static":
+            elements.append(("         IP :",  i,   1, config['Networking']['Ip'],   i, 15, 20, 20, CONST.READONLY))
+            elements.append(("Root Device :",  i,  41, config['Networking']['Mask'], i, 55, 20, 20, CONST.READONLY))
+            i += 1
+            elements.append(("    Gateway :",  i,   1, config['Networking']['Gateway'],   i, 15, 20, 20, CONST.READONLY))
+            elements.append(("        DNS :",  i,  41, config['Networking']['DNS'], i, 55, 20, 20, CONST.READONLY))
+            i += 1
+            elements.append(("     Domain :",  i,   1, config['Networking']['Domain'],   i, 15, 20, 20, CONST.READONLY))
+            elements.append(("Mac Address :",  i,  41, config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
+            i += 1
+        else:
+            elements.append(("         IP :",  i,   1, config['Networking']['Mode'],   i, 15, 20, 20, CONST.READONLY))
+            i += 1
+    else:
+        elements.append(("         IP :",  i,   1, "DHCP",   i, 15, 20, 20, CONST.READONLY))
+        i += 1
+    
+    elements.append( ("-- Output --", i, 32, "", i, 46, 0 ,0, CONST.READONLY) )
+    i += 1
+    if config.has_option('Output', 'Device'):
+        elements.append(("     Device :",  i,   1, config['Output']['Device'],   i, 15, 20, 20, CONST.READONLY))
+        i += 2
+        elements.append( ("Content of " + config['Output']['Device'] + ":", i, 1, "", i, 46, 0 ,0, CONST.READONLY) )
+        i += 1
+        for l in Utils.listDevice(config['Output']['Device']):
+          elements.append( ("", i, 1, l , i, 1, 0, 0, CONST.READONLY) )
+          i += 1
+          
+    else:
+        elements.append(("      Image :",  i,   1, config['Output']['Image'],   i, 15, 20, 20, CONST.READONLY))
+        elements.append(("Root Device :",  i,  41, config['Output']['Size'], i, 55, 20, 20, CONST.READONLY))
+    
+    i += 2
+    
+    
+    dialog.mixedform(text = "", elements = elements, title="Configuration Summary", backtitle="armStrap version " + CONST.VERSION)
+    
