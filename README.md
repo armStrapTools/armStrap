@@ -11,72 +11,12 @@ You are on the development branch of armStrap, it may be broken at any moment an
 QuickStart
 ----------
 
-You need to be root to run this script. You have two options:
+You need to be root to run this script:
 
-1) With no parameter from the command line, create an image using values found in config.sh.
+1) Edit armStrap.ini to suit your needs
 
-2) Configure your build using the command line (Not recommended for version 0.8x, i've made
-   many changes and some options have changed meanings or simply do nothing. Use the config
-   file until i remove this message) :
+2) As root, run ./armStrap and go take a coffee :)
 
-    armStrap.sh version 1.0-stage
-    Copyright (C) 2013-2014 Eddy Beaupre
-    
-    Usage : sudo armStrap.sh [PARAMETERS]
-    
-    Image/SD Builder:
-      -b <BOARD>              Use board definition <BOARD>.
-      -d <DEVICE>             Write to <DEVICE> instead of creating an image.
-      -i <FILE>               Set image filename to <FILE>.
-      -s <SIZE>               Set image size to <SIZE>MB.
-      -h <HOSTNAME>           Set hostname.
-      -p <PASSWORD>           Set root password.
-      -w <SIZE>               Enable swapfile.
-      -W                      Disable swapfile.
-      -Z <SIZE>               Set swapfile size to <SIZE>MB.
-      -n "<IP> <MASK> <GW>"   Set static IP.
-      -N                      Set DHCP IP.
-      -r "<NS1> [NS2] [NS3]"  Set nameservers.
-      -e <DOMAIN>             Set search domain.
-     
-    Shell to SD card:
-      -Z [DEVICE]             Shell into a SD card.
-    
-    Utilities:
-      -g                      Disable GUI.
-      -q                      Quiet.
-      -c                      Directory Cleanup.
-      -l                      Show licence.
-    
-    Avalable boards configuration:
-    
-     Board           Kernel          BootLoader      RootFS
-    *A70Xh           sun7i           u-boot-sunxi    debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
-     A70Xh           sun7i-stage     u-boot         
-     A70Xh           sunxi-next      u-boot         
-     A70Xh           mainline        u-boot         
-    *CubieBoard      sun4i           u-boot-sunxi    debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
-     CubieBoard      sun4i-stage     u-boot         
-     CubieBoard      sunxi-next      u-boot         
-     CubieBoard      mainline        u-boot         
-    *CubieBoard2     sun7i           u-boot-sunxi    debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
-     CubieBoard2     sun7i-stage     u-boot         
-     CubieBoard2     sunxi-next      u-boot         
-     CubieBoard2     mainline        u-boot         
-    *CubieTruck      sun7i-ct        u-boot          debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
-     CubieTruck      sun7i           u-boot-sunxi   
-     CubieTruck      sun7i-stage     u-boot         
-     CubieTruck      sunxi-next      u-boot         
-     CubieTruck      mainline        u-boot         
-    *HackBerry       sun4i           u-boot-sunxi    debian: stable testing unstable *ubuntu: precise trusty utopic *vivid
-     HackBerry       sun4i-stage     u-boot         
-     HackBerry       sunxi-next      u-boot         
-     HackBerry       mainline        u-boot         
-    
-    (*) = Default configuration.
-    
-    With no parameter, create an image using values found in config.sh.
-    
 Nand Installer
 --------------
 
@@ -116,7 +56,7 @@ Also note that the repositories URL have changes, if you configured your board b
 
 Licence
 -------
-Copyright (c) 2013-2014 Eddy Beaupre. All rights reserved.
+Copyright (c) 2013-2015 Eddy Beaupre. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
