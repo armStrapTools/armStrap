@@ -1,9 +1,13 @@
+
 import os
 import shutil
+import sys
 import tarfile
 import urllib.request
 import configparser
 import subprocess
+
+from . import ui as UI
 
 #######################################################################################
 # Since armStrap must be run as root, all path are made relative to the work directory.
@@ -43,9 +47,8 @@ def readConfig(src):
   config.read(getPath(src))
   return config
 
-# List the partitions of a device
-def listDevice(device):
-  p = subprocess.Popen(['/sbin/parted', device, '--script' , 'print'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
-  (cmd_stdout, cmd_stderr) = ( cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
-  return str(cmd_stdout).splitlines();
+def Exit(text = "", title = "", timeout = 0, status = os.EX_OK):
+  UI.MessageBox(text = text, title = title, timeout = timeout)
+  subprocess.check_output(["/usr/bin/clear"], stderr=subprocess.STDOUT)
+  sys.exit(status)
+

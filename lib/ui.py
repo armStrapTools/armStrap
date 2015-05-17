@@ -1,8 +1,10 @@
+
 from dialog import Dialog
 from queue import Queue
 from queue import Empty
+import subprocess
 import threading
-import lib.utils as Utils
+import time
 
 def constant(f):
     def fset(self, value):
@@ -36,13 +38,12 @@ class _Const(object):
     def VERSION():
         return "1.0-Stage"
 
-
 CONST = _Const()
 
 def armStrap_Dialog():
     return Dialog(dialog = "dialog")
 
-class armStrap_mixed(threading.Thread):
+class Mixed(threading.Thread):
     def __init__(self, title = ""):
         self.queue = Queue()
         self.dialog = armStrap_Dialog()
@@ -52,7 +53,7 @@ class armStrap_mixed(threading.Thread):
         self.text = ""
         self.title = title
         self.elements = []
-        super(armStrap_mixed, self).__init__()
+        super(Mixed, self).__init__()
         self.start()
         
     def run(self):
@@ -113,7 +114,7 @@ class armStrap_mixed(threading.Thread):
     def end(self):
         self.queue.put({'task': CONST.GUI_STOP})
  
-class armStrap_gauge(threading.Thread):
+class Gauge(threading.Thread):
     def __init__(self, title = ""):
         self.queue = Queue()
         self.dialog = armStrap_Dialog()
@@ -122,7 +123,7 @@ class armStrap_gauge(threading.Thread):
         self.percent = 0
         self.text = ""
         self.title = title;
-        super(armStrap_gauge, self).__init__()
+        super(gauge, self).__init__()
         self.start()
         
     def run(self):
@@ -189,27 +190,35 @@ class armStrap_gauge(threading.Thread):
     def end(self):
         self.queue.put({'task': CONST.GUI_STOP})
         
-class armStrap_List():
-    def __init__(self):
-        self.data = []
+def MessageBox(text = "", title = "", timeout = 0 ):
+    dialog = armStrap_Dialog()
+    if timeout < 1:
+        dialog.msgbox(text = text, title= title, backtitle = "armStrap version " + CONST.VERSION)
+    else:
+        dialog.pause(text = text, title = title, seconds = timeout, backtitle = "armStrap version " + CONST.VERSION)
         
-    def set(self, name, value):
-        found = False;
-        t = []
-        for d in self.data[:]:
-            if d[0] == name:
-                t.append( (d[0], value) )
-                found = True
-            else:
-                t.append( (d[0], d[1]) )
-                
-        self.data = t
-        
-        if found == False:
-            self.data.append( (name, value) )
-
-
-def armStrap_Summary(config):
+def YesNo(text = "", title = ""):
+    dialog = armStrap_Dialog()
+    return dialog.yesno(text = text, title= title, backtitle = "armStrap version " + CONST.VERSION)
+    
+def Status():
+    m = Mixed(title = "Progress")
+    m.show(text = "Initializing...")
+    m.update_item(name = "Formatting disk", value = "Pending")
+    m.update_item(name = "Installing RootFS", value = "Pending")
+    m.update_item(name = "Installing BootLoader", value = "Pending")
+    m.update_item(name = "Installing Kernel", value = "Pending")
+    time.sleep(1)
+    return m
+    
+# List the partitions of a device
+def listDevice(device):
+  p = subprocess.Popen(['/sbin/parted', device, '--script' , 'print'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
+  (cmd_stdout, cmd_stderr) = ( cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
+  return str(cmd_stdout).splitlines();
+    
+def Summary(config):
     dialog = armStrap_Dialog()
            #(label, yl, xl, item, yi, xi, field_length, input_length, attributes)
     elements = [
@@ -265,7 +274,7 @@ def armStrap_Summary(config):
         i += 2
         elements.append( ("Content of " + config['Output']['Device'] + ":", i, 1, "", i, 46, 0 ,0, CONST.READONLY) )
         i += 1
-        for l in Utils.listDevice(config['Output']['Device']):
+        for l in listDevice(config['Output']['Device']):
           elements.append( ("", i, 1, l , i, 1, 0, 0, CONST.READONLY) )
           i += 1
           
@@ -280,5 +289,4 @@ def armStrap_Summary(config):
     
     return results[0]
 
-    
     
