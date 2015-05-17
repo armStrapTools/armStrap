@@ -67,3 +67,10 @@ if __name__ == '__main__':
     
     UI.armStrap_Summary(config)
     
+    print("Downloading")
+    Utils.download(url = "https://archive.armstrap.net/root/armv7l-ubuntu-precise.txz")
+    print("Extracting")
+    Utils.extractTar(src = "armv7l-ubuntu-precise.txz" dst = "mnt")
+    print("Deleting")
+    Utils.unlinkFile("armv7l-ubuntu-precise.txz")
+    
