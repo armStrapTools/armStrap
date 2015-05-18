@@ -29,6 +29,12 @@ def download(url):
 def unlinkFile(src):
   if os.path.isfile(getPath(src)):
     os.unlink(getPath(src))
+    
+# Touch a file
+def touch(fname, mode=0o666, dir_fd=None, **kwargs):
+  flags = os.O_CREAT | os.O_APPEND
+  with os.fdopen(os.open(getPath(fname), flags=flags, mode=mode, dir_fd=dir_fd)) as f:
+    os.utime(f.fileno() if os.utime in os.supports_fd else getPath(fname), dir_fd=None if os.supports_fd else dir_fd, **kwargs)
 
 # Check if a path exist and create it. Aways work from the work directory    
 def checkPath(path):
@@ -47,6 +53,7 @@ def readConfig(src):
   config.read(getPath(src))
   return config
   
+# Execute a command, capturing its output
 def captureCommand(*args):
   p = subprocess.Popen( args , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()

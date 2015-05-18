@@ -30,15 +30,28 @@ if __name__ == '__main__':
         (Device, partList) = Disk.formatIMG(config = config, boards = boards, status = status)
         
     status.update_main(text = "", percent = 10)
-        
+    
+    #Device = "/dev/sdb"
+    #partList = [ { 'device': "/dev/sdb1", 'Mount_Order': "1", 'Mount_Point': "/"} ]
+
     partMount = Disk.mountPartitions(Device = Device, partList = partList, status = status)
     
-
     status.update_main(text = "", percent = 15)
     
     aOS.installRootFS(url = "https://archive.armstrap.net/root", config = config, boards = boards, status = status)
-    
     status.update_main(text = "", percent = 25)
+
+    aOS.chrootConfig()
+
+    UI.chrootProgressBox( cmd = "/usr/bin/apt-get -qq -y update" , path = Utils.getPath("mnt"), title = "Running apt-get update" )
+    status.update_item(name = "Installing RootFS", value = "-20")
+    status.update_main(text = "", percent = 30)
+
+    UI.chrootProgressBox( cmd = "/usr/bin/apt-get -qq -y dist-upgrade", path = Utils.getPath("mnt"), title = "Running apt-get dist-upgrade" )
+    status.update_item(name = "Installing RootFS", value = "-30")
+    status.update_main(text = "", percent = 35)
+    
+    aOS.chrootDeconfig()
     
     Disk.unmountPartitions(Device = Device, partList = partMount, status = status)
     

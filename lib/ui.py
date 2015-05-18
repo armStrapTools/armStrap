@@ -2,9 +2,12 @@
 from dialog import Dialog
 from queue import Queue
 from queue import Empty
+import os
 import subprocess
+import tempfile
 import threading
 import time
+
 
 def constant(f):
     def fset(self, value):
@@ -45,6 +48,58 @@ CONST = _Const()
 
 def armStrap_Dialog():
     return Dialog(dialog = "dialog")
+    
+def openTempFile():
+  (fd, path) = tempfile.mkstemp()
+  file = open(path, 'w+b')
+  return (fd, file, path)
+
+def closeTempFile(fd, file, path):
+  file.close()
+  os.close(fd)
+  os.remove(path)
+  
+    
+class RunInBackground(threading.Thread):
+    def __init__(self, args):
+        self.output = tempfile.NamedTemporaryFile(buffering=0, delete=False)
+        self.pipe = subprocess.Popen( args , shell=True, bufsize = 0, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        super(RunInBackground, self).__init__()
+        self.start()
+        
+    def run(self):
+        (cmd_stdout_bytes, cmd_stderr_bytes) = self.pipe.communicate()
+        for line in cmd_stdout_bytes.decode('utf-8'):
+            self.output.write(bytes(line, 'UTF-8'))
+            
+    def getName(self):
+        return self.output.name
+        
+class chrootRunInBackground(threading.Thread):
+    def __init__( self, cmd, path ):
+        (self.fd, self.file, self.path) = openTempFile()
+        self.running = True
+        self.chrootCmd = cmd
+        self.chrootPath = path
+        super(chrootRunInBackground, self).__init__()
+        self.start()
+        
+    def run(self):
+        os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + self.chrootPath + " " + self.chrootCmd + " > " + self.path + " 2>&1")
+        self.running = False
+        closeTempFile(fd = self.fd, file = self.file, path= self.path)
+            
+    def getName(self):
+        return self.path
+    
+    def getFD(self):
+        return self.fd
+    
+    def getFile(self):
+        return self.file
+    
+    def getState(self):
+        return self.running
 
 class Mixed(threading.Thread):
     def __init__(self, title = ""):
@@ -181,7 +236,7 @@ class Gauge(threading.Thread):
             self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': True})
         else:
             self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
-    
+
     def increment(self, percent = 0, text = ""):
         self.percent += percent
         if self.percent > 100:
@@ -229,6 +284,25 @@ def Status():
     time.sleep(1)
     return m
     
+def ProgressBox(args, title = ""):
+    b = RunInBackground(args)
+    dialog = armStrap_Dialog()
+    name = b.getName()
+    time.sleep(1)
+    dialog.progressbox(file_path = name, title = title)
+    
+def chrootProgressBox(cmd, path, title = "" ) :
+    b = chrootRunInBackground(cmd = cmd, path = path)
+    dialog = armStrap_Dialog()
+    fn = b.getName()
+    size = 0
+    while os.path.isfile(fn):
+        t = os.stat(fn).st_size
+        if t != size:
+            size = t
+            dialog.progressbox(file_path = fn, title = title, backtitle="armStrap version " + CONST.VERSION)
+        time.sleep(0.1)
+
 # List the partitions of a device
 def listDevice(device):
   p = subprocess.Popen(['/sbin/parted', device, '--script' , 'print'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
