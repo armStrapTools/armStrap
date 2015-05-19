@@ -101,6 +101,8 @@ def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK, status = Fal
       status.end()
     UI.MessageBox(text = text, title = title, timeout = timeout)
     os.system("/usr/bin/clear")
+  except SystemExit:
+    pass
   except:
     logging.exception("Exception in " + __name__ + ":")
   finally:

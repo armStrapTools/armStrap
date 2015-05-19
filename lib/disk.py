@@ -49,7 +49,7 @@ def formatDevice(Device, DiskLayout, status, percent = 0):
     offset = 1
     partID = 1
     step = int( ( 100 - percent) / len(DiskLayout))
-    if Device.find("loop") != -1:
+    if (Device.find("loop") != -1) or (Device.find("mmcblk") != -1):
       partSlice=Device + "p"
     else:
       partSlice=Device

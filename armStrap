@@ -83,6 +83,8 @@ if __name__ == '__main__':
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE, status = status)
         
         status.end()
+    except SystemExit:
+        pass
     except:
         logging.exception("Exception in " + __name__ + ":")
         Utils.Exit(text = "General error.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
