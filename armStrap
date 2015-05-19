@@ -1,9 +1,12 @@
 #! /usr/bin/env python3
 
+import atexit
+import crypt
 import locale
 import os
 import sys
 import subprocess
+import logging
 
 from lib import ui as UI
 from lib import utils as Utils
@@ -13,47 +16,73 @@ from lib import aos as aOS
 locale.setlocale(locale.LC_ALL, '')
 
 if __name__ == '__main__': 
-    #Always work from where the script live!
-    os.chdir(os.path.abspath(os.path.dirname(__file__)))
+    try:
+        #Always work from where the script live!
+        os.chdir(os.path.abspath(os.path.dirname(__file__)))
+    
+        UI.startLogger(Filename = Utils.getPath("armStrap.log"), Level = logging.INFO)
+    
+        config = Utils.readConfig("armStrap.ini")
+        boards = Utils.readConfig(config['Board']['Branch'].lower() + ".ini")
+    
+        if UI.Summary(config) == "cancel":
+            Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, exitStatus = os.EX_OK)
+    
+        status = UI.Status()
 
-    config = Utils.readConfig("armStrap.ini")
-    boards = Utils.readConfig(config['Board']['Branch'].lower() + ".ini")
-    
-    if UI.Summary(config) == "cancel":
-        Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, status = os.EX_OK)
-    
-    status = UI.Status()
-    
-    if config.has_option('Output', 'Device'):
-        (Device, partList) = Disk.formatSD(config = config, boards = boards, status = status)
-    else:
-        (Device, partList) = Disk.formatIMG(config = config, boards = boards, status = status)
+        if config.has_option('Output', 'Device'):
+            (Device, partList) = Disk.formatSD(config = config, boards = boards, status = status)
+        else:
+            (Device, partList) = Disk.formatIMG(config = config, boards = boards, status = status)
         
-    status.update_main(text = "", percent = 10)
+        if ( Device == False ) or ( partList == False ):
+            Utils.Exit(text = "Error while initializing device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR, status = status)
+        
+        status.update_main(text = "", percent = 10)
     
-    #Device = "/dev/sdb"
-    #partList = [ { 'device': "/dev/sdb1", 'Mount_Order': "1", 'Mount_Point': "/"} ]
+        #Device = "/dev/sdb"
+        #partList = [ { 'device': "/dev/sdb1", 'Mount_Order': "1", 'Mount_Point': "/"} ]
 
-    partMount = Disk.mountPartitions(Device = Device, partList = partList, status = status)
+        partMount = Disk.mountPartitions(Device = Device, partList = partList, status = status)
     
-    status.update_main(text = "", percent = 15)
+        if partMount == False:
+            Utils.Exit(text = "Error while mounting device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR, status = status)
     
-    aOS.installRootFS(url = "https://archive.armstrap.net/root", config = config, boards = boards, status = status)
-    status.update_main(text = "", percent = 25)
+        atexit.register(Disk.unmountPartitions, Device = Device, partList = partMount, status = False)
+    
+        status.update_main(text = "", percent = 15)
+    
+        if aOS.installRootFS(url = "https://archive.armstrap.net/root", config = config, boards = boards, status = status) == False:
+            Utils.Exit(text = "Error while extracting RootFS.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_DATAERR, status = status)
+        status.update_main(text = "", percent = 25)
 
-    aOS.chrootConfig()
+        if aOS.chrootConfig() == False:
+            Utils.Exit(text = "Error while configuring chroot environment.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE, status = status)
+    
+        atexit.register(aOS.chrootDeconfig)
 
-    UI.chrootProgressBox( cmd = "/usr/bin/apt-get -qq -y update" , path = Utils.getPath("mnt"), title = "Running apt-get update" )
-    status.update_item(name = "Installing RootFS", value = "-20")
-    status.update_main(text = "", percent = 30)
+        if UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y update" , path = Utils.getPath("mnt"), title = "Running apt-get update" ) == False:
+            Utils.Exit(text = "Error while running apt-get update", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+        status.update_item(name = "Installing RootFS", value = "-20", percent = 30)
 
-    UI.chrootProgressBox( cmd = "/usr/bin/apt-get -qq -y dist-upgrade", path = Utils.getPath("mnt"), title = "Running apt-get dist-upgrade" )
-    status.update_item(name = "Installing RootFS", value = "-30")
-    status.update_main(text = "", percent = 35)
+        if UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y dist-upgrade", path = Utils.getPath("mnt"), title = "Running apt-get dist-upgrade" ) == False:
+            Utils.Exit(text = "Error while running apt-get dist-upgrade", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+        status.update_item(name = "Installing RootFS", value = "-30", percent = 35)
     
-    aOS.chrootDeconfig()
+        if aOS.chrootPasswd( Password = config['Board']['Password'] ) == False:
+            Utils.Exit(text = "Error while setting root password", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
     
-    Disk.unmountPartitions(Device = Device, partList = partMount, status = status)
+        atexit.unregister(aOS.chrootDeconfig)
     
-    status.end()
-    status.join()
+        if aOS.chrootDeconfig() == False:
+            Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE, status = status)
+    
+        atexit.unregister(Disk.unmountPartitions)
+    
+        if Disk.unmountPartitions(Device = Device, partList = partMount, status = status) == False:
+            Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE, status = status)
+        
+        status.end()
+    except:
+        logging.exception("Exception in " + __name__ + ":")
+        Utils.Exit(text = "General error.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)

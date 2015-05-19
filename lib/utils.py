@@ -1,4 +1,4 @@
-
+import logging
 import os
 import shutil
 import sys
@@ -15,54 +15,93 @@ from . import ui as UI
 
 # Extract a tar file (src) to a directory (dst)
 def extractTar(src, dst):
-  checkPath(dst)
-  xz = tarfile.open(getPath(src), 'r:*')
-  xz.extractall(getPath(dst))
-  xz.close()
+  try:
+    checkPath(dst)
+    xz = tarfile.open(getPath(src), 'r:*')
+    xz.extractall(getPath(dst))
+    xz.close()
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+    return False
 
 # Download a file to the current directory
 def download(url):
-  with urllib.request.urlopen(url) as src, open(getPath(os.path.basename(url)), 'wb') as out_file:
-    shutil.copyfileobj(src, out_file)
+  try:
+    with urllib.request.urlopen(url) as src, open(getPath(os.path.basename(url)), 'wb') as out_file:
+      shutil.copyfileobj(src, out_file)
+    return True
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+    return False
 
 # Unlink a file 
 def unlinkFile(src):
-  if os.path.isfile(getPath(src)):
-    os.unlink(getPath(src))
+  try:
+    if os.path.isfile(getPath(src)):
+      os.unlink(getPath(src))
+    return True
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+    return False
     
 # Touch a file
 def touch(fname, mode=0o666, dir_fd=None, **kwargs):
-  flags = os.O_CREAT | os.O_APPEND
-  with os.fdopen(os.open(getPath(fname), flags=flags, mode=mode, dir_fd=dir_fd)) as f:
-    os.utime(f.fileno() if os.utime in os.supports_fd else getPath(fname), dir_fd=None if os.supports_fd else dir_fd, **kwargs)
+  try:
+    flags = os.O_CREAT | os.O_APPEND
+    with os.fdopen(os.open(getPath(fname), flags=flags, mode=mode, dir_fd=dir_fd)) as f:
+      os.utime(f.fileno() if os.utime in os.supports_fd else getPath(fname), dir_fd=None if os.supports_fd else dir_fd, **kwargs)
+    return True
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+    return False
 
 # Check if a path exist and create it. Aways work from the work directory    
 def checkPath(path):
-  if os.path.exists(getPath(path)) == False:
-    os.makedirs(getPath(path))
-  return getPath(path)
+  try:
+    if os.path.exists(getPath(path)) == False:
+      os.makedirs(getPath(path))
+    return getPath(path)
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+    return False
   
 # Return a path starting at the work directory
 def getPath(path):
-  return os.path.join(os.getcwd(), path.strip('/'))
+  try:
+    return os.path.join(os.getcwd(), path.strip('/'))
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+    return False
 
 # Read a config file
 def readConfig(src):
-  config = configparser.ConfigParser()
-  config.sections()
-  config.read(getPath(src))
-  return config
+  try:
+    config = configparser.ConfigParser()
+    config.sections()
+    config.read(getPath(src))
+    return config
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+    return False
   
 # Execute a command, capturing its output
 def captureCommand(*args):
-  p = subprocess.Popen( args , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
-  (cmd_stdout, cmd_stderr) = ( cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
-  return ( str(cmd_stdout), str(cmd_stderr) )
+  try:
+    p = subprocess.Popen( args , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
+    return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+    return ( False, False )
 
 # Exit from armStrap.
-def Exit(text = "", title = "", timeout = 0, status = os.EX_OK):
-  UI.MessageBox(text = text, title = title, timeout = timeout)
-  subprocess.check_output(["/usr/bin/clear"], stderr=subprocess.STDOUT)
-  sys.exit(status)
-
+def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK, status = False):
+  try:
+    if status != False:
+      status.end()
+    UI.MessageBox(text = text, title = title, timeout = timeout)
+    os.system("/usr/bin/clear")
+  except:
+    logging.exception("Exception in " + __name__ + ":")
+  finally:
+    sys.exit(exitStatus)
