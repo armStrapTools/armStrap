@@ -12,7 +12,7 @@ def syncFS():
   
   try:
     UI.logInfo("Entering")
-    os.system("/bin/sync > /dev/null 2>&1")
+    Utils.runCommand("/bin/sync")
     UI.logInfo("Exiting")
     return True
   except:
@@ -22,7 +22,7 @@ def syncFS():
 def partProbe(Device=""):
   try:
     UI.logInfo("Entering")
-    os.system("/sbin/partprobe " + Device + " > /dev/null 2>&1")
+    Utils.runCommand("/sbin/partprobe " + Device)
     UI.logInfo("Exiting")
     return True
   except:
@@ -47,7 +47,8 @@ def cleanDisk(device, bs="512", count=1):
   try:
     UI.logInfo("Entering")
     if S_ISBLK(os.stat(device).st_mode) or os.path.isfile(device):
-      os.system("/bin/dd if=/dev/zero of=" + device + " bs=" + bs + " count=" + str(count) + " > /dev/null 2>&1")
+      Utils.runCommand("/bin/dd if=/dev/zero of=" + device + " bs=" + bs + " count=" + str(count))
+    partProbe(Device = device)
     UI.logInfo("Exiting")
     return True
   except:
@@ -70,7 +71,7 @@ def formatDevice(Device, DiskLayout, status, percent = 0):
     cleanDisk(Device)
     time.sleep(1)
     status.update_main(text="Creating label on " + Device, percent = status.getPercent())
-    os.system("/sbin/parted " + Device + " --script -- mklabel msdos > /dev/null 2>&1")
+    Utils.runCommand("/sbin/parted " + Device + " --script -- mklabel msdos")
   
     for di in DiskLayout:
       if di['FileSystem'].lower().find("fat") != -1:
@@ -82,7 +83,7 @@ def formatDevice(Device, DiskLayout, status, percent = 0):
       else:
         size = -1
       status.update_main(text="Setting up partition " + partSlice + str(partID), percent = status.getPercent())
-      os.system("/sbin/parted " + Device + " --script -- mkpart primary " + str(fs) + " " + str(offset) + " " + str(size) + " > /dev/null 2>&1")
+      Utils.runCommand("/sbin/parted " + Device + " --script -- mkpart primary " + str(fs) + " " + str(offset) + " " + str(size))
       syncFS()
       partProbe(Device = Device)
       status.update_main(text="Waiting for partition " + partSlice + str(partID), percent = status.getPercent())
@@ -91,9 +92,9 @@ def formatDevice(Device, DiskLayout, status, percent = 0):
         time.sleep(1)
       status.update_main(text="Formatting partition " + partSlice + str(partID), percent = status.getPercent())
       if fs == "fat32":
-        os.system("/sbin/mkfs.vfat -F 32 " + partSlice + str(partID) + " > /dev/null 2>&1")
+        Utils.runCommand("/sbin/mkfs.vfat -F 32 " + partSlice + str(partID))
       else:
-        os.system("/sbin/mkfs." + fs + " -q " + partSlice + str(partID) + " > /dev/null 2>&1")
+        Utils.runCommand("/sbin/mkfs." + fs + " -q " + partSlice + str(partID))
       partList.append( {'device': partSlice + str(partID), 'Mount_Order': di['Mount_Order'], 'Mount_Point': di['Mount_Point']} )
       partID += 1
       percent += step
@@ -126,7 +127,7 @@ def formatIMG(config, boards, status):
         Utils.Exit(title = "Cancel by user", text = "Will not overrite " + config['Output']['Image'], timeout = 5)
     status.update_item(name = "Formatting Disk", value = "-0")
     status.update_main(text="Creating disk image " + Utils.getPath(config['Output']['Image']), percent = status.getPercent())
-    os.system("/usr/bin/touch " + Utils.getPath(config['Output']['Image']) + " > /dev/null 2>&1")
+    Utils.runCommand("/usr/bin/touch " + Utils.getPath(config['Output']['Image']))
     cleanDisk(Utils.getPath(config['Output']['Image']), bs="1M", count=int(config['Output']['Size']))
     status.update_item(name = "Formatting Disk", value = "-25")
     (stdout, stderr) = captureCommand("/sbin/losetup", "-f", "--show", Utils.getPath(config['Output']['Image']))
@@ -150,7 +151,7 @@ def mountPartitions(Device, partList, status):
     for p in sortedList:
       d = Utils.checkPath("mnt/" + p['Mount_Point'].strip('/'))
       status.update_main(text="Mounting partition " + p['device'] + " to " + d, percent = status.getPercent())
-      os.system("/bin/mount " + p['device'] + " " + d + " > /dev/null 2>&1")
+      Utils.runCommand("/bin/mount " + p['device'] + " " + d)
     UI.logInfo("Exiting")
     return sortedList
   except:
@@ -164,10 +165,10 @@ def unmountPartitions(Device, partList, status):
       d = Utils.checkPath("mnt/" + p['Mount_Point'].strip('/'))
       if status != False:
         status.update_main(text="Unmounting partition " + p['device'] + " from " + d, percent = status.getPercent())
-      os.system("/bin/umount " + d + " > /dev/null 2>&1")
+      Utils.runCommand("/bin/umount " + d)
   
     if Device.find("loop") != -1:
-      os.system("/sbin/losetup -d " + Device + " > /dev/null 2>&1")
+      Utils.runCommand("/sbin/losetup -d " + Device)
     UI.logInfo("Exiting")
     return True
   except:

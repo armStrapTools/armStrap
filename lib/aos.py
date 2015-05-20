@@ -32,9 +32,9 @@ def chrootConfig():
     f = open(Utils.getPath("mnt/usr/sbin/policy-rc.d"), 'w')
     f.write("exit 101\n")
     f.close()
-    os.system("/bin/mount --bind /proc " + Utils.getPath("mnt/proc"))
-    os.system("/bin/mount --bind /sys " + Utils.getPath("mnt/sys"))
-    os.system("/bin/mount --bind /dev/pts " + Utils.getPath("mnt/dev/pts"))
+    Utils.runCommand("/bin/mount --bind /proc " + Utils.getPath("mnt/proc"))
+    Utils.runCommand("/bin/mount --bind /sys " + Utils.getPath("mnt/sys"))
+    Utils.runCommand("/bin/mount --bind /dev/pts " + Utils.getPath("mnt/dev/pts"))
     UI.logInfo("Exiting")
     return True
   except:
@@ -44,9 +44,9 @@ def chrootConfig():
 def chrootDeconfig():
   try:
     UI.logInfo("Entering")
-    os.system("/bin/umount " + Utils.getPath("mnt/dev/pts"))
-    os.system("/bin/umount " + Utils.getPath("mnt/sys"))
-    os.system("/bin/umount " + Utils.getPath("mnt/proc"))
+    Utils.runCommand("/bin/umount " + Utils.getPath("mnt/dev/pts"))
+    Utils.runCommand("/bin/umount " + Utils.getPath("mnt/sys"))
+    Utils.runCommand("/bin/umount " + Utils.getPath("mnt/proc"))
     Utils.unlinkFile("mnt/usr/sbin/policy-rc.d")
     if os.path.isfile(Utils.getPath("mnt/usr/sbin/policy-rc.d_save")):
       shutil.move(Utils.getPath("mnt/usr/sbin/policy-rc.d_save"), Utils.getPath("mnt/usr/sbin/policy-rc.d"))
