@@ -17,7 +17,7 @@ def installRootFS(url, config, boards, status):
     status.update_item(name = "Installing RootFS", value = "-10")
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 def chrootConfig():
@@ -34,7 +34,7 @@ def chrootConfig():
     os.system("/bin/mount --bind /dev/pts " + Utils.getPath("mnt/dev/pts"))
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
   
   
@@ -50,7 +50,7 @@ def chrootDeconfig():
     os.unlink(Utils.getPath("mnt/usr/bin/qemu-arm-static"))
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 def chrootPasswd(Password):
@@ -63,5 +63,5 @@ def chrootPasswd(Password):
     stdout,stderr = proc.communicate()
     return (stdout.decode('utf-8'), stderr.decode('utf-8'))
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return ( False, False )

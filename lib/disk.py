@@ -13,7 +13,7 @@ def syncFS():
     os.system("/bin/sync > /dev/null 2>&1")
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
   
 def partProbe(Device=""):
@@ -21,7 +21,7 @@ def partProbe(Device=""):
     os.system("/sbin/partprobe " + Device + " > /dev/null 2>&1")
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 def getLayout(config):
@@ -32,7 +32,7 @@ def getLayout(config):
       d.append( {'Mount_Order': j[0], 'Mount_Point': j[1], 'FileSystem': j[2], 'Size': j[3]} )
     return d
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 def cleanDisk(device, bs="512", count=1):
@@ -41,7 +41,7 @@ def cleanDisk(device, bs="512", count=1):
       os.system("/bin/dd if=/dev/zero of=" + device + " bs=" + bs + " count=" + str(count) + " > /dev/null 2>&1")
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 def formatDevice(Device, DiskLayout, status, percent = 0):
@@ -96,14 +96,14 @@ def formatDevice(Device, DiskLayout, status, percent = 0):
     status.update_main(text="", percent = status.getPercent())
     return (Device, partList)
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return (False, False)
 
 def formatSD(config, boards, status):
   try:
     return formatDevice(Device = config['Output']['Device'], DiskLayout = getLayout(boards), status = status)
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return (False, False)
 
 def formatIMG(config, boards, status):
@@ -119,7 +119,7 @@ def formatIMG(config, boards, status):
     (stdout, stderr) = captureCommand("/sbin/losetup", "-f", "--show", Utils.getPath(config['Output']['Image']))
     return formatDevice(Device = stdout.splitlines()[0], DiskLayout = getLayout(boards), status = status, percent = 25)
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return (False, False)
 
 def mountPartitions(Device, partList, status):
@@ -138,7 +138,7 @@ def mountPartitions(Device, partList, status):
       os.system("/bin/mount " + p['device'] + " " + d + " > /dev/null 2>&1")
     return sortedList
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 def unmountPartitions(Device, partList, status):
@@ -153,5 +153,5 @@ def unmountPartitions(Device, partList, status):
       os.system("/sbin/losetup -d " + Device + " > /dev/null 2>&1")
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False

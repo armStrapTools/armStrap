@@ -1,4 +1,5 @@
 import atexit
+import inspect
 import logging
 from dialog import Dialog
 from queue import Queue
@@ -48,22 +49,39 @@ class _Const(object):
 
 CONST = _Const()
 
-def startLogger(Filename, Level):
-    if os.path.isfile(Filename):
-        os.unlink(Filename)
-    logging.basicConfig(filename = Filename, level = Level)
-    atexit.register(endLogger, Filename = Filename)
-    
-def endLogger(Filename):
-    if os.path.isfile(Filename):
-        if os.stat(Filename).st_size == 0:
-            os.unlink(Filename)
+def logDebug(message):
+    func = inspect.currentframe().f_back.f_code
+    if message == False:
+        logging.debug("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
+    else:
+        logging.debug("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
+        
+def logWarning(message):
+    func = inspect.currentframe().f_back.f_code
+    if message == False:
+        logging.warning("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
+    else:
+        logging.warning("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
+        
+def logInfo(message):
+    func = inspect.currentframe().f_back.f_code
+    if message == False:
+        logging.info("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
+    else:
+        logging.info("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
+        
+def logException(message):
+    func = inspect.currentframe().f_back.f_code
+    if message == False:
+        logging.exception("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
+    else:
+        logging.exception("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
 
 def armStrap_Dialog():
     try:
         return Dialog(dialog = "dialog")
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return False
 
 def openTempFile():
@@ -72,7 +90,7 @@ def openTempFile():
         file = open(path, 'w+b')
         return (fd, file, path)
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return (False, False, False)
 
 def closeTempFile(fd, file, path):
@@ -82,7 +100,7 @@ def closeTempFile(fd, file, path):
         os.remove(path)
         return True
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return False
  
 class RunInBackground(threading.Thread):
@@ -93,21 +111,21 @@ class RunInBackground(threading.Thread):
             super(RunInBackground, self).__init__()
             self.start()
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
 
     def run(self):
         try:
             os.system(self.Cmd + " > " + self.path + " 2>&1")
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
         
             
     def getName(self):
         try:
             return self.output.name
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
         
 class chrootRunInBackground(threading.Thread):
@@ -119,20 +137,20 @@ class chrootRunInBackground(threading.Thread):
             super(chrootRunInBackground, self).__init__()
             self.start()
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
         
     def run(self):
         try:
             os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + self.chrootPath + " " + self.chrootCmd + " > " + self.path + " 2>&1")
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             
     def getName(self):
         try:
             return self.path
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
 class Mixed(threading.Thread):
@@ -149,7 +167,7 @@ class Mixed(threading.Thread):
             super(Mixed, self).__init__()
             self.start()
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
         
     def run(self):
         while self.running:
@@ -169,7 +187,7 @@ class Mixed(threading.Thread):
             except Empty:
                 continue
             except:
-                logging.exception("Exception in " + __name__ + ":")
+                logException(False)
                 self.running = False
                 continue
                 
@@ -177,35 +195,35 @@ class Mixed(threading.Thread):
         try:
             return self.percent
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def getRunning(self):
         try:
             return self.running
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def getText(self):
         try:
             return self.text
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def getTitle(self):
         try:
             return self.title
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def getElements(self):
         try:
             return self.elements
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def show(self, percent = 0, text = ""):
@@ -215,7 +233,7 @@ class Mixed(threading.Thread):
             self.queue.put({'task': CONST.GUI_START})
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def update_item(self, name, value, percent = False, text = False):
@@ -242,7 +260,7 @@ class Mixed(threading.Thread):
             self.queue.put({'task': CONST.GUI_UPDATE})
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
             
     def update_main(self, percent = False, text = False):
@@ -258,7 +276,7 @@ class Mixed(threading.Thread):
             self.queue.put({'task': CONST.GUI_UPDATE})
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
             
     def hide(self):
@@ -266,7 +284,7 @@ class Mixed(threading.Thread):
             self.queue.put({'task': CONST.GUI_HIDE})
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def end(self):
@@ -276,7 +294,7 @@ class Mixed(threading.Thread):
                 self.join()
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
  
 class Gauge(threading.Thread):
@@ -292,7 +310,7 @@ class Gauge(threading.Thread):
             super(gauge, self).__init__()
             self.start()
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
         
     def run(self):
         while self.running:
@@ -315,7 +333,7 @@ class Gauge(threading.Thread):
             except Empty:
                 continue
             except:
-                logging.exception("Exception in " + __name__ + ":")
+                logException(False)
                 self.running = False
                 continue
     
@@ -326,7 +344,7 @@ class Gauge(threading.Thread):
             self.queue.put({'task': CONST.GUI_START})
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
         
     def update(self, percent = 0, text = ""):
@@ -343,7 +361,7 @@ class Gauge(threading.Thread):
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
 
     def increment(self, percent = 0, text = ""):
@@ -359,7 +377,7 @@ class Gauge(threading.Thread):
             return True
         except:
             return False
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
     
     def decrement(self, percent = 0, text = ""):
         try:
@@ -373,7 +391,7 @@ class Gauge(threading.Thread):
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def hide(self):
@@ -381,7 +399,7 @@ class Gauge(threading.Thread):
             self.queue.put({'task': CONST.GUI_HIDE})
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
     
     def end(self):
@@ -391,7 +409,7 @@ class Gauge(threading.Thread):
                 self.join()
             return True
         except:
-            logging.exception("Exception in " + __name__ + ":")
+            logException(False)
             return False
         
 def MessageBox(text = "", title = "", timeout = 0 ):
@@ -403,7 +421,7 @@ def MessageBox(text = "", title = "", timeout = 0 ):
             dialog.pause(text = text, title = title, seconds = timeout, backtitle = "armStrap version " + CONST.VERSION)
         return True
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return False
         
 def YesNo(text = "", title = ""):
@@ -411,7 +429,7 @@ def YesNo(text = "", title = ""):
         dialog = armStrap_Dialog()
         return dialog.yesno(text = text, title= title, backtitle = "armStrap version " + CONST.VERSION)
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return False
     
 def Status():
@@ -425,7 +443,7 @@ def Status():
         time.sleep(1)
         return m
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return False
     
 def ProgressBox(cmd, title = ""):
@@ -442,7 +460,7 @@ def ProgressBox(cmd, title = ""):
             time.sleep(0.1)
         return True
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return False
     
 def chrootProgressBox(cmd, path, title = "" ) :
@@ -459,7 +477,7 @@ def chrootProgressBox(cmd, path, title = "" ) :
             time.sleep(0.1)
         return True
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return False
 
 # List the partitions of a device
@@ -470,7 +488,7 @@ def listDevice(device):
         (cmd_stdout, cmd_stderr) = ( cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
         return str(cmd_stdout).splitlines();
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
         return False
   
 def Summary(config):
@@ -542,6 +560,6 @@ def Summary(config):
     
         return results[0]
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        logException(False)
 
         return False

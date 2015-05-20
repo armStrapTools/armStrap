@@ -3,6 +3,7 @@
 import atexit
 import crypt
 import locale
+import logging
 import os
 import sys
 import subprocess
@@ -19,8 +20,12 @@ if __name__ == '__main__':
     try:
         #Always work from where the script live!
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
-    
-        UI.startLogger(Filename = Utils.getPath("armStrap.log"), Level = logging.INFO)
+        
+        logFile = os.path.join( os.getcwd(), "armStrap.log" )
+        if os.path.isfile(logFile):
+            os.unlink(logFile)
+        
+        logging.basicConfig(filename = logFile, level = logging.DEBUG)
     
         config = Utils.readConfig("armStrap.ini")
         boards = Utils.readConfig(config['Board']['Branch'].lower() + ".ini")
@@ -86,5 +91,5 @@ if __name__ == '__main__':
     except SystemExit:
         pass
     except:
-        logging.exception("Exception in " + __name__ + ":")
+        UI.logException(False)
         Utils.Exit(text = "General error.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)

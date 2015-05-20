@@ -21,7 +21,7 @@ def extractTar(src, dst):
     xz.extractall(getPath(dst))
     xz.close()
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 # Download a file to the current directory
@@ -31,7 +31,7 @@ def download(url):
       shutil.copyfileobj(src, out_file)
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 # Unlink a file 
@@ -41,7 +41,7 @@ def unlinkFile(src):
       os.unlink(getPath(src))
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
     
 # Touch a file
@@ -52,7 +52,7 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs):
       os.utime(f.fileno() if os.utime in os.supports_fd else getPath(fname), dir_fd=None if os.supports_fd else dir_fd, **kwargs)
     return True
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 # Check if a path exist and create it. Aways work from the work directory    
@@ -62,7 +62,7 @@ def checkPath(path):
       os.makedirs(getPath(path))
     return getPath(path)
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
   
 # Return a path starting at the work directory
@@ -70,7 +70,7 @@ def getPath(path):
   try:
     return os.path.join(os.getcwd(), path.strip('/'))
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
 
 # Read a config file
@@ -81,7 +81,7 @@ def readConfig(src):
     config.read(getPath(src))
     return config
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return False
   
 # Execute a command, capturing its output
@@ -91,7 +91,7 @@ def captureCommand(*args):
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
     return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
     return ( False, False )
 
 # Exit from armStrap.
@@ -104,6 +104,11 @@ def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK, status = Fal
   except SystemExit:
     pass
   except:
-    logging.exception("Exception in " + __name__ + ":")
+    UI.logException(False)
   finally:
+    logFile = os.path.join( os.getcwd(), "armStrap.log" )
+    logging.shutdown()
+    if os.path.isfile(logFile):
+      if os.stat(logFile).st_size == 0:
+        os.unlink(logFile)
     sys.exit(exitStatus)
