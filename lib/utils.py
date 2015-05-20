@@ -109,6 +109,40 @@ def captureCommand(*args):
   except:
     UI.logException(False)
     return ( False, False )
+    
+# Execute a command in the chroot environment, capturing its output
+def captureChrootCommand(command):
+  try:
+    UI.logInfo("Entering")
+    p = subprocess.Popen( "LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " Utils.getPath("mnt") + " " + command , shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
+    UI.logInfo("Exiting")
+    return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
+  except:
+    UI.logException(False)
+    return ( False, False )
+
+#Execute a command, dropping its output
+def runCommand(command)
+  try:
+    UI.logInfo("Entering")
+    err = os.system(command + " > /dev/null 2&>1")
+    UI.logInfo("Exiting")
+    return err
+  except:
+    UI.logException(False)
+    return False
+
+#Execute a command in the chroot environment, dropping its output
+def runChrootCommand(command)
+  try:
+    UI.logInfo("Entering")
+    err = os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + Utils.getPath("mnt") + " " + command + " > /dev/null 2&>1")
+    UI.logInfo("Exiting")
+    return err
+  except:
+    UI.logException(False)
+    return False
 
 # Exit from armStrap.
 def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK, status = False):
