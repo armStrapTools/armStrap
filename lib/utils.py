@@ -123,12 +123,14 @@ def captureChrootCommand(command):
     return ( False, False )
 
 #Execute a command, dropping its output
-def runCommand(command):
+def runCommand(command, status):
   try:
     UI.logInfo("Entering")
     UI.logInfo("About to execute: " + command)
     err = os.system(command + " > /dev/null 2>&1")
     UI.logInfo("Error Code : " + str(err) + ", " + os.strerror(err))
+    if err != os.EX_OK:
+      Utils.Exit(text = "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err), title = "Fatal Error", timeout = 5, exitStatus = err, status = status)
     UI.logInfo("Exiting")
     return err
   except:

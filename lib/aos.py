@@ -22,7 +22,7 @@ def installRootFS(url, config, boards, status):
     UI.logException(False)
     return False
 
-def chrootConfig():
+def chrootConfig(status):
   try:
     UI.logInfo("Entering")
     shutil.copy("/usr/bin/qemu-arm-static", Utils.getPath("mnt/usr/bin/qemu-arm-static"))
@@ -32,21 +32,21 @@ def chrootConfig():
     f = open(Utils.getPath("mnt/usr/sbin/policy-rc.d"), 'w')
     f.write("exit 101\n")
     f.close()
-    Utils.runCommand("/bin/mount --bind /proc " + Utils.getPath("mnt/proc"))
-    Utils.runCommand("/bin/mount --bind /sys " + Utils.getPath("mnt/sys"))
-    Utils.runCommand("/bin/mount --bind /dev/pts " + Utils.getPath("mnt/dev/pts"))
+    Utils.runCommand(command = "/bin/mount --bind /proc " + Utils.getPath("mnt/proc"), status = status)
+    Utils.runCommand(command = "/bin/mount --bind /sys " + Utils.getPath("mnt/sys"), status = status)
+    Utils.runCommand(command = "/bin/mount --bind /dev/pts " + Utils.getPath("mnt/dev/pts"), status = status)
     UI.logInfo("Exiting")
     return True
   except:
     UI.logException(False)
     return False
   
-def chrootDeconfig():
+def chrootDeconfig(status):
   try:
     UI.logInfo("Entering")
-    Utils.runCommand("/bin/umount " + Utils.getPath("mnt/dev/pts"))
-    Utils.runCommand("/bin/umount " + Utils.getPath("mnt/sys"))
-    Utils.runCommand("/bin/umount " + Utils.getPath("mnt/proc"))
+    Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/dev/pts"), status = status)
+    Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/sys"), status = status)
+    Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/proc"), status = status)
     Utils.unlinkFile("mnt/usr/sbin/policy-rc.d")
     if os.path.isfile(Utils.getPath("mnt/usr/sbin/policy-rc.d_save")):
       shutil.move(Utils.getPath("mnt/usr/sbin/policy-rc.d_save"), Utils.getPath("mnt/usr/sbin/policy-rc.d"))

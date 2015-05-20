@@ -61,10 +61,10 @@ if __name__ == '__main__':
             Utils.Exit(text = "Error while extracting RootFS.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_DATAERR, status = status)
         status.update_main(text = "", percent = 25)
 
-        if aOS.chrootConfig() == False:
+        if aOS.chrootConfig(status = status) == False:
             Utils.Exit(text = "Error while configuring chroot environment.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE, status = status)
     
-        atexit.register(aOS.chrootDeconfig)
+        atexit.register(aOS.chrootDeconfig, False)
 
         if UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y update" , path = Utils.getPath("mnt"), title = "Running apt-get update" ) == False:
             Utils.Exit(text = "Error while running apt-get update", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     
         atexit.unregister(aOS.chrootDeconfig)
     
-        if aOS.chrootDeconfig() == False:
+        if aOS.chrootDeconfig(status = status) == False:
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE, status = status)
     
         atexit.unregister(Disk.unmountPartitions)
