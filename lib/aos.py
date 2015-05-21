@@ -98,3 +98,18 @@ def setLocales(config, status):
   except:
     UI.logException(False)
     return False
+
+def setTimeZone(config, status):
+  try:
+    UI.logInfo("Entering")
+    status.update(text = "Setting timezone to " + config['Board']['TimeZone'])
+    if Utils.checkFile(Utils.getPath("mnt/usr/share/zoneinfo/" + config['Board']['TimeZone'])):
+      Utils.runChrootCommand(command = "ln -sf /usr/share/zoneinfo/" + config['Board']['TimeZone'] +" /etc/localtime", status = status)
+      Utils.unlinkFile("mnt/etc/timezone")
+      Utils.appendFile(file = Utils.getPath("mnt/etc/timezone"), lines = [ config['Board']['TimeZone'] ])
+    else
+      MessageBox(text = "TimeZone " + config['Board']['TimeZone'] + " not found. You will need to configure it manually.", title = "Non-Fatal Error", timeout = 10 )
+    return True
+  except:
+    UI.logException(False)
+    return False

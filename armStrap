@@ -77,13 +77,18 @@ if __name__ == '__main__':
         #if aOS.chrootPasswd( Password = config['Board']['Password'], status = status ) == False:
         #    Utils.Exit(text = "Error while setting root password", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
     
-        if aOS.setLocales(config = config, status = status) == False:
-            Utils.Exit(text = "Error while configuring locales", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-    
+        #if aOS.setLocales(config = config, status = status) == False:
+        #    Utils.Exit(text = "Error while configuring locales", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+
+        if aOS.setTimeZone(config = config, status = status) == False:
+            Utils.Exit(text = "Error while configuring timezone", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+
         atexit.unregister(aOS.chrootDeconfig)
     
         if aOS.chrootDeconfig(status = status) == False:
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+            
+
             
         atexit.unregister(Disk.unmountPartitions)
     
