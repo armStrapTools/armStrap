@@ -50,8 +50,8 @@ def chrootDeconfig(status):
     Utils.unlinkFile("mnt/usr/sbin/policy-rc.d")
     if os.path.isfile(Utils.getPath("mnt/usr/sbin/policy-rc.d_save")):
       shutil.move(Utils.getPath("mnt/usr/sbin/policy-rc.d_save"), Utils.getPath("mnt/usr/sbin/policy-rc.d"))
-    os.unlink(Utils.getPath("mnt/usr/sbin/policy-rc.d.lock"))
-    os.unlink(Utils.getPath("mnt/usr/bin/qemu-arm-static"))
+    os.unlink("mnt/usr/sbin/policy-rc.d.lock")
+    os.unlink("mnt/usr/bin/qemu-arm-static")
     UI.logInfo("Exiting")
     return True
   except:
@@ -152,11 +152,32 @@ def setHostName(config, status):
     UI.logInfo("Entering")
     status.update(text = "Setting hostname to " + config['Board']['HostName'])
     Utils.unlinkFile("mnt/etc/hostname")
-    Utils.appendFile(file = "mnt/etc/hostname", lines = [config['Board']['HostName'] ])
+    Utils.appendFile(file = getPath("mnt/etc/hostname"), lines = [config['Board']['HostName'] ])
     UI.logInfo("Exiting")
     return True
   except:
     UI.logException(False)
     return False
 
-    
+def setTTY(config, status):
+  try:
+    UI.logInfo("Entering")
+    if Utils.checkFile(Utils.getPath("mnt/etc/inittab")):
+      status.update(text = "Setting inittab for " + config['Serial']['TerminalDevice'])
+      line = config['Serial']['TerminalID'] + ":" + config['Serial']['RunLevel'] +":respawn:/sbin/getty -L " + config['Serial']['TerminalDevice'] + " " + config['Serial']['TerminalSpeed'] + " " + config['Serial']['TerminalType']
+      Utils.appendFile(file = Utils.getPath("mnt/etc/inittab"))
+    else:
+      lines = []
+      status.update(text = "Setting service for " + config['Serial']['TerminalDevice'])
+      Utils.unlinkFile("mnt/etc/init/" + config['Serial']['TerminalDevice'] + ".conf")
+      lines.append("# " + config['Serial']['TerminalDevice'] + " - getty")
+      lines.append("#\n# This service maintains a getty on " + config['Serial']['TerminalDevice'] + " from the point the system is\n# started until it is shut down again.\n")
+      lines.append("start on stopped rc or RUNLEVEL=[" + config['Serial']['RunLevel'] + "]\n")
+      lines.append("stop on runlevel [!"+ config['Serial']['RunLevel'] + "]\n")
+      lines.append("respawn\nexec /sbin/getty -L " + config['Serial']['TerminalSpeed'] + " " + config['Serial']['TerminalDevice'] + " " + config['Serial']['TerminalType'])
+      Utils.appendFile(file = Utils.getPath("mnt/etc/init/" + config['Serial']['TerminalDevice'] + ".conf"), lines = lines)
+    UI.logInfo("Exiting")
+    return True
+  except:
+    UI.logException(False)
+    return False
