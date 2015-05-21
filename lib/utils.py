@@ -18,6 +18,7 @@ def extractTar(src, dst):
   try:
     UI.logInfo("Entering")
     checkPath(dst)
+    UI.logInfo("Extracting " + getPath(src) + " to " + getPath(dst))
     xz = tarfile.open(getPath(src), 'r:*')
     xz.extractall(getPath(dst))
     xz.close()
@@ -31,6 +32,7 @@ def extractTar(src, dst):
 def download(url):
   try:
     UI.logInfo("Entering")
+    UI.logInfo("Downloading " + url + " to " + getPath(os.path.basename(url)))
     with urllib.request.urlopen(url) as src, open(getPath(os.path.basename(url)), 'wb') as out_file:
       shutil.copyfileobj(src, out_file)
     UI.logInfo("Exiting")
@@ -44,6 +46,7 @@ def unlinkFile(src):
   try:
     UI.logInfo("Entering")
     if os.path.isfile(getPath(src)):
+      UI.logInfo("Unlinking " + getPath(src))
       os.unlink(getPath(src))
     UI.logInfo("Exiting")
     return True
@@ -55,6 +58,7 @@ def unlinkFile(src):
 def touch(fname, mode=0o666, dir_fd=None, **kwargs):
   try:
     UI.logInfo("Entering")
+    UI.logInfo("Touching " + getPath(fname))
     flags = os.O_CREAT | os.O_APPEND
     with os.fdopen(os.open(getPath(fname), flags=flags, mode=mode, dir_fd=dir_fd)) as f:
       os.utime(f.fileno() if os.utime in os.supports_fd else getPath(fname), dir_fd=None if os.supports_fd else dir_fd, **kwargs)
@@ -69,6 +73,7 @@ def checkPath(path):
   try:
     UI.logInfo("Entering")
     if os.path.exists(getPath(path)) == False:
+      logfile("Creating path " + getPath(path))
       os.makedirs(getPath(path))
     UI.logInfo("Exiting")
     return getPath(path)
@@ -79,8 +84,11 @@ def checkPath(path):
 # Return a path starting at the work directory
 def getPath(path):
   try:
-    UI.logInfo("Entering/Exiting")
-    return os.path.join(os.getcwd(), path.strip('/'))
+    UI.logInfo("Entering")
+    p = os.path.join(os.getcwd(), path.strip('/'))
+    UI.logInfo("Complete path for " + path + " is " + p)
+    UI.logInfo("Exiting")
+    return p
   except:
     UI.logException(False)
     return False
@@ -90,8 +98,10 @@ def checkFile(file):
   try:
     UI.logInfo("Entering")
     if os.path.isfile(file):
+      UI.logInfo(file + " exist")
       return True
     else:
+      UI.logInfo(file + " does not exist")
       return False
   except:
     UI.logException(False)
@@ -103,6 +113,7 @@ def appendFile(file, lines):
     UI.logInfo("Entering")
     with open(file, "a") as f:
       for line in lines:
+        UI.logInfo(file + " adding line " + line)
         f.write(line + "\n")
     return True
   except:
@@ -115,6 +126,7 @@ def readConfig(src):
     UI.logInfo("Entering")
     config = configparser.ConfigParser()
     config.sections()
+    UI.logInfo("Reading configuration file " + getPath(src))
     config.read(getPath(src))
     UI.logInfo("Exiting")
     return config
@@ -123,10 +135,11 @@ def readConfig(src):
     return False
   
 # Execute a command, capturing its output
-def captureCommand(*args):
+def captureCommand(command):
   try:
     UI.logInfo("Entering")
-    p = subprocess.Popen( args , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    UI.logInfo("Capturing output of " + command)
+    p = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
     UI.logInfo("Exiting")
     return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
@@ -138,6 +151,7 @@ def captureCommand(*args):
 def captureChrootCommand(command):
   try:
     UI.logInfo("Entering")
+    UI.logInfo("Capturing output of " + command + " in chroot")
     p = subprocess.Popen( "LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + getPath("mnt") + " " + command , shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
     UI.logInfo("Exiting")
@@ -150,7 +164,7 @@ def captureChrootCommand(command):
 def runCommand(command, status):
   try:
     UI.logInfo("Entering")
-    UI.logInfo("About to execute: " + command)
+    UI.logInfo("Executing " + command)
     err = os.system(command + " > /dev/null 2>&1")
     UI.logInfo("Error Code : " + str(err) + ", " + os.strerror(err))
     if err != os.EX_OK:
@@ -165,7 +179,7 @@ def runCommand(command, status):
 def runChrootCommand(command, status):
   try:
     UI.logInfo("Entering")
-    UI.logInfo("About to execute: " + command)
+    UI.logInfo("Executing " + command + " in chroot")
     err = os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + getPath("mnt") + " " + command + " > /dev/null 2>&1")
     if err != os.EX_OK:
       UI.logWarning( "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err))

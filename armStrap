@@ -20,6 +20,7 @@ if __name__ == '__main__':
     try:
         #Always work from where the script live!
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
+        status = False
         
         logFile = os.path.join( os.getcwd(), "armStrap.log" )
         if os.path.isfile(logFile):

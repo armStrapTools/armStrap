@@ -152,7 +152,7 @@ def setHostName(config, status):
     UI.logInfo("Entering")
     status.update(text = "Setting hostname to " + config['Board']['HostName'])
     Utils.unlinkFile("mnt/etc/hostname")
-    Utils.appendFile(file = getPath("mnt/etc/hostname"), lines = [config['Board']['HostName'] ])
+    Utils.appendFile(file = Utils.getPath("mnt/etc/hostname"), lines = [config['Board']['HostName'] ])
     UI.logInfo("Exiting")
     return True
   except:

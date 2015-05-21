@@ -127,7 +127,7 @@ def formatIMG(config, boards, status):
     Utils.runCommand( command = "/usr/bin/touch " + Utils.getPath(config['Output']['Image']), status = status)
     cleanDisk(Utils.getPath(config['Output']['Image']), bs="1M", count=int(config['Output']['Size']))
     status.update(name = "Formatting Disk", value = "-25")
-    (stdout, stderr) = captureCommand("/sbin/losetup", "-f", "--show", Utils.getPath(config['Output']['Image']))
+    (stdout, stderr) = captureCommand("/sbin/losetup -f --show " + Utils.getPath(config['Output']['Image']))
     UI.logInfo("Exiting")
     return formatDevice(Device = stdout.splitlines()[0], DiskLayout = getLayout(boards), status = status, percent = 25)
   except:
