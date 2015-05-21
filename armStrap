@@ -89,16 +89,14 @@ if __name__ == '__main__':
         if config.has_section("SwapFile"):
             if UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y install dphys-swapfile" , path = Utils.getPath("mnt"), title = "Running apt-get install dphys-swapfile" ) == False:
                 Utils.Exit(text = "Error while installing package dphys-swapfile", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-            if setSwapFile(config = config, status = status)  == False:
+            if aOS.setSwapFile(config = config, status = status)  == False:
                 Utils.Exit(text = "Error while configuring package dphys-swapfile", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
 
         atexit.unregister(aOS.chrootDeconfig)
     
         if aOS.chrootDeconfig(status = status) == False:
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-            
-
-            
+                    
         atexit.unregister(Disk.unmountPartitions)
     
         if Disk.unmountPartitions(Device = Device, partList = partMount, status = status) == False:

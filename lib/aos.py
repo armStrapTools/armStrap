@@ -31,7 +31,7 @@ def chrootConfig(status):
     f = open(Utils.getPath("mnt/usr/sbin/policy-rc.d"), 'w')
     f.write("exit 101\n")
     f.close()
-    os.fchmod(Utils.getPath("mnt/usr/sbin/policy-rc.d"), 0o755 )
+    os.chmod(Utils.getPath("mnt/usr/sbin/policy-rc.d"), 0o755 )
     Utils.runCommand(command = "/bin/mount --bind /proc " + Utils.getPath("mnt/proc"), status = status)
     Utils.runCommand(command = "/bin/mount --bind /sys " + Utils.getPath("mnt/sys"), status = status)
     Utils.runCommand(command = "/bin/mount --bind /dev/pts " + Utils.getPath("mnt/dev/pts"), status = status)
@@ -122,26 +122,26 @@ def setSwapFile(config, status):
     lines = []
     
     if config.has_option('SwapFile', 'Size'):
-      lines.append = [ "CONF_SWAPSIZE=" + config['SwapFile']['Size'] ]
+      lines.append("CONF_SWAPSIZE=" + config['SwapFile']['Size'])
     else:
-      lines.append = [ "#CONF_SWAPSIZE=" ]
+      lines.append("#CONF_SWAPSIZE=")
     
     if config.has_option('SwapFile', 'File'):
-      lines.append = [ "CONF_SWAPFILE=" + config['SwapFile']['File'] ]
+      lines.append("CONF_SWAPFILE=" + config['SwapFile']['File'])
     else:
-      lines.append = [ "#CONF_SWAPFILE=/var/swap" ]
+      lines.append("#CONF_SWAPFILE=/var/swap")
       
     if config.has_option('SwapFile', 'Factor'):
-      lines.append = [ "CONF_SWAPFACTOR=" + config['SwapFile']['Factor'] ]
+      lines.append("CONF_SWAPFACTOR=" + config['SwapFile']['Factor'])
     else:
-      lines.append = [ "#CONF_SWAPFACTOR=2" ]
+      lines.append("#CONF_SWAPFACTOR=2")
     
     if config.has_option('SwapFile', 'Maximum'):
-      lines.append = [ "CONF_MAXSWAP=" + config['SwapFile']['Maximum'] ]
+      lines.append("CONF_MAXSWAP=" + config['SwapFile']['Maximum'])
     else:
-      lines.append = [ "#CONF_MAXSWAP=2048" ]
+      lines.append("#CONF_MAXSWAP=2048")
       
-    Utils.appendFile(file = Utils.getPath("mntetc/dphys-swapfile"), lines = lines)
+    Utils.appendFile(file = Utils.getPath("mnt/etc/dphys-swapfile"), lines = lines)
     return True
   except:
     UI.logException(False)
