@@ -181,3 +181,23 @@ def setTTY(config, status):
   except:
     UI.logException(False)
     return False
+
+def setFsTab(config, status):
+  try:
+    UI.logInfo("Entering")
+    partList = []
+    partID = 1
+    fFormat = "{0:<23} {1:<15} {2:<7} {3:<15} {4:<7} {5}"
+    partList.append( fFormat.format( "# <file system>", "<mount point>", "<type>", "<options>", "<dump>", "<pass>" ) )
+    for partition in config['Partitions']['Layout'].split( ):
+      p = partition.split(':')
+      partList.append( fFormat.format( config['Partitions']['Device'] + config['Partitions']['PartitionPrefix'] + str(partID), p[1], p[2], "defaults", "0", "1" ) )
+      partID += 1
+    Utils.unlinkFile("mnt/etc/fstab")
+    Utils.appendFile(file = Utils.getPath("mnt/etc/fstab"), lines = partList)
+    UI.logInfo("Exiting")
+    return True
+  except:
+    UI.logException(False)
+    return False
+  

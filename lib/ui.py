@@ -550,7 +550,7 @@ def Summary(config):
             ("   TimeZone :",  5,   1, config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
             ("    Version :",  5,  41, config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
             ("    Locales :",  6,   1, config['Board']['Locales'],         6, 15, 20, 20, CONST.READONLY),
-            ("Root Device :",  6,  41, config['BootLoader']['RootDevice'], 6, 55, 20, 20, CONST.READONLY)]
+            ("Boot Device :",  6,  41, config['Board']['Device'],          6, 55, 20, 20, CONST.READONLY)]
     
         i = 7
     
