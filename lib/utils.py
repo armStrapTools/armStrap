@@ -84,6 +84,30 @@ def getPath(path):
   except:
     UI.logException(False)
     return False
+    
+# Check if a file exist
+def checkFile(file):
+  try:
+    UI.logInfo("Entering")
+    if os.path.isfile(file):
+      return True
+    else:
+      return False
+  except:
+    UI.logException(False)
+    return False
+
+# Append lines to a file    
+def appendFile(file, lines):
+  try:
+    UI.logInfo("Entering")
+    with open(file, "a") as f:
+      for line in lines:
+        f.write(line + "\n")
+    return True
+  except:
+    UI.logException(False)
+    return False
 
 # Read a config file
 def readConfig(src):
@@ -114,7 +138,7 @@ def captureCommand(*args):
 def captureChrootCommand(command):
   try:
     UI.logInfo("Entering")
-    p = subprocess.Popen( "LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + Utils.getPath("mnt") + " " + command , shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen( "LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + getPath("mnt") + " " + command , shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
     UI.logInfo("Exiting")
     return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
@@ -130,7 +154,7 @@ def runCommand(command, status):
     err = os.system(command + " > /dev/null 2>&1")
     UI.logInfo("Error Code : " + str(err) + ", " + os.strerror(err))
     if err != os.EX_OK:
-      Utils.Exit(text = "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err), title = "Fatal Error", timeout = 5, exitStatus = err, status = status)
+      Exit(text = "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err), title = "Fatal Error", timeout = 5, exitStatus = err, status = status)
     UI.logInfo("Exiting")
     return err
   except:
@@ -138,10 +162,14 @@ def runCommand(command, status):
     return False
 
 #Execute a command in the chroot environment, dropping its output
-def runChrootCommand(command):
+def runChrootCommand(command, status):
   try:
     UI.logInfo("Entering")
-    err = os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + Utils.getPath("mnt") + " " + command + " > /dev/null 2>&1")
+    UI.logInfo("About to execute: " + command)
+    err = os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + getPath("mnt") + " " + command + " > /dev/null 2>&1")
+    if err != os.EX_OK:
+      UI.logWarning( "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err))
+      raise OSError
     UI.logInfo("Exiting")
     return err
   except:

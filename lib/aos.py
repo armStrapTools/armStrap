@@ -9,13 +9,12 @@ def installRootFS(url, config, boards, status):
   try:
     UI.logInfo("Entering")
     file = boards['Common']['CpuArch'] + boards['Common']['CpuFamily'] + "-" + config['Distribution']['Family'] + "-" + config['Distribution']['Version'] + ".txz"
-    status.update_main(text="Downloading RootFS image " + file, percent = status.getPercent())  
+    status.update(text="Downloading RootFS image " + file, percent = status.getPercent())  
     Utils.download(url + "/" + file)
-    status.update_item(name = "Installing RootFS", value = "-5")
-    status.update_main(text="Extracting RootFS image " + file, percent = status.getPercent())  
+    status.update(name = "Installing RootFS", value = "-5", text="Extracting RootFS image " + file, percent = status.getPercent())
     Utils.extractTar(file, "mnt")
     Utils.unlinkFile(file)
-    status.update_item(name = "Installing RootFS", value = "-10")
+    status.update(name = "Installing RootFS", value = "-10")
     UI.logInfo("Exiting")
     return True
   except:
@@ -58,9 +57,10 @@ def chrootDeconfig(status):
     UI.logException(False)
     return False
 
-def chrootPasswd(Password):
+def chrootPasswd(Password, status):
   try:
     UI.logInfo("Entering")
+    status.update(text = "Setting root password")
     PasswordNL=Password + "\n"
     proc = subprocess.Popen(['/usr/sbin/chroot', Utils.getPath("mnt"), '/usr/bin/passwd', 'root'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     proc.stdin.write(PasswordNL.encode('ascii'))
@@ -72,3 +72,29 @@ def chrootPasswd(Password):
   except:
     UI.logException(False)
     return ( False, False )
+
+def setLocales(config, status):
+  try:
+    UI.logInfo("Entering")
+    status.update(text = "Setting locales")
+    if Utils.checkFile(Utils.getPath("mnt/etc/locale.gen")):
+      for locale in config['Board']['Locales'].split():
+        status.update(text = "Configuring locale " + locale)
+        Utils.appendFile(file = Utils.getPath("mnt/etc/locale.gen"), lines = [locale + " " + locale.split('.')[1] ] )
+      status.update(text = "Running locale-gen")
+      Utils.runChrootCommand(command = "/usr/sbin/locale-gen", status = status)
+      status.update(text = "Running update-locale")
+      Utils.runChrootCommand(command = "/usr/sbin/update-locale LANG=" + config['Board']['Locales'].split()[0] + " LC_MESSAGES=POSIX", status = status)
+    else:
+      for locale in config['Board']['Locales'].split():
+        status.update(text = "Generating locale " + locale)
+        Utils.runChrootCommand(command = "/usr/sbin/locale-gen " + locale, status = status)
+      status.update(text = "Running update-locale")
+      Utils.runChrootCommand(command = "/usr/sbin/update-locale LANG=" + config['Board']['Locales'].split()[0] + " LC_MESSAGES=POSIX", status = status)
+      status.update(text = "Running dpkg-reconfigure locales")
+      Utils.runChrootCommand(command = "/usr/sbin/dpkg-reconfigure locales", status = status)
+    UI.logInfo("Exiting")
+    return True
+  except:
+    UI.logException(False)
+    return False

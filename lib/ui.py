@@ -261,38 +261,21 @@ class Mixed(threading.Thread):
             logException(False)
             return False
     
-    def update_item(self, name, value, percent = False, text = False):
+    def update(self, name = False, value = False, percent = False, text = False):
         try:
             logInfo("Entering")
-            found = False;
-            t = []
-            for d in self.elements[:]:
-                if d[0] == name:
-                    t.append( (d[0], value) )
-                    found = True
-                else:
-                    t.append( (d[0], d[1]) )
-            self.elements = t
-            if found == False:
-                self.elements.append( (name, value) )
-            if percent != False:
-                self.percent = percent
-                if self.percent < 0:
-                    self.percent = 0
-                if self.percent > 100:
-                    self.percent = 100
-            if (text != False) and (text != self.text):
-                self.text = text
-            self.queue.put({'task': CONST.GUI_UPDATE})
-            logInfo("Exiting")
-            return True
-        except:
-            logException(False)
-            return False
-            
-    def update_main(self, percent = False, text = False):
-        try:
-            logInfo("Entering")
+            if (name != False) and ( value != False):
+                found = False;
+                t = []
+                for d in self.elements[:]:
+                    if d[0] == name:
+                        t.append( (d[0], value) )
+                        found = True
+                    else:
+                        t.append( (d[0], d[1]) )
+                self.elements = t
+                if found == False:
+                    self.elements.append( (name, value) )
             if percent != False:
                 self.percent = percent
                 if self.percent < 0:
@@ -489,10 +472,10 @@ def Status():
         logInfo("Entering")
         m = Mixed(title = "Progress")
         m.show(text = "Initializing...")
-        m.update_item(name = "Formatting Disk", value = "Pending")
-        m.update_item(name = "Installing RootFS", value = "Pending")
-        m.update_item(name = "Installing BootLoader", value = "Pending")
-        m.update_item(name = "Installing Kernel", value = "Pending")
+        m.update(name = "Formatting Disk", value = "Pending")
+        m.update(name = "Installing RootFS", value = "Pending")
+        m.update(name = "Installing BootLoader", value = "Pending")
+        m.update(name = "Installing Kernel", value = "Pending")
         time.sleep(1)
         logInfo("Exiting")
         return m
@@ -566,7 +549,7 @@ def Summary(config):
             ("     Family :",  4,  41, config['Distribution']['Family'],   4, 55, 20, 20, CONST.READONLY),
             ("   TimeZone :",  5,   1, config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
             ("    Version :",  5,  41, config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
-            ("     Locale :",  6,   1, config['Board']['Locale'],          6, 15, 20, 20, CONST.READONLY),
+            ("    Locales :",  6,   1, config['Board']['Locales'],         6, 15, 20, 20, CONST.READONLY),
             ("Root Device :",  6,  41, config['BootLoader']['RootDevice'], 6, 55, 20, 20, CONST.READONLY)]
     
         i = 7
