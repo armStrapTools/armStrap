@@ -103,15 +103,15 @@ if __name__ == '__main__':
                 
         if aOS.setTTY(config = boards, status = status) == False:
             Utils.Exit(text = "Error while configuring TTY", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-                status.update(name = "Installing RootFS", value = "-90", percent = 58)
+        status.update(name = "Installing RootFS", value = "-90", percent = 58)
             
         if aOS.setFsTab(config = boards, status = status) == False:
             Utils.Exit(text = "Error while configuring fstab", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-                status.update(name = "Installing RootFS", value = "-95", percent = 59)
+        status.update(name = "Installing RootFS", value = "-95", percent = 59)
             
         if aOS.setInterface(config = config, boards = boards, status = status ) == False:
             Utils.Exit(text = "Error while configuring networking", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-                status.update(name = "Installing RootFS", value = "Done", percent = 60)
+        status.update(name = "Installing RootFS", value = "Done", percent = 60)
 
         atexit.unregister(aOS.chrootDeconfig)
     
@@ -124,7 +124,7 @@ if __name__ == '__main__':
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
         
         status.end()
-        os.system("/usr/bin/clear")
+        #os.system("/usr/bin/clear")
     except SystemExit:
         pass
     except:
