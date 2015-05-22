@@ -189,12 +189,48 @@ def setFsTab(config, status):
     partID = 1
     fFormat = "{0:<23} {1:<15} {2:<7} {3:<15} {4:<7} {5}"
     partList.append( fFormat.format( "# <file system>", "<mount point>", "<type>", "<options>", "<dump>", "<pass>" ) )
+    status.update(text = "Configuring fstab ")
     for partition in config['Partitions']['Layout'].split( ):
       p = partition.split(':')
       partList.append( fFormat.format( config['Partitions']['Device'] + config['Partitions']['PartitionPrefix'] + str(partID), p[1], p[2], "defaults", "0", "1" ) )
       partID += 1
     Utils.unlinkFile("mnt/etc/fstab")
     Utils.appendFile(file = Utils.getPath("mnt/etc/fstab"), lines = partList)
+    UI.logInfo("Exiting")
+    return True
+  except:
+    UI.logException(False)
+    return False
+
+def setInterface(config, boards, status):
+  try:
+    UI.logInfo("Entering")
+    interface = []
+    interface.append( "auto " + boards['Network']['Interface'] )
+    interface.append( "allow-hotplug " + boards['Network']['Interface'] + "\n" )
+    if config.has_section("Networking"):
+      if config.has_option('Networking', 'Mode'):
+        if (config['Networking']['Mode'].lower() == "static"):
+          interface.append( "iface " + boards['Network']['Interface'] + " inet static" )
+          if config.has_option('Networking', 'Ip'):
+            interface.append( "\taddress " + config['Networking']['Ip'] )
+          if config.has_option('Networking', 'Mask'):
+            interface.append( "\tnetmask " + config['Networking']['Mask'] )
+          if config.has_option('Networking', 'Gateway'):
+            interface.append( "\tgateway " + config['Networking']['Gateway'] )
+          if config.has_option('Networking', 'DNS'):
+            interface.append( "\tdns-nameserver " + config['Networking']['DNS'] )
+          if config.has_option('Networking', 'Domain'):
+            interface.append( "\tdns-search " + config['Networking']['Domain'] )
+        else:
+          interface.append( "iface " + boards['Network']['Interface'] + " inet dhcp" )
+      else:
+        interface.append( "iface " + boards['Network']['Interface'] + " inet dhcp" )
+    else:
+      interface.append( "iface " + boards['Network']['Interface'] + " inet dhcp" )
+    interface.append( "\thwaddress ether " + config['Networking']['MacAddress'] )    
+    Utils.unlinkFile("mnt/etc/network/interfaces")
+    Utils.appendFile(file = Utils.getPath("mnt/etc/network/interfaces"), lines = interface)
     UI.logInfo("Exiting")
     return True
   except:

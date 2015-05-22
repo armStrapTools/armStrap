@@ -28,10 +28,13 @@ if __name__ == '__main__':
         
         logging.basicConfig(filename = logFile, level = logging.DEBUG)
     
-        config = Utils.readConfig("armStrap.ini")
+        config = Utils.readArmStrapConfig()
         boards = Utils.readConfig(config['Board']['Branch'].lower() + ".ini")
-    
-        if UI.Summary(config) == "cancel":
+        
+        if boards == False:
+            Utils.Exit(text = "Board configuration " + config['Board']['Branch'] + " not found, check your config file. armStrap will now exit", title = "Error", timeout = 5, exitStatus = os.EX_OK)
+        
+        if UI.Summary(config = config, boards = boards) == "cancel":
             Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, exitStatus = os.EX_OK)
     
         status = UI.Status()
@@ -98,6 +101,9 @@ if __name__ == '__main__':
             
         if aOS.setFsTab(config = boards, status = status) == False:
             Utils.Exit(text = "Error while configuring fstab", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+            
+        if aOS.setInterface(config = config, boards = boards, status = status ) == False:
+            Utils.Exit(text = "Error while configuring networking", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
 
         atexit.unregister(aOS.chrootDeconfig)
     

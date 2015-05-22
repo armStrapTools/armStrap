@@ -5,6 +5,7 @@ from dialog import Dialog
 from queue import Queue
 from queue import Empty
 import os
+import random
 import subprocess
 import sys
 import tempfile
@@ -533,8 +534,22 @@ def listDevice(device):
     except:
         logException(False)
         return False
+        
+def getMacaddress(config):
+  try:
+    logInfo("Entering")
+    mac = ':'.join(map(lambda x: "%02x" % x, [ 0x00, 0x02, 0x46, random.randint(0x00, 0x7f), random.randint(0x00, 0xff), random.randint(0x00, 0xff) ]))
+    if config.has_section("Networking"):
+        if config.has_option('Networking', 'MacAddress'):
+            mac = config['Networking']['MacAddress']
+    logInfo("Mac address : " + mac)
+    logInfo("Exiting")
+    return mac
+  except:
+    UI.logException(False)
+    return
   
-def Summary(config):
+def Summary(config, boards):
     try:
         logInfo("Entering")
         dialog = armStrap_Dialog()
@@ -550,7 +565,7 @@ def Summary(config):
             ("   TimeZone :",  5,   1, config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
             ("    Version :",  5,  41, config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
             ("    Locales :",  6,   1, config['Board']['Locales'],         6, 15, 20, 20, CONST.READONLY),
-            ("Boot Device :",  6,  41, config['Board']['Device'],          6, 55, 20, 20, CONST.READONLY)]
+            ("Boot Device :",  6,  41, boards['Partitions']['Device'],          6, 55, 20, 20, CONST.READONLY)]
     
         i = 7
     
@@ -575,6 +590,8 @@ def Summary(config):
                 elements.append(("        DNS :",  i,  41, config['Networking']['DNS'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
                 elements.append(("     Domain :",  i,   1, config['Networking']['Domain'],   i, 15, 20, 20, CONST.READONLY))
+                if not config.has_option('Networking', 'MacAddress'):
+                    config['Networking']['MacAddress'] = getMacaddress(config = config)
                 elements.append(("Mac Address :",  i,  41, config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
             else:
