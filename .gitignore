@@ -29,4 +29,5 @@ config_local.sh
 cleanrepo.sh
 armstrap.img
 armStrap.log
+armStrap.ini
 test
