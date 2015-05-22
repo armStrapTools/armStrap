@@ -535,20 +535,6 @@ def listDevice(device):
         logException(False)
         return False
         
-def getMacaddress(config):
-  try:
-    logInfo("Entering")
-    mac = ':'.join(map(lambda x: "%02x" % x, [ 0x00, 0x02, 0x46, random.randint(0x00, 0x7f), random.randint(0x00, 0xff), random.randint(0x00, 0xff) ]))
-    if config.has_section("Networking"):
-        if config.has_option('Networking', 'MacAddress'):
-            mac = config['Networking']['MacAddress']
-    logInfo("Mac address : " + mac)
-    logInfo("Exiting")
-    return mac
-  except:
-    UI.logException(False)
-    return
-  
 def Summary(config, boards):
     try:
         logInfo("Entering")
@@ -565,7 +551,7 @@ def Summary(config, boards):
             ("   TimeZone :",  5,   1, config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
             ("    Version :",  5,  41, config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
             ("    Locales :",  6,   1, config['Board']['Locales'],         6, 15, 20, 20, CONST.READONLY),
-            ("Boot Device :",  6,  41, boards['Partitions']['Device'],          6, 55, 20, 20, CONST.READONLY)]
+            ("Root Device :",  6,  41, boards['Partitions']['Device'],          6, 55, 20, 20, CONST.READONLY)]
     
         i = 7
     
@@ -584,21 +570,21 @@ def Summary(config, boards):
         if config.has_section("Networking"):
             if config['Networking']['Mode'].lower() == "static":
                 elements.append(("         IP :",  i,   1, config['Networking']['Ip'],   i, 15, 20, 20, CONST.READONLY))
-                elements.append(("Root Device :",  i,  41, config['Networking']['Mask'], i, 55, 20, 20, CONST.READONLY))
+                elements.append(("       Mask :",  i,  41, config['Networking']['Mask'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
                 elements.append(("    Gateway :",  i,   1, config['Networking']['Gateway'],   i, 15, 20, 20, CONST.READONLY))
                 elements.append(("        DNS :",  i,  41, config['Networking']['DNS'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
                 elements.append(("     Domain :",  i,   1, config['Networking']['Domain'],   i, 15, 20, 20, CONST.READONLY))
-                if not config.has_option('Networking', 'MacAddress'):
-                    config['Networking']['MacAddress'] = getMacaddress(config = config)
                 elements.append(("Mac Address :",  i,  41, config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
             else:
                 elements.append(("         IP :",  i,   1, config['Networking']['Mode'],   i, 15, 20, 20, CONST.READONLY))
+                elements.append(("Mac Address :",  i,  41, config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
         else:
-            elements.append(("         IP :",  i,   1, "DHCP",   i, 15, 20, 20, CONST.READONLY))
+            elements.append(("         IP :",  i,   1, "dhcp",   i, 15, 20, 20, CONST.READONLY))
+            elements.append(("Mac Address :",  i,  41, config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
             i += 1
     
         elements.append( ("-- Output --", i, 32, "", i, 46, 0 ,0, CONST.READONLY) )

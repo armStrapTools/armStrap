@@ -19,9 +19,6 @@ Version = vivid
 [Kernel]
 Version=mainline
 
-[BootLoader]
-RootDevice = /dev/mmcblk0p1
-
 [Networking]
 Mode = static
 Ip = 192.168.0.100
