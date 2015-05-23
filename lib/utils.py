@@ -7,6 +7,7 @@ import urllib.request
 import random
 import configparser
 import subprocess
+import requests
 
 from . import ui as UI
 
@@ -288,6 +289,14 @@ def runChrootCommand(command, status):
       raise OSError
     UI.logInfo("Exiting")
     return err
+  except:
+    UI.logException(False)
+    return False
+#Read a json url and return it as a dict
+def loadJsonURL(url):
+  try:
+    UI.logInfo("Entering")
+    return(requests.get(url).json())
   except:
     UI.logException(False)
     return False

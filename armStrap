@@ -29,7 +29,7 @@ if __name__ == '__main__':
         logging.basicConfig(filename = logFile, level = logging.DEBUG)
     
         config = Utils.readArmStrapConfig()
-        boards = Utils.readConfig(config['Board']['Branch'].lower() + ".ini")
+        boards = Utils.loadJsonURL(url = 'https://archive.armstrap.net/.armStrap.php?type=config&config=' + config['Board']['Branch'].lower())
         
         if boards == False:
             Utils.Exit(text = "Board configuration " + config['Board']['Branch'] + " not found, check your config file. armStrap will now exit", title = "Error", timeout = 5, exitStatus = os.EX_OK)
