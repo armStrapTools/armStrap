@@ -213,6 +213,16 @@ def readArmStrapConfig():
       config['Networking']['Mode'] = "dhcp"
       config['Networking']['MacAddress'] = ':'.join(map(lambda x: "%02x" % x, [ 0x00, 0x02, 0x46, random.randint(0x00, 0x7f), random.randint(0x00, 0xff), random.randint(0x00, 0xff) ]))
       
+    if config.has_section("BoardsPackages"):
+      UI.logInfo("Checking section BoardsPackages")
+      if not config.has_option('BoardsPackages', 'InstallOptionalsPackages'):
+        UI.logInfo("Adding item InstallOptionalPackages")
+        config['BoardsPackages']['InstallOptionalsPackages'] = "no"
+    else:
+      UI.logInfo("Creating section BoardsPackages")
+      config['BoardsPackages'] = { }
+      config['BoardsPackages']['InstallOptionalsPackages'] = "no"
+      
     if config.has_section("Output"):
       UI.logInfo("Checking section Output")
       if not config.has_option('Output', 'Image'):
@@ -223,16 +233,6 @@ def readArmStrapConfig():
       UI.logInfo("Creating section Output")
       config['Output'] = { }
       config['Output']['Device'] = "/dev/mmcblk0"
-      
-    if config.has_section("Packages"):
-      UI.logInfo("Checking section Packages")
-      if not config.has_option('Packages', 'InstallOptionalsPackages'):
-        UI.logInfo("Adding item InstallOptionalPackages")
-        config['Packages']['InstallOptionalsPackages'] = "no"
-    else:
-      UI.logInfo("Creating section Packages")
-      config['Packages'] = { }
-      config['Packages']['InstallOptionalsPackages'] = "no"
       
     with open(getPath("armStrap.ini"), 'w') as configfile:
       config.write(configfile)

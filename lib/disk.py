@@ -31,11 +31,11 @@ def partProbe(Device=""):
     return False
   UI.logExiting()
 
-def getLayout(config):
+def getLayout():
   try:
     UI.logEntering()
     d = []
-    for i in config['Partitions']['Layout'].split():
+    for i in builtins.Boards['Partitions']['Layout'].split():
       j = i.split(':')
       d.append( {'Mount_Order': j[0], 'Mount_Point': j[1], 'FileSystem': j[2], 'Size': j[3]} )
     UI.logExiting()
@@ -111,26 +111,26 @@ def formatDevice(Device, DiskLayout, percent = 0):
     UI.logException(False)
     return (False, False)
 
-def formatSD(config, boards):
+def formatSD():
   try:
-    return formatDevice(Device = config['Output']['Device'], DiskLayout = getLayout(boards))
+    return formatDevice(Device = builtins.Config['Output']['Device'], DiskLayout = getLayout())
   except:
     UI.logException(False)
     return (False, False)
 
-def formatIMG(config, boards):
+def formatIMG():
   try:
     UI.logEntering()
-    if os.path.exists(Utils.getPath(config['Output']['Image'])):
-      if UI.YesNo(title = "Warning", text = "File " + config['Output']['Image'] + " exists! Overrite?") == "cancel":
-        Utils.Exit(title = "Cancel by user", text = "Will not overrite " + config['Output']['Image'], timeout = 5)
-    builtins.Status.update(name = "Formatting Disk", value = "-0", text="Creating disk image " + Utils.getPath(config['Output']['Image']), percent = builtins.Status.getPercent())
-    Utils.runCommand( command = "/usr/bin/touch " + Utils.getPath(config['Output']['Image']))
-    cleanDisk(Utils.getPath(config['Output']['Image']), bs="1M", count=int(config['Output']['Size']))
+    if os.path.exists(Utils.getPath(builtins.Config['Output']['Image'])):
+      if UI.YesNo(title = "Warning", text = "File " + builtins.Config['Output']['Image'] + " exists! Overrite?") == "cancel":
+        Utils.Exit(title = "Cancel by user", text = "Will not overrite " + builtins.Config['Output']['Image'], timeout = 5)
+    builtins.Status.update(name = "Formatting Disk", value = "-0", text="Creating disk image " + Utils.getPath(builtins.Config['Output']['Image']), percent = builtins.Status.getPercent())
+    Utils.runCommand( command = "/usr/bin/touch " + Utils.getPath(builtins.Config['Output']['Image']))
+    cleanDisk(Utils.getPath(builtins.Config['Output']['Image']), bs="1M", count=int(builtins.Config['Output']['Size']))
     builtins.Status.update(name = "Formatting Disk", value = "-25")
-    (stdout, stderr) = captureCommand("/sbin/losetup -f --show " + Utils.getPath(config['Output']['Image']))
+    (stdout, stderr) = captureCommand("/sbin/losetup -f --show " + Utils.getPath(builtins.Config['Output']['Image']))
     UI.logExiting()
-    return formatDevice(Device = stdout.splitlines()[0], DiskLayout = getLayout(boards), percent = 25)
+    return formatDevice(Device = stdout.splitlines()[0], DiskLayout = getLayout(), percent = 25)
   except:
     UI.logException(False)
     return (False, False)

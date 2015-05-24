@@ -7,10 +7,10 @@ import subprocess
 from lib import ui as UI
 from lib import utils as Utils
 
-def installRootFS(url, config, boards):
+def installRootFS(url):
   try:
     UI.logEntering()
-    file = boards['Common']['CpuArch'] + boards['Common']['CpuFamily'] + "-" + config['Distribution']['Family'] + "-" + config['Distribution']['Version'] + ".txz"
+    file = builtins.Boards['Common']['CpuArch'] + builtins.Boards['Common']['CpuFamily'] + "-" + builtins.Config['Distribution']['Family'] + "-" + builtins.Config['Distribution']['Version'] + ".txz"
     builtins.Status.update(text="Downloading RootFS image " + file, percent = builtins.Status.getPercent())  
     Utils.download(url + "/" + file)
     builtins.Status.update(name = "Installing RootFS", value = "-5", text="Extracting RootFS image " + file, percent = builtins.Status.getPercent())
@@ -90,24 +90,24 @@ def chrootAddUser(User, Password):
     UI.logException(False)
     return False
 
-def setLocales(config):
+def setLocales():
   try:
     UI.logEntering()
     builtins.Status.update(text = "Setting locales")
     if Utils.checkFile(Utils.getPath("mnt/etc/locale.gen")):
-      for locale in config['Board']['Locales'].split():
+      for locale in builtins.Config['Board']['Locales'].split():
         builtins.Status.update(text = "Configuring locale " + locale)
         Utils.appendFile(file = Utils.getPath("mnt/etc/locale.gen"), lines = [locale + " " + locale.split('.')[1] ] )
       builtins.Status.update(text = "Running locale-gen")
       Utils.runChrootCommand(command = "/usr/sbin/locale-gen")
       builtins.Status.update(text = "Running update-locale")
-      Utils.runChrootCommand(command = "/usr/sbin/update-locale LANG=" + config['Board']['Locales'].split()[0] + " LC_MESSAGES=POSIX")
+      Utils.runChrootCommand(command = "/usr/sbin/update-locale LANG=" + builtins.Config['Board']['Locales'].split()[0] + " LC_MESSAGES=POSIX")
     else:
-      for locale in config['Board']['Locales'].split():
+      for locale in builtins.Config['Board']['Locales'].split():
         builtins.Status.update(text = "Generating locale " + locale)
         Utils.runChrootCommand(command = "/usr/sbin/locale-gen " + locale)
       builtins.Status.update(text = "Running update-locale")
-      Utils.runChrootCommand(command = "/usr/sbin/update-locale LANG=" + config['Board']['Locales'].split()[0] + " LC_MESSAGES=POSIX")
+      Utils.runChrootCommand(command = "/usr/sbin/update-locale LANG=" + builtins.Config['Board']['Locales'].split()[0] + " LC_MESSAGES=POSIX")
       builtins.Status.update(text = "Running dpkg-reconfigure locales")
       Utils.runChrootCommand(command = "/usr/sbin/dpkg-reconfigure locales")
     UI.logExiting()
@@ -116,44 +116,44 @@ def setLocales(config):
     UI.logException(False)
     return False
 
-def setTimeZone(config):
+def setTimeZone():
   try:
     UI.logEntering()
-    builtins.Status.update(text = "Setting timezone to " + config['Board']['TimeZone'])
-    if Utils.checkFile(Utils.getPath("mnt/usr/share/zoneinfo/" + config['Board']['TimeZone'])):
-      Utils.runChrootCommand(command = "ln -sf /usr/share/zoneinfo/" + config['Board']['TimeZone'] +" /etc/localtime")
+    builtins.Status.update(text = "Setting timezone to " + builtins.Config['Board']['TimeZone'])
+    if Utils.checkFile(Utils.getPath("mnt/usr/share/zoneinfo/" + builtins.Config['Board']['TimeZone'])):
+      Utils.runChrootCommand(command = "ln -sf /usr/share/zoneinfo/" + builtins.Config['Board']['TimeZone'] +" /etc/localtime")
       Utils.unlinkFile("mnt/etc/timezone")
-      Utils.appendFile(file = Utils.getPath("mnt/etc/timezone"), lines = [ config['Board']['TimeZone'] ])
+      Utils.appendFile(file = Utils.getPath("mnt/etc/timezone"), lines = [ builtins.Config['Board']['TimeZone'] ])
     else:
-      MessageBox(text = "TimeZone " + config['Board']['TimeZone'] + " not found. You will need to configure it manually.", title = "Non-Fatal Error", timeout = 10 )
+      MessageBox(text = "TimeZone " + builtins.Config['Board']['TimeZone'] + " not found. You will need to configure it manually.", title = "Non-Fatal Error", timeout = 10 )
     return True
   except:
     UI.logException(False)
     return False
     
-def setSwapFile(config):
+def setSwapFile():
   try:
     UI.logEntering()
     Utils.unlinkFile("mnt/etc/dphys-swapfile")
     lines = []
     
-    if config.has_option('SwapFile', 'Size'):
-      lines.append("CONF_SWAPSIZE=" + config['SwapFile']['Size'])
+    if builtins.Config.has_option('SwapFile', 'Size'):
+      lines.append("CONF_SWAPSIZE=" + builtins.Config['SwapFile']['Size'])
     else:
       lines.append("#CONF_SWAPSIZE=")
     
-    if config.has_option('SwapFile', 'File'):
-      lines.append("CONF_SWAPFILE=" + config['SwapFile']['File'])
+    if builtins.Config.has_option('SwapFile', 'File'):
+      lines.append("CONF_SWAPFILE=" + builtins.Config['SwapFile']['File'])
     else:
       lines.append("#CONF_SWAPFILE=/var/swap")
       
-    if config.has_option('SwapFile', 'Factor'):
-      lines.append("CONF_SWAPFACTOR=" + config['SwapFile']['Factor'])
+    if builtins.Config.has_option('SwapFile', 'Factor'):
+      lines.append("CONF_SWAPFACTOR=" + builtins.Config['SwapFile']['Factor'])
     else:
       lines.append("#CONF_SWAPFACTOR=2")
     
-    if config.has_option('SwapFile', 'Maximum'):
-      lines.append("CONF_MAXSWAP=" + config['SwapFile']['Maximum'])
+    if builtins.Config.has_option('SwapFile', 'Maximum'):
+      lines.append("CONF_MAXSWAP=" + builtins.Config['SwapFile']['Maximum'])
     else:
       lines.append("#CONF_MAXSWAP=2048")
       
@@ -163,42 +163,42 @@ def setSwapFile(config):
     UI.logException(False)
     return False
 
-def setHostName(config):
+def setHostName():
   try:
     UI.logEntering()
-    builtins.Status.update(text = "Setting hostname to " + config['Board']['HostName'])
+    builtins.Status.update(text = "Setting hostname to " + builtins.Config['Board']['HostName'])
     Utils.unlinkFile("mnt/etc/hostname")
-    Utils.appendFile(file = Utils.getPath("mnt/etc/hostname"), lines = [config['Board']['HostName'] ])
+    Utils.appendFile(file = Utils.getPath("mnt/etc/hostname"), lines = [builtins.Config['Board']['HostName'] ])
     UI.logExiting()
     return True
   except:
     UI.logException(False)
     return False
 
-def setTTY(config):
+def setTTY():
   try:
     UI.logEntering()
     if Utils.checkFile(Utils.getPath("mnt/etc/inittab")):
-      builtins.Status.update(text = "Setting inittab for " + config['Serial']['TerminalDevice'])
-      line = config['Serial']['TerminalID'] + ":" + config['Serial']['RunLevel'] +":respawn:/sbin/getty -L " + config['Serial']['TerminalDevice'] + " " + config['Serial']['TerminalSpeed'] + " " + config['Serial']['TerminalType']
+      builtins.Status.update(text = "Setting inittab for " + builtins.Boards['Serial']['TerminalDevice'])
+      line = builtins.Boards['Serial']['TerminalID'] + ":" + builtins.Boards['Serial']['RunLevel'] +":respawn:/sbin/getty -L " + builtins.Boards['Serial']['TerminalDevice'] + " " + builtins.Boards['Serial']['TerminalSpeed'] + " " + builtins.Boards['Serial']['TerminalType']
       Utils.appendFile(file = Utils.getPath("mnt/etc/inittab"))
     else:
       lines = []
-      builtins.Status.update(text = "Setting service for " + config['Serial']['TerminalDevice'])
-      Utils.unlinkFile("mnt/etc/init/" + config['Serial']['TerminalDevice'] + ".conf")
-      lines.append("# " + config['Serial']['TerminalDevice'] + " - getty")
-      lines.append("#\n# This service maintains a getty on " + config['Serial']['TerminalDevice'] + " from the point the system is\n# started until it is shut down again.\n")
-      lines.append("start on stopped rc or RUNLEVEL=[" + config['Serial']['RunLevel'] + "]\n")
-      lines.append("stop on runlevel [!"+ config['Serial']['RunLevel'] + "]\n")
-      lines.append("respawn\nexec /sbin/getty -L " + config['Serial']['TerminalSpeed'] + " " + config['Serial']['TerminalDevice'] + " " + config['Serial']['TerminalType'])
-      Utils.appendFile(file = Utils.getPath("mnt/etc/init/" + config['Serial']['TerminalDevice'] + ".conf"), lines = lines)
+      builtins.Status.update(text = "Setting service for " + builtins.Boards['Serial']['TerminalDevice'])
+      Utils.unlinkFile("mnt/etc/init/" + builtins.Boards['Serial']['TerminalDevice'] + ".conf")
+      lines.append("# " + builtins.Boards['Serial']['TerminalDevice'] + " - getty")
+      lines.append("#\n# This service maintains a getty on " + builtins.Boards['Serial']['TerminalDevice'] + " from the point the system is\n# started until it is shut down again.\n")
+      lines.append("start on stopped rc or RUNLEVEL=[" + builtins.Boards['Serial']['RunLevel'] + "]\n")
+      lines.append("stop on runlevel [!"+ builtins.Boards['Serial']['RunLevel'] + "]\n")
+      lines.append("respawn\nexec /sbin/getty -L " + builtins.Boards['Serial']['TerminalSpeed'] + " " + builtins.Boards['Serial']['TerminalDevice'] + " " + builtins.Boards['Serial']['TerminalType'])
+      Utils.appendFile(file = Utils.getPath("mnt/etc/init/" + builtins.Boards['Serial']['TerminalDevice'] + ".conf"), lines = lines)
     UI.logExiting()
     return True
   except:
     UI.logException(False)
     return False
 
-def setFsTab(config):
+def setFsTab():
   try:
     UI.logEntering()
     partList = []
@@ -206,9 +206,9 @@ def setFsTab(config):
     fFormat = "{0:<23} {1:<15} {2:<7} {3:<15} {4:<7} {5}"
     partList.append( fFormat.format( "# <file system>", "<mount point>", "<type>", "<options>", "<dump>", "<pass>" ) )
     builtins.Status.update(text = "Configuring fstab ")
-    for partition in config['Partitions']['Layout'].split( ):
+    for partition in builtins.Boards['Partitions']['Layout'].split( ):
       p = partition.split(':')
-      partList.append( fFormat.format( config['Partitions']['Device'] + config['Partitions']['PartitionPrefix'] + str(partID), p[1], p[2], "defaults", "0", "1" ) )
+      partList.append( fFormat.format( builtins.Boards['Partitions']['Device'] + builtins.Boards['Partitions']['PartitionPrefix'] + str(partID), p[1], p[2], "defaults", "0", "1" ) )
       partID += 1
     Utils.unlinkFile("mnt/etc/fstab")
     Utils.appendFile(file = Utils.getPath("mnt/etc/fstab"), lines = partList)
@@ -218,33 +218,33 @@ def setFsTab(config):
     UI.logException(False)
     return False
 
-def setInterface(config, boards):
+def setInterface():
   try:
     UI.logEntering()
     interface = []
-    interface.append( "auto " + boards['Network']['Interface'] )
-    interface.append( "allow-hotplug " + boards['Network']['Interface'] + "\n" )
-    if config.has_section("Networking"):
-      if config.has_option('Networking', 'Mode'):
-        if (config['Networking']['Mode'].lower() == "static"):
-          interface.append( "iface " + boards['Network']['Interface'] + " inet static" )
-          if config.has_option('Networking', 'Ip'):
-            interface.append( "\taddress " + config['Networking']['Ip'] )
-          if config.has_option('Networking', 'Mask'):
-            interface.append( "\tnetmask " + config['Networking']['Mask'] )
-          if config.has_option('Networking', 'Gateway'):
-            interface.append( "\tgateway " + config['Networking']['Gateway'] )
-          if config.has_option('Networking', 'DNS'):
-            interface.append( "\tdns-nameserver " + config['Networking']['DNS'] )
-          if config.has_option('Networking', 'Domain'):
-            interface.append( "\tdns-search " + config['Networking']['Domain'] )
+    interface.append( "auto " + builtins.Boards['Network']['Interface'] )
+    interface.append( "allow-hotplug " + builtins.Boards['Network']['Interface'] + "\n" )
+    if builtins.Config.has_section("Networking"):
+      if builtins.Config.has_option('Networking', 'Mode'):
+        if (builtins.Config['Networking']['Mode'].lower() == "static"):
+          interface.append( "iface " + builtins.Boards['Network']['Interface'] + " inet static" )
+          if builtins.Config.has_option('Networking', 'Ip'):
+            interface.append( "\taddress " + builtins.Config['Networking']['Ip'] )
+          if builtins.Config.has_option('Networking', 'Mask'):
+            interface.append( "\tnetmask " + builtins.Config['Networking']['Mask'] )
+          if builtins.Config.has_option('Networking', 'Gateway'):
+            interface.append( "\tgateway " + builtins.Config['Networking']['Gateway'] )
+          if builtins.Config.has_option('Networking', 'DNS'):
+            interface.append( "\tdns-nameserver " + builtins.Config['Networking']['DNS'] )
+          if builtins.Config.has_option('Networking', 'Domain'):
+            interface.append( "\tdns-search " + builtins.Config['Networking']['Domain'] )
         else:
-          interface.append( "iface " + boards['Network']['Interface'] + " inet dhcp" )
+          interface.append( "iface " + builtins.Boards['Network']['Interface'] + " inet dhcp" )
       else:
-        interface.append( "iface " + boards['Network']['Interface'] + " inet dhcp" )
+        interface.append( "iface " + builtins.Boards['Network']['Interface'] + " inet dhcp" )
     else:
-      interface.append( "iface " + boards['Network']['Interface'] + " inet dhcp" )
-    interface.append( "\thwaddress ether " + config['Networking']['MacAddress'] )    
+      interface.append( "iface " + builtins.Boards['Network']['Interface'] + " inet dhcp" )
+    interface.append( "\thwaddress ether " + builtins.Config['Networking']['MacAddress'] )    
     Utils.unlinkFile("mnt/etc/network/interfaces")
     Utils.appendFile(file = Utils.getPath("mnt/etc/network/interfaces"), lines = interface)
     UI.logExiting()

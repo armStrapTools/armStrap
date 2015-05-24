@@ -552,70 +552,70 @@ def listDevice(device):
         logException(False)
         return False
         
-def Summary(config, boards):
+def Summary():
     try:
         logEntering()
         elements = [
             ("-- Board --", 1,  15, " ", 2, 2, 0, 0, CONST.HIDDEN),
             ("-- Kernel --", 1,  54, " ", 2, 2, 0, 0, CONST.HIDDEN),
-            ("      Model :",  2,   1, config['Board']['Model'],           2, 15, 20, 20, CONST.READONLY),
-            ("    Version :",  2,  41, config['Kernel']['Version'],        2, 55, 20, 20, CONST.READONLY),
-            ("   HostName :",  3,   1, config['Board']['HostName'],        3, 15, 20, 20, CONST.READONLY),
+            ("      Model :",  2,   1, builtins.Config['Board']['Model'],           2, 15, 20, 20, CONST.READONLY),
+            ("    Version :",  2,  41, builtins.Config['Kernel']['Version'],        2, 55, 20, 20, CONST.READONLY),
+            ("   HostName :",  3,   1, builtins.Config['Board']['HostName'],        3, 15, 20, 20, CONST.READONLY),
             ("-- Distribution --", 3,  51, " ", 2, 2, 0, 0, CONST.HIDDEN),
-            ("Root Passwd :",  4,   1, config['Users']['RootPassword'],        4, 15, 20, 20, CONST.READONLY),
-            ("     Family :",  4,  41, config['Distribution']['Family'],   4, 55, 20, 20, CONST.READONLY),
-            ("   TimeZone :",  5,   1, config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
-            ("    Version :",  5,  41, config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
-            ("    Locales :",  6,   1, config['Board']['Locales'],         6, 15, 20, 20, CONST.READONLY),
-            ("Root Device :",  6,  41, boards['Partitions']['Device'],          6, 55, 20, 20, CONST.READONLY)]
+            ("Root Passwd :",  4,   1, builtins.Config['Users']['RootPassword'],        4, 15, 20, 20, CONST.READONLY),
+            ("     Family :",  4,  41, builtins.Config['Distribution']['Family'],   4, 55, 20, 20, CONST.READONLY),
+            ("   TimeZone :",  5,   1, builtins.Config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
+            ("    Version :",  5,  41, builtins.Config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
+            ("    Locales :",  6,   1, builtins.Config['Board']['Locales'],         6, 15, 20, 20, CONST.READONLY),
+            ("Root Device :",  6,  41, builtins.Boards['Partitions']['Device'],          6, 55, 20, 20, CONST.READONLY)]
     
         i = 7
     
-        if config.has_section("SwapFile"):
+        if builtins.Config.has_section("SwapFile"):
             elements.append( ("-- SwapFile --",  i,  31, "", i, 45, 0, 0, CONST.READONLY) )
             i += 1
-            if config.has_option('SwapFile', 'Size'):
-                elements.append( ("       Size :",  i,  1, config['SwapFile']['Size'] + "MB",    i, 15, 20, 20, CONST.READONLY) )
+            if builtins.Config.has_option('SwapFile', 'Size'):
+                elements.append( ("       Size :",  i,  1, builtins.Config['SwapFile']['Size'] + "MB",    i, 15, 20, 20, CONST.READONLY) )
             else:
-                elements.append( ("     Factor :",  i,  1, config['SwapFile']['Factor'] + " maximum " + config['SwapFile']['Maximum'] + "MB",    i, 13, 20, 20, CONST.READONLY))
-            elements.append( ("       File :",  i,  40, config['SwapFile']['File'],    i, 55, 20, 20, CONST.READONLY) )
+                elements.append( ("     Factor :",  i,  1, builtins.Config['SwapFile']['Factor'] + " maximum " + builtins.Config['SwapFile']['Maximum'] + "MB",    i, 13, 20, 20, CONST.READONLY))
+            elements.append( ("       File :",  i,  40, builtins.Config['SwapFile']['File'],    i, 55, 20, 20, CONST.READONLY) )
             i += 1
 
         elements.append( ("-- Networking --", i, 30, "", i, 46, 0 ,0, CONST.READONLY) )
         i += 1
-        if config.has_section("Networking"):
-            if config['Networking']['Mode'].lower() == "static":
-                elements.append(("         IP :",  i,   1, config['Networking']['Ip'],   i, 15, 20, 20, CONST.READONLY))
-                elements.append(("       Mask :",  i,  41, config['Networking']['Mask'], i, 55, 20, 20, CONST.READONLY))
+        if builtins.Config.has_section("Networking"):
+            if builtins.Config['Networking']['Mode'].lower() == "static":
+                elements.append(("         IP :",  i,   1, builtins.Config['Networking']['Ip'],   i, 15, 20, 20, CONST.READONLY))
+                elements.append(("       Mask :",  i,  41, builtins.Config['Networking']['Mask'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
-                elements.append(("    Gateway :",  i,   1, config['Networking']['Gateway'],   i, 15, 20, 20, CONST.READONLY))
-                elements.append(("        DNS :",  i,  41, config['Networking']['DNS'], i, 55, 20, 20, CONST.READONLY))
+                elements.append(("    Gateway :",  i,   1, builtins.Config['Networking']['Gateway'],   i, 15, 20, 20, CONST.READONLY))
+                elements.append(("        DNS :",  i,  41, builtins.Config['Networking']['DNS'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
-                elements.append(("     Domain :",  i,   1, config['Networking']['Domain'],   i, 15, 20, 20, CONST.READONLY))
-                elements.append(("Mac Address :",  i,  41, config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
+                elements.append(("     Domain :",  i,   1, builtins.Config['Networking']['Domain'],   i, 15, 20, 20, CONST.READONLY))
+                elements.append(("Mac Address :",  i,  41, builtins.Config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
             else:
-                elements.append(("         IP :",  i,   1, config['Networking']['Mode'],   i, 15, 20, 20, CONST.READONLY))
-                elements.append(("Mac Address :",  i,  41, config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
+                elements.append(("         IP :",  i,   1, builtins.Config['Networking']['Mode'],   i, 15, 20, 20, CONST.READONLY))
+                elements.append(("Mac Address :",  i,  41, builtins.Config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
                 i += 1
         else:
             elements.append(("         IP :",  i,   1, "dhcp",   i, 15, 20, 20, CONST.READONLY))
-            elements.append(("Mac Address :",  i,  41, config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
+            elements.append(("Mac Address :",  i,  41, builtins.Config['Networking']['MacAddress'], i, 55, 20, 20, CONST.READONLY))
             i += 1
     
         elements.append( ("-- Output --", i, 32, "", i, 46, 0 ,0, CONST.READONLY) )
         i += 1
-        if config.has_option('Output', 'Device'):
-            elements.append(("     Device :",  i,   1, config['Output']['Device'],   i, 15, 20, 20, CONST.READONLY))
+        if builtins.Config.has_option('Output', 'Device'):
+            elements.append(("     Device :",  i,   1, builtins.Config['Output']['Device'],   i, 15, 20, 20, CONST.READONLY))
             i += 2
-            elements.append( ("Content of " + config['Output']['Device'] + ":", i, 1, "", i, 46, 0 ,0, CONST.READONLY) )
+            elements.append( ("Content of " + builtins.Config['Output']['Device'] + ":", i, 1, "", i, 46, 0 ,0, CONST.READONLY) )
             i += 1
-            for l in listDevice(config['Output']['Device']):
+            for l in listDevice(builtins.Config['Output']['Device']):
                 elements.append( ("", i, 1, l , i, 1, 0, 0, CONST.READONLY) )
                 i += 1 
         else:
-            elements.append(("      Image :",  i,   1, config['Output']['Image'],   i, 15, 20, 20, CONST.READONLY))
-            elements.append(("Root Device :",  i,  41, config['Output']['Size'], i, 55, 20, 20, CONST.READONLY))
+            elements.append(("      Image :",  i,   1, builtins.Config['Output']['Image'],   i, 15, 20, 20, CONST.READONLY))
+            elements.append(("Root Device :",  i,  41, builtins.Config['Output']['Size'], i, 55, 20, 20, CONST.READONLY))
     
         i += 2
     
