@@ -1,7 +1,8 @@
 import atexit
+import builtins
+from dialog import Dialog
 import inspect
 import logging
-from dialog import Dialog
 from queue import Queue
 from queue import Empty
 import os
@@ -11,7 +12,6 @@ import sys
 import tempfile
 import threading
 import time
-import logging
 
 def constant(f):
     def fset(self, value):
@@ -50,48 +50,62 @@ class _Const(object):
 
 CONST = _Const()
 
-def logDebug(message):
+def logDebug(message = False):
     func = inspect.currentframe().f_back.f_code
     if message == False:
         logging.debug("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
     else:
         logging.debug("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
         
-def logWarning(message):
+def logWarning(message = False):
     func = inspect.currentframe().f_back.f_code
     if message == False:
         logging.warning("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
     else:
         logging.warning("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
         
-def logInfo(message):
+def logInfo(message = False):
     func = inspect.currentframe().f_back.f_code
     if message == False:
         logging.info("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
     else:
         logging.info("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
         
-def logException(message):
+def logException(message = False):
     func = inspect.currentframe().f_back.f_code
     if message == False:
         logging.exception("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
     else:
         logging.exception("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
+        
+def logEntering():
+    func = inspect.currentframe().f_back.f_code
+    logging.debug("+++:Entering function %s (%s)" % ( func.co_name, func.co_filename ))
+
+def logExiting():
+    func = inspect.currentframe().f_back.f_code
+    logging.debug("---:Exiting function %s (%s)" % ( func.co_name, func.co_filename ))
+
+def logEnterExit():
+    func = inspect.currentframe().f_back.f_code
+    logging.debug("###:Entering/Exiting function %s (%s)" % ( func.co_name, func.co_filename ))
+
 
 def armStrap_Dialog():
     try:
-        logInfo("Entering/Exiting")
-        return Dialog(dialog = "dialog")
+        logEntering()
+        builtins.Dialog = Dialog(dialog = "dialog")
+        return builtins.Dialog
     except:
         logException(False)
         return False
 
 def openTempFile():
     try:
-        logInfo("Entering")
+        logEntering()
         (fd, path) = tempfile.mkstemp()
         file = open(path, 'w+b')
-        logInfo("Exiting")
+        logExiting()
         return (fd, file, path)
     except:
         logException(False)
@@ -99,11 +113,11 @@ def openTempFile():
 
 def closeTempFile(fd, file, path):
     try:
-        logInfo("Entering")
+        logEntering()
         file.close()
         os.close(fd)
         os.remove(path)
-        logInfo("Exiting")
+        logExiting()
         return True
     except:
         logException(False)
@@ -112,28 +126,28 @@ def closeTempFile(fd, file, path):
 class RunInBackground(threading.Thread):
     def __init__( self, cmd ):
         try:
-            logInfo("Entering")
+            logEntering()
             (self.fd, self.file, self.path) = openTempFile()
             self.Cmd = cmd
             super(RunInBackground, self).__init__()
             self.start()
-            logInfo("Exiting")
+            logExiting()
         except:
             logException(False)
 
     def run(self):
         try:
-            logInfo("Entering")
+            logEntering()
             os.system(self.Cmd + " > " + self.path + " 2>&1")
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
-            logInfo("Exiting")
+            logExiting()
         except:
             logException(False)
         
             
     def getName(self):
         try:
-            logInfo("Entering/Exiting")
+            logEnterExit()
             return self.output.name
         except:
             logException(False)
@@ -142,22 +156,22 @@ class RunInBackground(threading.Thread):
 class chrootRunInBackground(threading.Thread):
     def __init__( self, cmd, path ):
         try:
-            logInfo("Entering")
+            logEntering()
             (self.fd, self.file, self.path) = openTempFile()
             self.chrootCmd = cmd
             self.chrootPath = path
             super(chrootRunInBackground, self).__init__()
             self.start()
-            logInfo("Exiting")
+            logExiting()
         except:
             logException(False)
         
     def run(self):
         try:
-            logInfo("Entering")
+            logEntering()
             os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + self.chrootPath + " " + self.chrootCmd + " > " + self.path + " 2>&1")
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
-            logInfo("Exiting")
+            logExiting()
         except:
             logException(False)
             
@@ -171,9 +185,8 @@ class chrootRunInBackground(threading.Thread):
 class Mixed(threading.Thread):
     def __init__(self, title = ""):
         try:
-            logInfo("Entering")
+            logEntering()
             self.queue = Queue()
-            self.dialog = armStrap_Dialog()
             self.running = True
             self.active = False
             self.percent = 0
@@ -182,20 +195,20 @@ class Mixed(threading.Thread):
             self.elements = []
             super(Mixed, self).__init__()
             self.start()
-            logInfo("Exiting")
+            logExiting()
         except:
             logException(False)
         
     def run(self):
-        logInfo("Entering")
+        logEntering()
         while self.running:
             try:
                 command = self.queue.get(block = True, timeout = CONST.QUEUE_TIMEOUT)
                 if (command['task'] == CONST.GUI_START) and (self.active == False):
                     self.active = True
-                    self.dialog.mixedgauge(text=self.text, percent=self.percent, elements=self.elements, title=self.title, backtitle="armStrap version " + CONST.VERSION)
+                    builtins.Dialog.mixedgauge(text=self.text, percent=self.percent, elements=self.elements, title=self.title, backtitle="armStrap version " + CONST.VERSION)
                 elif (command['task'] == CONST.GUI_UPDATE) and (self.active == True):
-                    self.dialog.mixedgauge(text=self.text, percent=self.percent, elements=self.elements, title=self.title, backtitle="armStrap version " + CONST.VERSION)
+                    builtins.Dialog.mixedgauge(text=self.text, percent=self.percent, elements=self.elements, title=self.title, backtitle="armStrap version " + CONST.VERSION)
                 elif command['task'] == CONST.GUI_HIDE:
                     self.active = False
                 else:
@@ -208,11 +221,11 @@ class Mixed(threading.Thread):
                 logException(False)
                 self.running = False
                 continue
-        logInfo("Exiting")
+        logExiting()
                 
     def getPercent(self):
         try:
-            logInfo("Entering/Exiting")
+            logEnterExit()
             return self.percent
         except:
             logException(False)
@@ -220,7 +233,7 @@ class Mixed(threading.Thread):
     
     def getRunning(self):
         try:
-            logInfo("Entering/Exiting")
+            logEnterExit()
             return self.running
         except:
             logException(False)
@@ -228,7 +241,7 @@ class Mixed(threading.Thread):
     
     def getText(self):
         try:
-            logInfo("Entering/Exiting")
+            logEnterExit()
             return self.text
         except:
             logException(False)
@@ -236,7 +249,7 @@ class Mixed(threading.Thread):
     
     def getTitle(self):
         try:
-            logInfo("Entering/Exiting")
+            logEnterExit()
             return self.title
         except:
             logException(False)
@@ -244,7 +257,7 @@ class Mixed(threading.Thread):
     
     def getElements(self):
         try:
-            logInfo("Entering/Exiting")
+            logEnterExit()
             return self.elements
         except:
             logException(False)
@@ -252,11 +265,11 @@ class Mixed(threading.Thread):
     
     def show(self, percent = 0, text = ""):
         try:
-            logInfo("Entering")
+            logEntering()
             self.percent = percent
             self.text = text
             self.queue.put({'task': CONST.GUI_START})
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -264,7 +277,7 @@ class Mixed(threading.Thread):
     
     def update(self, name = False, value = False, percent = False, text = False):
         try:
-            logInfo("Entering")
+            logEntering()
             if (name != False) and ( value != False):
                 found = False;
                 t = []
@@ -286,7 +299,7 @@ class Mixed(threading.Thread):
             if (text != False) and (text != self.text):
                 self.text = text
             self.queue.put({'task': CONST.GUI_UPDATE})
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -294,9 +307,9 @@ class Mixed(threading.Thread):
             
     def hide(self):
         try:
-            logInfo("Entering")
+            logEntering()
             self.queue.put({'task': CONST.GUI_HIDE})
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -304,11 +317,11 @@ class Mixed(threading.Thread):
     
     def end(self):
         try:
-            logInfo("Entering")
+            logEntering()
             if self.running:
                 self.queue.put({'task': CONST.GUI_STOP})
                 self.join()
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -317,9 +330,8 @@ class Mixed(threading.Thread):
 class Gauge(threading.Thread):
     def __init__(self, title = ""):
         try:
-            logInfo("Entering")
+            logEntering()
             self.queue = Queue()
-            self.dialog = armStrap_Dialog()
             self.running = True
             self.active = False
             self.percent = 0
@@ -327,26 +339,26 @@ class Gauge(threading.Thread):
             self.title = title;
             super(gauge, self).__init__()
             self.start()
-            logInfo("Exiting")
+            logExiting()
         except:
             logException(False)
         
     def run(self):
-        logInfo("Entering")
+        logEntering()
         while self.running:
             try:
                 command = self.queue.get(block = True, timeout = CONST.QUEUE_TIMEOUT)
                 if (command['task'] == CONST.GUI_START) and (self.active == False):
                         self.active = True
-                        self.dialog.gauge_start(percent=self.percent, text=self.text, title=self.title, backtitle="armStrap version " + CONST.VERSION)
+                        builtins.Dialog.gauge_start(percent=self.percent, text=self.text, title=self.title, backtitle="armStrap version " + CONST.VERSION)
                 elif (command['task'] == CONST.GUI_UPDATE) and (self.active == True):
-                            self.dialog.gauge_update(percent=self.percent, text=self.text, update_text=command['update_text'])
+                            builtins.Dialog.gauge_update(percent=self.percent, text=self.text, update_text=command['update_text'])
                 elif command['task'] == CONST.GUI_HIDE and (self.active == True):
                     if self.active == True:
-                        self.dialog.gauge_stop()
+                        builtins.Dialog.gauge_stop()
                 else:
                     if self.active == True:
-                        self.dialog.gauge_stop()
+                        builtins.Dialog.gauge_stop()
                     
                     self.running = False
                 self.queue.task_done()
@@ -356,15 +368,15 @@ class Gauge(threading.Thread):
                 logException(False)
                 self.running = False
                 continue
-        logInfo("Exiting")
+        logExiting()
     
     def show(self, percent = 0, text = ""):
         try:
-            logInfo("Entering")
+            logEntering()
             self.percent = percent
             self.text = text
             self.queue.put({'task': CONST.GUI_START})
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -372,7 +384,7 @@ class Gauge(threading.Thread):
         
     def update(self, percent = 0, text = ""):
         try:
-            logInfo("Entering")
+            logEntering()
             self.percent = percent
             if self.percent < 0:
                 self.percent = 0
@@ -383,7 +395,7 @@ class Gauge(threading.Thread):
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': True})
             else:
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -391,7 +403,7 @@ class Gauge(threading.Thread):
 
     def increment(self, percent = 0, text = ""):
         try:
-            logInfo("Entering")
+            logEntering()
             self.percent += percent
             if self.percent > 100:
                 self.percent = 100
@@ -400,7 +412,7 @@ class Gauge(threading.Thread):
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': True})
             else:
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             return False
@@ -408,7 +420,7 @@ class Gauge(threading.Thread):
     
     def decrement(self, percent = 0, text = ""):
         try:
-            logInfo("Entering")
+            logEntering()
             self.percent -= percent
             if self.percent < 0:
                 self.percent = 0
@@ -417,7 +429,7 @@ class Gauge(threading.Thread):
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': True})
             else:
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -425,9 +437,9 @@ class Gauge(threading.Thread):
     
     def hide(self):
         try:
-            logInfo("Entering")
+            logEntering()
             self.queue.put({'task': CONST.GUI_HIDE})
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -435,11 +447,11 @@ class Gauge(threading.Thread):
     
     def end(self):
         try:
-            logInfo("Entering")
+            logEntering()
             if self.running:
                 self.queue.put({'task': CONST.GUI_STOP})
                 self.join()
-            logInfo("Exiting")
+            logExiting()
             return True
         except:
             logException(False)
@@ -447,13 +459,21 @@ class Gauge(threading.Thread):
         
 def MessageBox(text = "", title = "", timeout = 0 ):
     try:
-        logInfo("Entering")
-        dialog = armStrap_Dialog()
+        logEntering()
         if timeout < 1:
-            dialog.msgbox(text = text, title= title, backtitle = "armStrap version " + CONST.VERSION)
+            builtins.Dialog.msgbox(text = text, title = title, backtitle = "armStrap version " + CONST.VERSION)
         else:
-            dialog.pause(text = text, title = title, seconds = timeout, backtitle = "armStrap version " + CONST.VERSION)
-        logInfo("Exiting")
+            builtins.Dialog.pause(text = text, title = title, seconds = timeout, backtitle = "armStrap version " + CONST.VERSION)
+        logExiting()
+        return True
+    except:
+        logException(False)
+        return False
+        
+def InfoBox(text = "", title= ""):
+    try:
+        logEntering()
+        builtins.Dialog.infobox( text = text, title = title, backtitle = "armStrap version " + CONST.VERSION )
         return True
     except:
         logException(False)
@@ -461,43 +481,41 @@ def MessageBox(text = "", title = "", timeout = 0 ):
         
 def YesNo(text = "", title = ""):
     try:
-        logInfo("Entering/Exiting")
-        dialog = armStrap_Dialog()
-        return dialog.yesno(text = text, title= title, backtitle = "armStrap version " + CONST.VERSION)
+        logEnterExit()
+        return builtins.Dialog.yesno(text = text, title= title, backtitle = "armStrap version " + CONST.VERSION)
     except:
         logException(False)
         return False
     
 def Status():
     try:
-        logInfo("Entering")
-        m = Mixed(title = "Progress")
-        m.show(text = "Initializing...")
-        m.update(name = "Formatting Disk", value = "Pending")
-        m.update(name = "Installing RootFS", value = "Pending")
-        m.update(name = "Installing BootLoader", value = "Pending")
-        m.update(name = "Installing Kernel", value = "Pending")
+        logEntering()
+        builtins.Status = Mixed(title = "Progress")
+        builtins.Status.show(text = "Initializing...")
+        builtins.Status.update(name = "Formatting Disk", value = "Pending")
+        builtins.Status.update(name = "Installing RootFS", value = "Pending")
+        builtins.Status.update(name = "Installing BootLoader", value = "Pending")
+        builtins.Status.update(name = "Installing Kernel", value = "Pending")
         time.sleep(1)
-        logInfo("Exiting")
-        return m
+        logExiting()
+        return builtins.Status
     except:
         logException(False)
         return False
     
 def ProgressBox(cmd, title = ""):
     try:
-        logInfo("Entering")
+        logEntering()
         b = RunInBackground(cmd = cmd)
-        dialog = armStrap_Dialog()
         fn = b.getName()
         size = 0
         while os.path.isfile(fn):
             t = os.stat(fn).st_size
             if t != size:
                 size = t
-                dialog.progressbox(file_path = fn, title = title, backtitle="armStrap version " + CONST.VERSION)
+                builtins.Dialog.progressbox(file_path = fn, title = title, backtitle="armStrap version " + CONST.VERSION)
             time.sleep(0.1)
-        logInfo("Exiting")
+        logExiting()
         return True
     except:
         logException(False)
@@ -505,18 +523,17 @@ def ProgressBox(cmd, title = ""):
     
 def chrootProgressBox(cmd, path, title = "" ) :
     try:
-        logInfo("Entering")
+        logEntering()
         b = chrootRunInBackground(cmd = cmd, path = path)
-        dialog = armStrap_Dialog()
         fn = b.getName()
         size = 0
         while os.path.isfile(fn):
             t = os.stat(fn).st_size
             if t != size:
                 size = t
-                dialog.progressbox(file_path = fn, title = title, backtitle="armStrap version " + CONST.VERSION)
+                builtins.Dialog.progressbox(file_path = fn, title = title, backtitle="armStrap version " + CONST.VERSION)
             time.sleep(0.1)
-        logInfo("Exiting")
+        logExiting()
         return True
     except:
         logException(False)
@@ -525,11 +542,11 @@ def chrootProgressBox(cmd, path, title = "" ) :
 # List the partitions of a device
 def listDevice(device):
     try:
-        logInfo("Entering")
+        logEntering()
         p = subprocess.Popen(['/sbin/parted', device, '--script' , 'print'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
         (cmd_stdout, cmd_stderr) = ( cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
-        logInfo("Exiting")
+        logExiting()
         return str(cmd_stdout).splitlines();
     except:
         logException(False)
@@ -537,8 +554,7 @@ def listDevice(device):
         
 def Summary(config, boards):
     try:
-        logInfo("Entering")
-        dialog = armStrap_Dialog()
+        logEntering()
         elements = [
             ("-- Board --", 1,  15, " ", 2, 2, 0, 0, CONST.HIDDEN),
             ("-- Kernel --", 1,  54, " ", 2, 2, 0, 0, CONST.HIDDEN),
@@ -546,7 +562,7 @@ def Summary(config, boards):
             ("    Version :",  2,  41, config['Kernel']['Version'],        2, 55, 20, 20, CONST.READONLY),
             ("   HostName :",  3,   1, config['Board']['HostName'],        3, 15, 20, 20, CONST.READONLY),
             ("-- Distribution --", 3,  51, " ", 2, 2, 0, 0, CONST.HIDDEN),
-            ("   Password :",  4,   1, config['Board']['Password'],        4, 15, 20, 20, CONST.READONLY),
+            ("Root Passwd :",  4,   1, config['Users']['RootPassword'],        4, 15, 20, 20, CONST.READONLY),
             ("     Family :",  4,  41, config['Distribution']['Family'],   4, 55, 20, 20, CONST.READONLY),
             ("   TimeZone :",  5,   1, config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
             ("    Version :",  5,  41, config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
@@ -603,9 +619,9 @@ def Summary(config, boards):
     
         i += 2
     
-        results = dialog.mixedform(text = "", elements = elements, title="Configuration Summary", backtitle="armStrap version " + CONST.VERSION)
+        results = builtins.Dialog.mixedform(text = "", elements = elements, title="Configuration Summary", backtitle="armStrap version " + CONST.VERSION)
         
-        logInfo("Exiting")
+        logExiting()
         return results[0]
     except:
         logException(False)

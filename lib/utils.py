@@ -1,13 +1,14 @@
+import builtins
+import configparser
 import logging
 import os
+import requests
+import random
 import shutil
+import subprocess
 import sys
 import tarfile
 import urllib.request
-import random
-import configparser
-import subprocess
-import requests
 
 from . import ui as UI
 
@@ -18,13 +19,13 @@ from . import ui as UI
 # Extract a tar file (src) to a directory (dst)
 def extractTar(src, dst):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     checkPath(dst)
     UI.logInfo("Extracting " + getPath(src) + " to " + getPath(dst))
     xz = tarfile.open(getPath(src), 'r:*')
     xz.extractall(getPath(dst))
     xz.close()
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return True
   except:
     UI.logException(False)
@@ -33,11 +34,11 @@ def extractTar(src, dst):
 # Download a file to the current directory
 def download(url):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     UI.logInfo("Downloading " + url + " to " + getPath(os.path.basename(url)))
     with urllib.request.urlopen(url) as src, open(getPath(os.path.basename(url)), 'wb') as out_file:
       shutil.copyfileobj(src, out_file)
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return True
   except:
     UI.logException(False)
@@ -46,11 +47,11 @@ def download(url):
 # Unlink a file 
 def unlinkFile(src):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     if os.path.isfile(getPath(src)):
       UI.logInfo("Unlinking " + getPath(src))
       os.unlink(getPath(src))
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return True
   except:
     UI.logException(False)
@@ -59,12 +60,12 @@ def unlinkFile(src):
 # Touch a file
 def touch(fname, mode=0o666, dir_fd=None, **kwargs):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     UI.logInfo("Touching " + getPath(fname))
     flags = os.O_CREAT | os.O_APPEND
     with os.fdopen(os.open(getPath(fname), flags=flags, mode=mode, dir_fd=dir_fd)) as f:
       os.utime(f.fileno() if os.utime in os.supports_fd else getPath(fname), dir_fd=None if os.supports_fd else dir_fd, **kwargs)
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return True
   except:
     UI.logException(False)
@@ -73,11 +74,11 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs):
 # Check if a path exist and create it. Aways work from the work directory    
 def checkPath(path):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     if os.path.exists(getPath(path)) == False:
       logfile("Creating path " + getPath(path))
       os.makedirs(getPath(path))
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return getPath(path)
   except:
     UI.logException(False)
@@ -86,10 +87,10 @@ def checkPath(path):
 # Return a path starting at the work directory
 def getPath(path):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     p = os.path.join(os.getcwd(), path.strip('/'))
     UI.logInfo("Complete path for " + path + " is " + p)
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return p
   except:
     UI.logException(False)
@@ -98,7 +99,7 @@ def getPath(path):
 # Check if a file exist
 def checkFile(file):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     if os.path.isfile(file):
       UI.logInfo(file + " exist")
       return True
@@ -112,7 +113,7 @@ def checkFile(file):
 # Append lines to a file    
 def appendFile(file, lines):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     with open(file, "a") as f:
       for line in lines:
         UI.logInfo(file + " adding line " + line)
@@ -125,7 +126,7 @@ def appendFile(file, lines):
 # Read armStrap config and set default values if missing.
 def readArmStrapConfig():
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     config = readConfig(src = "armStrap.ini")
     
     if config == False:
@@ -142,9 +143,6 @@ def readArmStrapConfig():
       if not config.has_option('Board', 'HostName'):
         UI.logInfo("Adding item HostName")
         config['Board']['HostName'] = "armStrap"
-      if not config.has_option('Board', 'Password'):
-        UI.logInfo("Adding item Password")
-        config['Board']['Password'] = "armStrap"
       if not config.has_option('Board', 'TimeZone'):
         UI.logInfo("Adding item TimeZone")
         config['Board']['TimeZone'] = "America/Montreal"
@@ -157,9 +155,25 @@ def readArmStrapConfig():
       config['Board']['Branch'] = "sunxi"
       config['Board']['Model'] = "CubieTruck"
       config['Board']['HostName'] = "armStrap"
-      config['Board']['Password'] = "armStrap"
       config['Board']['TimeZone'] = "America/Montreal"
       config['Board']['Locales'] = "en_US.UTF-8 fr_CA.UTF-8"
+
+    if config.has_section("Users"):
+      UI.logInfo("Checking section Users")
+      if not config.has_option('Users', 'RootPassword'):
+        UI.logInfo("Adding item RootPassword")
+        config['Users']['RootPassword'] = "armStrap"
+      if not config.has_option('Users', 'UserName'):
+        UI.logInfo("Adding item UserName")
+        config['Users']['UserName'] = "armStrap"
+      if not config.has_option('Users', 'UserPassword'):
+        UI.logInfo("Adding item UserPassword")
+        config['Users']['UserPassword'] = "armStrap"
+    else:
+      config['Users'] = { }
+      config['Users']['RootPassword'] = "armStrap"
+      config['Users']['UserName'] = "armStrap"
+      config['Users']['UserPassword'] = "armStrap"
       
     if config.has_section("Distribution"):
       UI.logInfo("Checking section Distribution")
@@ -210,10 +224,20 @@ def readArmStrapConfig():
       config['Output'] = { }
       config['Output']['Device'] = "/dev/mmcblk0"
       
+    if config.has_section("Packages"):
+      UI.logInfo("Checking section Packages")
+      if not config.has_option('Packages', 'InstallOptionalsPackages'):
+        UI.logInfo("Adding item InstallOptionalPackages")
+        config['Packages']['InstallOptionalsPackages'] = "no"
+    else:
+      UI.logInfo("Creating section Packages")
+      config['Packages'] = { }
+      config['Packages']['InstallOptionalsPackages'] = "no"
+      
     with open(getPath("armStrap.ini"), 'w') as configfile:
       config.write(configfile)
     
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return config
   except:
     UI.logException(False)
@@ -222,7 +246,7 @@ def readArmStrapConfig():
 # Read a config file
 def readConfig(src):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     if checkFile(src):
       UI.logInfo("Reading configuration file " + getPath(src))
       config = configparser.ConfigParser()
@@ -231,7 +255,7 @@ def readConfig(src):
     else:
       UI.logInfo("Configuration file " + getPath(src) + " does not exist")
       config = False
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return config
   except:
     UI.logException(False)
@@ -240,11 +264,11 @@ def readConfig(src):
 # Execute a command, capturing its output
 def captureCommand(command):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     UI.logInfo("Capturing output of " + command)
     p = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
   except:
     UI.logException(False)
@@ -253,60 +277,77 @@ def captureCommand(command):
 # Execute a command in the chroot environment, capturing its output
 def captureChrootCommand(command):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     UI.logInfo("Capturing output of " + command + " in chroot")
     p = subprocess.Popen( "LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + getPath("mnt") + " " + command , shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
   except:
     UI.logException(False)
     return ( False, False )
 
 #Execute a command, dropping its output
-def runCommand(command, status):
+def runCommand(command):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     UI.logInfo("Executing " + command)
     err = os.system(command + " > /dev/null 2>&1")
     UI.logInfo("Error Code : " + str(err) + ", " + os.strerror(err))
     if err != os.EX_OK:
-      Exit(text = "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err), title = "Fatal Error", timeout = 5, exitStatus = err, status = status)
-    UI.logInfo("Exiting")
+      Exit(text = "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err), title = "Fatal Error", timeout = 5, exitStatus = err)
+    UI.logExiting()
     return err
   except:
     UI.logException(False)
     return False
 
 #Execute a command in the chroot environment, dropping its output
-def runChrootCommand(command, status):
+def runChrootCommand(command):
   try:
-    UI.logInfo("Entering")
+    UI.logEntering()
     UI.logInfo("Executing " + command + " in chroot")
     err = os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + getPath("mnt") + " " + command + " > /dev/null 2>&1")
     if err != os.EX_OK:
       UI.logWarning( "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err))
       raise OSError
-    UI.logInfo("Exiting")
+    UI.logExiting()
     return err
   except:
     UI.logException(False)
     return False
+    
+#Execute apt-get -q -y [command] ih the chroot environment, with optional arguments.
+def runChrootAptGet(command, arguments = False):
+  try:
+    UI.logEntering()
+    if( arguments != False ):
+      UI.logInfo("Executing apt-get " + command + " ".join(arguments))
+      err = UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command + " ".join(arguments) , path = getPath("mnt"), title = "Running apt-get " + command )
+    else:
+      UI.logInfo("Executing apt-get " + command)
+      err = UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command , path = getPath("mnt"), title = "Running apt-get " + command )
+    UI.logExiting()
+    return err
+  except:
+    UI.logException(False)
+    return False
+
 #Read a json url and return it as a dict
 def loadJsonURL(url):
   try:
-    UI.logInfo("Entering")
+    UI.logInfo("Requesting json from " + url)
     return(requests.get(url).json())
   except:
     UI.logException(False)
     return False
 
 # Exit from armStrap.
-def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK, status = False):
+def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK):
   try:
     UI.logInfo("Shutting down")
-    if status != False:
-      status.end()
+    if builtins.Status != False:
+      builtins.Status.end()
     UI.MessageBox(text = text, title = title, timeout = timeout)
     os.system("/usr/bin/clear")
   except SystemExit:
@@ -320,3 +361,8 @@ def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK, status = Fal
       if os.stat(logFile).st_size == 0:
         os.unlink(logFile)
     sys.exit(exitStatus)
+
+def testvar():
+  builtins.test = "123456"
+  builtins.test2 = "This is a test!"
+  print("Test : " + builtins.test + " test2 : " + builtins.test2)

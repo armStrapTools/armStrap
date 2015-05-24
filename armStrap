@@ -1,13 +1,13 @@
 #! /usr/bin/env python3
 
 import atexit
+import builtins
 import crypt
 import locale
 import logging
 import os
 import sys
 import subprocess
-import logging
 
 from lib import ui as UI
 from lib import utils as Utils
@@ -20,16 +20,29 @@ if __name__ == '__main__':
     try:
         #Always work from where the script live!
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
-        status = False
+        builtins.Status = False
         
         logFile = os.path.join( os.getcwd(), "armStrap.log" )
         if os.path.isfile(logFile):
             os.unlink(logFile)
         
         logging.basicConfig(filename = logFile, level = logging.DEBUG)
-    
+        UI.armStrap_Dialog()
+
+        UI.InfoBox(text = "Reading user configuration", title = "Initializing")
         config = Utils.readArmStrapConfig()
+        if config == False:
+            Utils.Exit(text = "Unable to read aconfiguration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
+        
+        UI.InfoBox(text = "Fetching armstrap configuration", title = "Initializing")
+        armstrap = Utils.loadJsonURL(url = 'https://archive.armstrap.net/.armStrap.php?type=config&config=armstrap')
+        if armstrap == False:
+            Utils.Exit(text = "Unable to download armStrap configuration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
+        
+        UI.InfoBox(text = "Fetching " + config['Board']['Branch'] + " configuration", title = "Initializing")
         boards = Utils.loadJsonURL(url = 'https://archive.armstrap.net/.armStrap.php?type=config&config=' + config['Board']['Branch'].lower())
+        if boards == False:
+            Utils.Exit(text = "Unable to download boards configuration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
         
         if boards == False:
             Utils.Exit(text = "Board configuration " + config['Board']['Branch'] + " not found, check your config file. armStrap will now exit", title = "Error", timeout = 5, exitStatus = os.EX_OK)
@@ -37,96 +50,107 @@ if __name__ == '__main__':
         if UI.Summary(config = config, boards = boards) == "cancel":
             Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, exitStatus = os.EX_OK)
     
-        status = UI.Status()
+        UI.Status()
 
         if config.has_option('Output', 'Device'):
-            (Device, partList) = Disk.formatSD(config = config, boards = boards, status = status)
+            (Device, partList) = Disk.formatSD(config = config, boards = boards)
         else:
-            (Device, partList) = Disk.formatIMG(config = config, boards = boards, status = status)
+            (Device, partList) = Disk.formatIMG(config = config, boards = boards)
         
         if ( Device == False ) or ( partList == False ):
-            Utils.Exit(text = "Error while initializing device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR, status = status)
+            Utils.Exit(text = "Error while initializing device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
         
-        status.update(percent = 10)
+        builtins.Status.update(percent = 10)
     
         #Device = "/dev/mmcblk0"
         #partList = [ { 'device': "/dev/mmcblk0p1", 'Mount_Order': "1", 'Mount_Point': "/"} ]
-
-        partMount = Disk.mountPartitions(Device = Device, partList = partList, status = status)
+        
+        partMount = Disk.mountPartitions(Device = Device, partList = partList)
     
         if partMount == False:
-            Utils.Exit(text = "Error while mounting device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR, status = status)
+            Utils.Exit(text = "Error while mounting device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
     
-        atexit.register(Disk.unmountPartitions, Device = Device, partList = partMount, status = False)
+        atexit.register(Disk.unmountPartitions, Device = Device, partList = partMount)
     
-        status.update(percent = 15)
+        builtins.Status.update(percent = 15)
     
-        if aOS.installRootFS(url = "https://archive.armstrap.net/root", config = config, boards = boards, status = status) == False:
-            Utils.Exit(text = "Error while extracting RootFS.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_DATAERR, status = status)
-        status.update(percent = 25)
+        if aOS.installRootFS(url = "https://archive.armstrap.net/root", config = config, boards = boards) == False:
+            Utils.Exit(text = "Error while extracting RootFS.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_DATAERR)
+        builtins.Status.update(percent = 25)
 
-        if aOS.chrootConfig(status = status) == False:
-            Utils.Exit(text = "Error while configuring chroot environment.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE, status = status)
+        if aOS.chrootConfig() == False:
+            Utils.Exit(text = "Error while configuring chroot environment.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE)
     
         atexit.register(aOS.chrootDeconfig, False)
 
-        if UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y update" , path = Utils.getPath("mnt"), title = "Running apt-get update" ) == False:
-            Utils.Exit(text = "Error while running apt-get update", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-30", percent = 40)
+        if Utils.runChrootAptGet(command = "update") == False:
+            Utils.Exit(text = "Error while running apt-get update", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-30", percent = 40)
 
-        if UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y dist-upgrade", path = Utils.getPath("mnt"), title = "Running apt-get dist-upgrade" ) == False:
-            Utils.Exit(text = "Error while running apt-get dist-upgrade", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-60", percent = 50)
+        if Utils.runChrootAptGet(command = "dist-upgrade") == False:
+            Utils.Exit(text = "Error while running apt-get dist-upgrade", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-60", percent = 50)
         
-        if aOS.chrootPasswd( Password = config['Board']['Password'], status = status ) == False:
-            Utils.Exit(text = "Error while setting root password", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-65", percent = 51)
+        if aOS.chrootPasswd(User = "root", Password = config['Users']['RootPassword']) == False:
+            Utils.Exit(text = "Error while setting root password", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-65", percent = 51)
+        
+        #if aOS.chrootAddUser(User = config['Users']['UserName'], Password = config['Users']['UserPassword'])
     
-        if aOS.setLocales(config = config, status = status) == False:
-            Utils.Exit(text = "Error while configuring locales", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-70", percent = 54)
+        if aOS.setLocales(config = config) == False:
+            Utils.Exit(text = "Error while configuring locales", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-70", percent = 54)
 
-        if aOS.setTimeZone(config = config, status = status) == False:
-            Utils.Exit(text = "Error while configuring timezone", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-75", percent = 55)
+        if aOS.setTimeZone(config = config) == False:
+            Utils.Exit(text = "Error while configuring timezone", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-75", percent = 55)
         
-        if aOS.setHostName(config = config, status = status)  == False:
-            Utils.Exit(text = "Error while configuring hostname", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-80", percent = 56)
-            
+        if aOS.setHostName(config = config)  == False:
+            Utils.Exit(text = "Error while configuring hostname", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-80", percent = 56)
+                        
+        boardPackages = armstrap['Packages']['Mandatory'].split()
+        
         if config.has_section("SwapFile"):
-            if UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y install dphys-swapfile" , path = Utils.getPath("mnt"), title = "Running apt-get install dphys-swapfile" ) == False:
-                Utils.Exit(text = "Error while installing package dphys-swapfile", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-            if aOS.setSwapFile(config = config, status = status)  == False:
-                Utils.Exit(text = "Error while configuring package dphys-swapfile", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-85", percent = 57)
+            boardPackages += "dphys-swapfile".split()
+            
+        if config['Packages'].getboolean('InstallOptionalsPackages') == True:
+            boardPackages += armstrap['Packages']['Optional'].split()
+        
+        if Utils.runChrootAptGet(command = "install", arguments = boardPackages) == False:
+                Utils.Exit(text = "Error while installing packages", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+
+        if config.has_section("SwapFile"):
+            if aOS.setSwapFile(config = config)  == False:
+                Utils.Exit(text = "Error while configuring package dphys-swapfile", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-85", percent = 57)
                 
-        if aOS.setTTY(config = boards, status = status) == False:
-            Utils.Exit(text = "Error while configuring TTY", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-90", percent = 58)
+        if aOS.setTTY(config = boards) == False:
+            Utils.Exit(text = "Error while configuring TTY", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-90", percent = 58)
             
-        if aOS.setFsTab(config = boards, status = status) == False:
-            Utils.Exit(text = "Error while configuring fstab", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "-95", percent = 59)
+        if aOS.setFsTab(config = boards) == False:
+            Utils.Exit(text = "Error while configuring fstab", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "-95", percent = 59)
             
-        if aOS.setInterface(config = config, boards = boards, status = status ) == False:
-            Utils.Exit(text = "Error while configuring networking", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
-        status.update(name = "Installing RootFS", value = "Done", percent = 60)
+        if aOS.setInterface(config = config, boards = boards) == False:
+            Utils.Exit(text = "Error while configuring networking", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing RootFS", value = "Done", percent = 60)
 
         atexit.unregister(aOS.chrootDeconfig)
     
-        if aOS.chrootDeconfig(status = status) == False:
-            Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+        if aOS.chrootDeconfig() == False:
+            Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
                     
         atexit.unregister(Disk.unmountPartitions)
     
-        if Disk.unmountPartitions(Device = Device, partList = partMount, status = status) == False:
-            Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+        if Disk.unmountPartitions(Device = Device, partList = partMount) == False:
+            Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
         
-        status.end()
+        builtins.Status.end()
         #os.system("/usr/bin/clear")
     except SystemExit:
         pass
     except:
         UI.logException(False)
-        Utils.Exit(text = "General error.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE, status = status)
+        Utils.Exit(text = "General error.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
