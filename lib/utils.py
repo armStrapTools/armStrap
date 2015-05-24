@@ -417,6 +417,19 @@ def loadJsonURL(url):
   except:
     UI.logException(False)
     return False
+    
+def copyFiles(src, dst):
+  try:
+    UI.logEntering()
+    UI.logDebug("Copying " + src + " to " + dst)
+    shutil.copy(src, dst)
+    UI.logExiting()
+    return True
+  except SystemExit:
+    pass 
+  except:
+    UI.logException(False)
+    return False
 
 # Exit from armStrap.
 def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK):

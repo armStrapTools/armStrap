@@ -275,3 +275,17 @@ def setInterface():
   except:
     UI.logException(False)
     return False
+    
+def ubootSetup(Device):
+  try:
+    bName = builtins.Config['Board']['model'].lower()
+    fName = bname + ".fex"
+    UI.logDebug("Executing apt-get " + command + " " + " ".join(arguments))
+    Utils.copyFiles(getPath("mnt/usr/share/armStrap-U-Boot/" + bName + "/"+ fName), getPath("mnt/boot/" + fName))
+    Utils.runChrootCommand("/usr/bin/fex2bin /boot/" + fName + " /boot/script.bin")
+    Utils.runCommand("/bin/dd if=" + getPath("mnt/usr/share/armStrap-U-Boot/" + bName + "/"+ fName) + " of=" + Device + " + bs=1024 seek=8")
+  except SystemExit:
+    pass
+  except:
+    UI.logException(False)
+    return False

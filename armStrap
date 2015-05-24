@@ -43,6 +43,11 @@ if __name__ == '__main__':
         builtins.Boards = Utils.loadJsonURL(url = 'https://archive.armstrap.net/.armStrap.php?type=config&config=' + builtins.Config['Board']['Branch'].lower())
         if builtins.Boards == False:
             Utils.Exit(text = "Unable to download boards configuration for " + builtins.Config['Board']['Branch'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
+            
+        UI.InfoBox(text = "Fetching kernels configuration", title = "Initializing")
+        builtins.Kernels = Utils.loadJsonURL(url = 'https://archive.armstrap.net/.armStrap.php?type=config&config=kernels')
+        if builtins.Kernels == False:
+            Utils.Exit(text = "Unable to download kernels configuration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
         
         if UI.Summary() == "cancel":
             Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, exitStatus = os.EX_OK)
@@ -151,19 +156,33 @@ if __name__ == '__main__':
         if aOS.setInterface() == False:
             Utils.Exit(text = "Error while configuring networking", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
         builtins.Status.update(name = "Installing RootFS", value = "Done", percent = 60)
-
+        
+        builtins.Status.update(name = "Installing BootLoader", value = "In Progress")
+        if Utils.runChrootAptGet(command = "install", arguments = builtins.Kernels[builtins.Config['Kernel']['Version'].lower()]['bootloader'].split() ) == False:
+            Utils.Exit(text = "Error while installing bootloader", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        if aOS.ubootSetup(Device = Device) == False:
+            Utils.Exit(text = "Error while configuring bootloader", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        
+        builtins.Status.update(name = "Installing BootLoader", value = "Done", percent = 70) 
+        
+        builtins.Status.update(name = "Installing Kernel", value = "In Progress") 
+        if Utils.runChrootAptGet(command = "install", arguments = ("armstrap-linux-" + builtins.Config['Kernel']['Version']).split() ) == False:
+            Utils.Exit(text = "Error while installing Kernel", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+        builtins.Status.update(name = "Installing Kernel", value = "Done", percent = 90, text = "Cleaning up")
+        
         atexit.unregister(aOS.chrootDeconfig)
     
         if aOS.chrootDeconfig() == False:
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
-                    
+        builtins.Status.update(percent = 95, text = "Cleaning up")
         atexit.unregister(Disk.unmountPartitions)
     
         if Disk.unmountPartitions(Device = Device, partList = partMount) == False:
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+            
+        builtins.Status.update(percent = 100, text = "Done")
         
         builtins.Status.end()
-        #os.system("/usr/bin/clear")
     except SystemExit:
         pass
     except:

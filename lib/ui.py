@@ -634,20 +634,22 @@ def Summary():
     try:
         logEntering()
         elements = [
-            ("-- Board --", 1,  15, " ", 2, 2, 0, 0, CONST.HIDDEN),
-            ("-- Kernel --", 1,  54, " ", 2, 2, 0, 0, CONST.HIDDEN),
-            ("      Model :",  2,   1, builtins.Config['Board']['Model'],           2, 15, 20, 20, CONST.READONLY),
-            ("    Version :",  2,  41, builtins.Config['Kernel']['Version'],        2, 55, 20, 20, CONST.READONLY),
-            ("   HostName :",  3,   1, builtins.Config['Board']['HostName'],        3, 15, 20, 20, CONST.READONLY),
-            ("-- Distribution --", 3,  51, " ", 2, 2, 0, 0, CONST.HIDDEN),
-            ("Root Passwd :",  4,   1, builtins.Config['Users']['RootPassword'],        4, 15, 20, 20, CONST.READONLY),
-            ("     Family :",  4,  41, builtins.Config['Distribution']['Family'],   4, 55, 20, 20, CONST.READONLY),
-            ("   TimeZone :",  5,   1, builtins.Config['Board']['TimeZone'],        5, 15, 20, 20, CONST.READONLY),
-            ("    Version :",  5,  41, builtins.Config['Distribution']['Version'],  5, 55, 20, 20, CONST.READONLY),
-            ("    Locales :",  6,   1, builtins.Config['Board']['Locales'],         6, 15, 20, 20, CONST.READONLY),
-            ("Root Device :",  6,  41, builtins.Boards['Partitions']['Device'],          6, 55, 20, 20, CONST.READONLY)]
+            ("-- Board --",        1,  15, "",                                         1, 15,  0,  0, CONST.HIDDEN),
+            ("-- Kernel --",       1,  54, "",                                         1, 54,  0,  0, CONST.HIDDEN),
+            ("      Model :",      2,   1, builtins.Config['Board']['Model'],          2, 15, 20, 20, CONST.READONLY),
+            ("    Version :",      2,  41, builtins.Config['Kernel']['Version'],       2, 55, 20, 20, CONST.READONLY),
+            ("   HostName :",      3,   1, builtins.Config['Board']['HostName'],       3, 15, 20, 20, CONST.READONLY),
+            (" BootLoader :",      3,  41, builtins.Kernels[builtins.Config['Kernel']['Version'].lower()]['bootloader'],   3, 55, 20, 20, CONST.READONLY),
+            ("Root Passwd :",      4,   1, builtins.Config['Users']['RootPassword'],   4, 15, 20, 20, CONST.READONLY),
+            ("-- Distribution --", 4,  51, "",                                         4, 51,  0,  0, CONST.HIDDEN),
+            ("       User :",      5,   1, builtins.Config['Users']['UserName'] + "/" + builtins.Config['Users']['UserPassword'],   5, 15, 20, 20, CONST.READONLY),
+            ("     Family :",      5,  41, builtins.Config['Distribution']['Family'],  5, 55, 20, 20, CONST.READONLY),
+            ("   TimeZone :",      6,   1, builtins.Config['Board']['TimeZone'],       6, 15, 20, 20, CONST.READONLY),
+            ("    Version :",      6,  41, builtins.Config['Distribution']['Version'], 6, 55, 20, 20, CONST.READONLY),
+            ("    Locales :",      7,   1, builtins.Config['Board']['Locales'],        7, 15, 20, 20, CONST.READONLY),
+            ("Root Device :",      7,  41, builtins.Boards['Partitions']['Device'],    7, 55, 20, 20, CONST.READONLY)]
     
-        i = 7
+        i = 8
     
         if builtins.Config.has_section("SwapFile"):
             elements.append( ("-- SwapFile --",  i,  31, "", i, 45, 0, 0, CONST.READONLY) )
