@@ -395,12 +395,12 @@ def runChrootAptGet(command, arguments = False):
     UI.logEntering()
     if( arguments != False ):
       UI.logDebug("Executing apt-get " + command + " " + " ".join(arguments))
-      err = UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command + " " + " ".join(arguments) , path = getPath("mnt"), title = "Running apt-get " + command )
+      UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command + " " + " ".join(arguments) , path = getPath("mnt"), title = "Running apt-get " + command )
     else:
       UI.logDebug("Executing apt-get " + command)
-      err = UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command , path = getPath("mnt"), title = "Running apt-get " + command )
+      UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command , path = getPath("mnt"), title = "Running apt-get " + command )
     UI.logExiting()
-    return err
+    return True
   except SystemExit:
     pass
   except:

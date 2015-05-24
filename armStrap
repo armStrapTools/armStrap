@@ -128,13 +128,13 @@ if __name__ == '__main__':
                 if Utils.getConfigValue(builtins.Config, 'BoardsPackages', 'Optional') != False:
                     boardPackages +=Utils.getConfigValue(builtins.Config, 'BoardsPackages', 'Optional').Split()
                 
-        if Utils.getConfigSection(builtins.Config, 'SwapFile') == True:
+        if Utils.getConfigSection(builtins.Config, 'SwapFile') != False:
             boardPackages += "dphys-swapfile".split()
                 
         if Utils.runChrootAptGet(command = "install", arguments = boardPackages) == False:
                 Utils.Exit(text = "Error while installing packages", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
 
-        if Utils.getConfigSection(builtins.Config, 'SwapFile') == True:
+        if Utils.getConfigSection(builtins.Config, 'SwapFile') != False:
             if aOS.setSwapFile()  == False:
                 Utils.Exit(text = "Error while configuring package dphys-swapfile", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
 

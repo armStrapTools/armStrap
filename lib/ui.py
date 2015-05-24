@@ -53,30 +53,30 @@ CONST = _Const()
 def logDebug(message = False):
     func = inspect.currentframe().f_back.f_code
     if message == False:
-        logging.debug("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
+        logging.debug("===:%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
     else:
-        logging.debug("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
+        logging.debug("===:%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
         
 def logWarning(message = False):
     func = inspect.currentframe().f_back.f_code
     if message == False:
-        logging.warning("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
+        logging.warning("***:%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
     else:
-        logging.warning("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
+        logging.warning("***:%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
         
 def logInfo(message = False):
     func = inspect.currentframe().f_back.f_code
     if message == False:
-        logging.info("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
+        logging.info("@@@:%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
     else:
-        logging.info("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
+        logging.info("@@@:%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
         
 def logException(message = False):
     func = inspect.currentframe().f_back.f_code
     if message == False:
-        logging.exception("%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
+        logging.exception("!!!:%s:%s:%i" % ( func.co_name, func.co_filename, func.co_firstlineno ) )
     else:
-        logging.exception("%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
+        logging.exception("!!!:%s:%s:%i %s" % ( func.co_name, func.co_filename, func.co_firstlineno, message ) )
         
 def logEntering():
     func = inspect.currentframe().f_back.f_code
@@ -146,7 +146,11 @@ class RunInBackground(threading.Thread):
     def run(self):
         try:
             logEntering()
-            os.system(self.Cmd + " > " + self.path + " 2>&1")
+            logDebug("Executing " + self.Cmd )
+            err = os.system(self.Cmd + " > " + self.path + " 2>&1")
+            if err != os.EX_OK:
+                UI.logWarning( "Error while executing " + self.Cmd +" (Error Code " + str(err) + ", " + os.strerror(err))
+                raise OSError
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
             logExiting()
         except SystemExit:
@@ -183,7 +187,11 @@ class chrootRunInBackground(threading.Thread):
     def run(self):
         try:
             logEntering()
-            os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + self.chrootPath + " " + self.chrootCmd + " > " + self.path + " 2>&1")
+            logDebug("Running " + self.chrootCmd + " in the chroot environment")
+            err = os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + self.chrootPath + " " + self.chrootCmd + " > " + self.path + " 2>&1")
+            if err != os.EX_OK:
+                UI.logWarning( "Error while running " + self.chrootCmd +" (Error Code " + str(err) + ", " + os.strerror(err))
+                raise OSError
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
             logExiting()
         except SystemExit:
