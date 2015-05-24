@@ -98,51 +98,46 @@ if __name__ == '__main__':
     
         if aOS.setLocales() == False:
             Utils.Exit(text = "Error while configuring locales", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
-        builtins.Status.update(name = "Installing RootFS", value = "-70", percent = 54)
+        builtins.Status.update(name = "Installing RootFS", value = "-70", percent = 53)
 
         if aOS.setTimeZone() == False:
             Utils.Exit(text = "Error while configuring timezone", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
-        builtins.Status.update(name = "Installing RootFS", value = "-75", percent = 55)
+        builtins.Status.update(name = "Installing RootFS", value = "-75", percent = 54)
         
         if aOS.setHostName()  == False:
             Utils.Exit(text = "Error while configuring hostname", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
-        builtins.Status.update(name = "Installing RootFS", value = "-80", percent = 56)
+        builtins.Status.update(name = "Installing RootFS", value = "-80", percent = 55)
         
         boardPackages = []
         
-        if builtins.armStrap.has_section('BoardsPackages'):
-            if builtins.armStrap.has_option('BoardsPackages', 'Mandatory'):
-                boardPackages = builtins.armStrap['BoardsPackages']['Mandatory'].split()
-                
-        if builtins.Boards.has_section('BoardsPackages'):
-            if builtins.Boards.has_option('BoardsPackages', 'Mandatory'):
-                boardPackages = builtins.Boards['BoardsPackages']['Mandatory'].split()
-                
-        if builtins.Config.has_section('BoardsPackages'):
-            if builtins.Config.has_option('BoardsPackages', 'Mandatory'):
-                boardPackages = builtins.Config['BoardsPackages']['Mandatory'].split()
-        
-        if builtins.Config.has_section('BoardsPackages'):            
+        if Utils.getConfigValue(builtins.armStrap, 'BoardsPackages', 'Mandatory') != False:
+            boardPackages += Utils.getConfigValue(builtins.armStrap, 'BoardsPackages', 'Mandatory').split()
+            
+        if Utils.getConfigValue(builtins.Boards, 'BoardsPackages', 'Mandatory') != False:
+            boardPackages +=Utils.getConfigValue(builtins.Boards, 'BoardsPackages', 'Mandatory').split()
+            
+        if Utils.getConfigValue(builtins.Config, 'BoardsPackages', 'Mandatory') != False:
+            boardPackages +=Utils.getConfigValue(builtins.Config, 'BoardsPackages', 'Mandatory').split()
+            
+        if Utils.getConfigValue(builtins.Config, 'BoardsPackages', 'InstallOptionalsPackages') != False:
             if builtins.Config['BoardsPackages'].getboolean('InstallOptionalsPackages') == True:
-                if builtins.armStrap.has_section('BoardsPackages'):
-                    if builtins.armStrap.has_option('BoardsPackages', 'Optional'):
-                        boardPackages += builtins.armStrap['BoardsPackages']['Optional'].split()
-                if builtins.Boards.has_section('BoardsPackages'):
-                    if builtins.Boards.has_option('BoardsPackages', 'Optional'):
-                        boardPackages = builtins.Boards['BoardsPackages']['Optional'].split()
-                if builtins.Config.has_section('BoardsPackages'):
-                    if builtins.Config.has_option('BoardsPackages', 'Optional'):
-                        boardPackages = builtins.Config['BoardsPackages']['Optional'].split()
-                        
-        if builtins.Config.has_section("SwapFile"):
+                if Utils.getConfigValue(builtins.armStrap, 'BoardsPackages', 'Optional') != False:
+                    boardPackages +=Utils.getConfigValue(builtins.armStrap, 'BoardsPackages', 'Optional').Split()
+                if Utils.getConfigValue(builtins.Boards, 'BoardsPackages', 'Optional') != False:
+                    boardPackages +=Utils.getConfigValue(builtins.Boards, 'BoardsPackages', 'Optional').Split()
+                if Utils.getConfigValue(builtins.Config, 'BoardsPackages', 'Optional') != False:
+                    boardPackages +=Utils.getConfigValue(builtins.Config, 'BoardsPackages', 'Optional').Split()
+                
+        if Utils.getConfigSection(builtins.Config, 'SwapFile') == True:
             boardPackages += "dphys-swapfile".split()
-        
+                
         if Utils.runChrootAptGet(command = "install", arguments = boardPackages) == False:
                 Utils.Exit(text = "Error while installing packages", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
 
-        if builtins.Config.has_section("SwapFile"):
+        if Utils.getConfigSection(builtins.Config, 'SwapFile') == True:
             if aOS.setSwapFile()  == False:
                 Utils.Exit(text = "Error while configuring package dphys-swapfile", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+
         builtins.Status.update(name = "Installing RootFS", value = "-85", percent = 57)
                 
         if aOS.setTTY() == False:

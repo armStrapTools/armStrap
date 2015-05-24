@@ -21,7 +21,7 @@ def extractTar(src, dst):
   try:
     UI.logEntering()
     checkPath(dst)
-    UI.logInfo("Extracting " + getPath(src) + " to " + getPath(dst))
+    UI.logDebug("Extracting " + getPath(src) + " to " + getPath(dst))
     xz = tarfile.open(getPath(src), 'r:*')
     xz.extractall(getPath(dst))
     xz.close()
@@ -37,7 +37,7 @@ def extractTar(src, dst):
 def download(url):
   try:
     UI.logEntering()
-    UI.logInfo("Downloading " + url + " to " + getPath(os.path.basename(url)))
+    UI.logDebug("Downloading " + url + " to " + getPath(os.path.basename(url)))
     with urllib.request.urlopen(url) as src, open(getPath(os.path.basename(url)), 'wb') as out_file:
       shutil.copyfileobj(src, out_file)
     UI.logExiting()
@@ -53,7 +53,7 @@ def unlinkFile(src):
   try:
     UI.logEntering()
     if os.path.isfile(getPath(src)):
-      UI.logInfo("Unlinking " + getPath(src))
+      UI.logDebug("Unlinking " + getPath(src))
       os.unlink(getPath(src))
     UI.logExiting()
     return True
@@ -67,7 +67,7 @@ def unlinkFile(src):
 def touch(fname, mode=0o666, dir_fd=None, **kwargs):
   try:
     UI.logEntering()
-    UI.logInfo("Touching " + getPath(fname))
+    UI.logDebug("Touching " + getPath(fname))
     flags = os.O_CREAT | os.O_APPEND
     with os.fdopen(os.open(getPath(fname), flags=flags, mode=mode, dir_fd=dir_fd)) as f:
       os.utime(f.fileno() if os.utime in os.supports_fd else getPath(fname), dir_fd=None if os.supports_fd else dir_fd, **kwargs)
@@ -99,7 +99,7 @@ def getPath(path):
   try:
     UI.logEntering()
     p = os.path.join(os.getcwd(), path.strip('/'))
-    UI.logInfo("Complete path for " + path + " is " + p)
+    UI.logDebug("Complete path for " + path + " is " + p)
     UI.logExiting()
     return p
   except SystemExit:
@@ -113,10 +113,10 @@ def checkFile(file):
   try:
     UI.logEntering()
     if os.path.isfile(file):
-      UI.logInfo(file + " exist")
+      UI.logDebug(file + " exist")
       return True
     else:
-      UI.logInfo(file + " does not exist")
+      UI.logDebug(file + " does not exist")
       return False
   except SystemExit:
     pass
@@ -130,7 +130,7 @@ def appendFile(file, lines):
     UI.logEntering()
     with open(file, "a") as f:
       for line in lines:
-        UI.logInfo(file + " adding line " + line)
+        UI.logDebug(file + " adding line " + line)
         f.write(line + "\n")
     return True
   except SystemExit:
@@ -205,12 +205,12 @@ def readConfig(src):
   try:
     UI.logEntering()
     if checkFile(src):
-      UI.logInfo("Reading configuration file " + getPath(src))
+      UI.logDebug("Reading configuration file " + getPath(src))
       config = configparser.ConfigParser()
       config.sections()
       config.read(getPath(src))
     else:
-      UI.logInfo("Configuration file " + getPath(src) + " does not exist")
+      UI.logDebug("Configuration file " + getPath(src) + " does not exist")
       config = False
     UI.logExiting()
     return config
@@ -220,16 +220,22 @@ def readConfig(src):
     UI.logException(False)
     return False
 
-
 # Get a section from a configuration list or configParser Object, return False if it doesn't exist.
 def getConfigSection(config, section):
   try:
+    UI.logEntering()
     if isinstance(config, configparser.ConfigParser):
       if config.has_section(section):
+        UI.logDebug(section + " found")
+        UI.logExiting()
         return config[section]
     elif isinstance(config, dict):
       if section in config:
+        UI.logDebug(section + " found")
+        UI.logExiting()
         return config[section]
+    UI.logDebug("section " + section + " not found")
+    UI.logExiting()
     return False
   except SystemExit:
     pass
@@ -241,57 +247,77 @@ def getConfigSection(config, section):
 # Or set it to its default value if one exist.
 def getConfigValue(config, section, key, defaultValue = False):
   try:
+    UI.logEntering()
     if isinstance(config, configparser.ConfigParser):
       if config.has_section(section):
         if config.has_option(section, key):
+          UI.logDebug("Key " + key + " found in section " + section)
+          UI.logExiting()
           return config[section][key]
         else:
+          UI.logDebug("Key " + key + " not found in section " + section)
           if defaultValue != False:
             setConfigValue(config = config, section = section, key = key, value = defaultValue)
+            UI.logExiting()
             return config[section][key]
       else:
+        UI.logDebug(section + " not found")
         if defaultValue != False:
           setConfigValue(config = config, section = section, key = key, value = defaultValue)
+          UI.logExiting()
           return config[section][key]
       return False
     elif isinstance(config, dict):
       if section in config:
         if key in config[section]:
+          UI.logDebug("Key " + key + " found in section " + section)
+          UI.logExiting()
           return config[section][key]
         else:
+          UI.logDebug("Key " + key + " not found in section " + section)
           if defaultValue != False:
             setConfigValue(config = config, section = section, key = key, value = defaultValue)
+            UI.logExiting()
             return config[section][key]
       else:
+        UI.logDebug(section + " not found")
         if defaultValue != False:
           setConfigValue(config = config, section = section, key = key, value = defaultValue)
+          UI.logExiting()
           return config[section][key]
       return False
     else:
+      UI.logDebug("Parameter config is not a supported type") 
+      UI.logExiting()
       return False
   except SystemExit:
     pass
   except:
     UI.logException(False)
     return False
-    
-
 
 # Set a value in a configuration list or configParser object.
 def setConfigValue(config, section, key, value):
   try:
+    UI.logEntering()
     if isinstance(config, configparser.ConfigParser):
       if not config.has_section(section):
+        UI.logDebug("Creating section " + section)
         config[section] = { }
       if not config.has_option(section, key):
+        UI.logDebug("Adding key " + key + " with value " + value + " to section " + section)
         config[section][key] = value
     elif isinstance(config, dict):
       if not section in config:
+        UI.logDebug("Creating section " + section)
         config[section] = { }
       if not key in config[section]:
+        UI.logDebug("Adding key " + key + " with value " + value + " to section " + section)
         config[section][key] = value
     else:
+      UI.logExiting()
       return False
+    UI.logExiting()
     return True
   except SystemExit:
     pass
@@ -299,13 +325,11 @@ def setConfigValue(config, section, key, value):
     UI.logException(False)
     return False
 
-
-
 # Execute a command, capturing its output
 def captureCommand(command):
   try:
     UI.logEntering()
-    UI.logInfo("Capturing output of " + command)
+    UI.logDebug("Capturing output of " + command)
     p = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
     UI.logExiting()
@@ -320,7 +344,7 @@ def captureCommand(command):
 def captureChrootCommand(command):
   try:
     UI.logEntering()
-    UI.logInfo("Capturing output of " + command + " in chroot")
+    UI.logDebug("Capturing output of " + command + " in chroot")
     p = subprocess.Popen( "LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + getPath("mnt") + " " + command , shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
     UI.logExiting()
@@ -335,9 +359,9 @@ def captureChrootCommand(command):
 def runCommand(command):
   try:
     UI.logEntering()
-    UI.logInfo("Executing " + command)
+    UI.logDebug("Executing " + command)
     err = os.system(command + " > /dev/null 2>&1")
-    UI.logInfo("Error Code : " + str(err) + ", " + os.strerror(err))
+    UI.logDebug("Error Code : " + str(err) + ", " + os.strerror(err))
     if err != os.EX_OK:
       Exit(text = "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err), title = "Fatal Error", timeout = 5, exitStatus = err)
     UI.logExiting()
@@ -352,7 +376,7 @@ def runCommand(command):
 def runChrootCommand(command):
   try:
     UI.logEntering()
-    UI.logInfo("Executing " + command + " in chroot")
+    UI.logDebug("Executing " + command + " in chroot")
     err = os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + getPath("mnt") + " " + command + " > /dev/null 2>&1")
     if err != os.EX_OK:
       UI.logWarning( "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err))
@@ -370,10 +394,10 @@ def runChrootAptGet(command, arguments = False):
   try:
     UI.logEntering()
     if( arguments != False ):
-      UI.logInfo("Executing apt-get " + command + " ".join(arguments))
-      err = UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command + " ".join(arguments) , path = getPath("mnt"), title = "Running apt-get " + command )
+      UI.logDebug("Executing apt-get " + command + " " + " ".join(arguments))
+      err = UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command + " " + " ".join(arguments) , path = getPath("mnt"), title = "Running apt-get " + command )
     else:
-      UI.logInfo("Executing apt-get " + command)
+      UI.logDebug("Executing apt-get " + command)
       err = UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command , path = getPath("mnt"), title = "Running apt-get " + command )
     UI.logExiting()
     return err
@@ -386,7 +410,7 @@ def runChrootAptGet(command, arguments = False):
 #Read a json url and return it as a dict
 def loadJsonURL(url):
   try:
-    UI.logInfo("Requesting json from " + url)
+    UI.logDebug("Requesting json from " + url)
     return(requests.get(url).json())
   except SystemExit:
     pass
@@ -397,7 +421,7 @@ def loadJsonURL(url):
 # Exit from armStrap.
 def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK):
   try:
-    UI.logInfo("Shutting down")
+    UI.logDebug("Shutting down")
     if builtins.Status != False:
       builtins.Status.end()
     UI.MessageBox(text = text, title = title, timeout = timeout)
