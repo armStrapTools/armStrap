@@ -96,6 +96,8 @@ def armStrap_Dialog():
         logEntering()
         builtins.Dialog = Dialog(dialog = "dialog")
         return builtins.Dialog
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -107,6 +109,8 @@ def openTempFile():
         file = open(path, 'w+b')
         logExiting()
         return (fd, file, path)
+    except SystemExit:
+        pass
     except:
         logException(False)
         return (False, False, False)
@@ -119,6 +123,8 @@ def closeTempFile(fd, file, path):
         os.remove(path)
         logExiting()
         return True
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -132,6 +138,8 @@ class RunInBackground(threading.Thread):
             super(RunInBackground, self).__init__()
             self.start()
             logExiting()
+        except SystemExit:
+            pass
         except:
             logException(False)
 
@@ -141,6 +149,8 @@ class RunInBackground(threading.Thread):
             os.system(self.Cmd + " > " + self.path + " 2>&1")
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
             logExiting()
+        except SystemExit:
+            pass
         except:
             logException(False)
         
@@ -149,6 +159,8 @@ class RunInBackground(threading.Thread):
         try:
             logEnterExit()
             return self.output.name
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -163,6 +175,8 @@ class chrootRunInBackground(threading.Thread):
             super(chrootRunInBackground, self).__init__()
             self.start()
             logExiting()
+        except SystemExit:
+            pass
         except:
             logException(False)
         
@@ -172,12 +186,16 @@ class chrootRunInBackground(threading.Thread):
             os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + self.chrootPath + " " + self.chrootCmd + " > " + self.path + " 2>&1")
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
             logExiting()
+        except SystemExit:
+            pass
         except:
             logException(False)
             
     def getName(self):
         try:
             return self.path
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -196,6 +214,8 @@ class Mixed(threading.Thread):
             super(Mixed, self).__init__()
             self.start()
             logExiting()
+        except SystemExit:
+            pass
         except:
             logException(False)
         
@@ -217,6 +237,8 @@ class Mixed(threading.Thread):
                 self.queue.task_done()
             except Empty:
                 continue
+            except SystemExit:
+                pass
             except:
                 logException(False)
                 self.running = False
@@ -227,6 +249,8 @@ class Mixed(threading.Thread):
         try:
             logEnterExit()
             return self.percent
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -235,6 +259,8 @@ class Mixed(threading.Thread):
         try:
             logEnterExit()
             return self.running
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -243,6 +269,8 @@ class Mixed(threading.Thread):
         try:
             logEnterExit()
             return self.text
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -251,6 +279,8 @@ class Mixed(threading.Thread):
         try:
             logEnterExit()
             return self.title
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -259,6 +289,8 @@ class Mixed(threading.Thread):
         try:
             logEnterExit()
             return self.elements
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -271,6 +303,8 @@ class Mixed(threading.Thread):
             self.queue.put({'task': CONST.GUI_START})
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -301,6 +335,8 @@ class Mixed(threading.Thread):
             self.queue.put({'task': CONST.GUI_UPDATE})
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -311,6 +347,8 @@ class Mixed(threading.Thread):
             self.queue.put({'task': CONST.GUI_HIDE})
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -323,6 +361,8 @@ class Mixed(threading.Thread):
                 self.join()
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -340,6 +380,8 @@ class Gauge(threading.Thread):
             super(gauge, self).__init__()
             self.start()
             logExiting()
+        except SystemExit:
+            pass
         except:
             logException(False)
         
@@ -364,6 +406,8 @@ class Gauge(threading.Thread):
                 self.queue.task_done()
             except Empty:
                 continue
+            except SystemExit:
+                pass
             except:
                 logException(False)
                 self.running = False
@@ -378,6 +422,8 @@ class Gauge(threading.Thread):
             self.queue.put({'task': CONST.GUI_START})
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -397,6 +443,8 @@ class Gauge(threading.Thread):
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -414,6 +462,8 @@ class Gauge(threading.Thread):
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             return False
             logException(False)
@@ -431,6 +481,8 @@ class Gauge(threading.Thread):
                 self.queue.put({'task': CONST.GUI_UPDATE, 'update_text': False})
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -441,6 +493,8 @@ class Gauge(threading.Thread):
             self.queue.put({'task': CONST.GUI_HIDE})
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -453,6 +507,8 @@ class Gauge(threading.Thread):
                 self.join()
             logExiting()
             return True
+        except SystemExit:
+            pass
         except:
             logException(False)
             return False
@@ -466,6 +522,8 @@ def MessageBox(text = "", title = "", timeout = 0 ):
             builtins.Dialog.pause(text = text, title = title, seconds = timeout, backtitle = "armStrap version " + CONST.VERSION)
         logExiting()
         return True
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -475,6 +533,8 @@ def InfoBox(text = "", title= ""):
         logEntering()
         builtins.Dialog.infobox( text = text, title = title, backtitle = "armStrap version " + CONST.VERSION )
         return True
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -483,6 +543,8 @@ def YesNo(text = "", title = ""):
     try:
         logEnterExit()
         return builtins.Dialog.yesno(text = text, title= title, backtitle = "armStrap version " + CONST.VERSION)
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -499,6 +561,8 @@ def Status():
         time.sleep(1)
         logExiting()
         return builtins.Status
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -517,6 +581,8 @@ def ProgressBox(cmd, title = ""):
             time.sleep(0.1)
         logExiting()
         return True
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -535,6 +601,8 @@ def chrootProgressBox(cmd, path, title = "" ) :
             time.sleep(0.1)
         logExiting()
         return True
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -548,6 +616,8 @@ def listDevice(device):
         (cmd_stdout, cmd_stderr) = ( cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
         logExiting()
         return str(cmd_stdout).splitlines();
+    except SystemExit:
+        pass
     except:
         logException(False)
         return False
@@ -623,6 +693,8 @@ def Summary():
         
         logExiting()
         return results[0]
+    except SystemExit:
+        pass
     except:
         logException(False)
 

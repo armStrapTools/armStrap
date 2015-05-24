@@ -16,6 +16,8 @@ def syncFS():
     Utils.runCommand(command = "/bin/sync")
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -26,6 +28,8 @@ def partProbe(Device=""):
     Utils.runCommand( command = "/sbin/partprobe " + Device)
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -40,6 +44,8 @@ def getLayout():
       d.append( {'Mount_Order': j[0], 'Mount_Point': j[1], 'FileSystem': j[2], 'Size': j[3]} )
     UI.logExiting()
     return d
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -52,6 +58,8 @@ def cleanDisk(device, bs="512", count=1):
     partProbe(Device = device)
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -107,6 +115,8 @@ def formatDevice(Device, DiskLayout, percent = 0):
     builtins.Status.update(name = "Formatting Disk", value = "Done", text="", percent = builtins.Status.getPercent())
     UI.logExiting()
     return (Device, partList)
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return (False, False)
@@ -114,6 +124,8 @@ def formatDevice(Device, DiskLayout, percent = 0):
 def formatSD():
   try:
     return formatDevice(Device = builtins.Config['Output']['Device'], DiskLayout = getLayout())
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return (False, False)
@@ -131,6 +143,8 @@ def formatIMG():
     (stdout, stderr) = captureCommand("/sbin/losetup -f --show " + Utils.getPath(builtins.Config['Output']['Image']))
     UI.logExiting()
     return formatDevice(Device = stdout.splitlines()[0], DiskLayout = getLayout(), percent = 25)
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return (False, False)
@@ -152,6 +166,8 @@ def mountPartitions(Device, partList):
       Utils.runCommand( command = "/bin/mount " + p['device'] + " " + d)
     UI.logExiting()
     return sortedList
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -169,6 +185,8 @@ def unmountPartitions(Device, partList):
       Utils.runCommand( command = "/sbin/losetup -d " + Device)
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False

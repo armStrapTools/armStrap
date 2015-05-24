@@ -18,7 +18,8 @@ def installRootFS(url):
     Utils.unlinkFile(file)
     builtins.Status.update(name = "Installing RootFS", value = "-10")
     UI.logExiting()
-    return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -39,6 +40,8 @@ def chrootConfig():
     Utils.runCommand(command = "/bin/mount --bind /dev/pts " + Utils.getPath("mnt/dev/pts"))
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -56,6 +59,8 @@ def chrootDeconfig():
     os.unlink("mnt/usr/bin/qemu-arm-static")
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -72,6 +77,8 @@ def chrootPasswd(User, Password):
     stdout,stderr = proc.communicate()
     UI.logExiting()
     return (stdout.decode('utf-8'), stderr.decode('utf-8'))
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return ( False, False )
@@ -86,6 +93,8 @@ def chrootAddUser(User, Password):
     chrootPasswd(User = User, Password = Password)
     UI.logExiting()
     return true
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -112,6 +121,8 @@ def setLocales():
       Utils.runChrootCommand(command = "/usr/sbin/dpkg-reconfigure locales")
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -127,6 +138,8 @@ def setTimeZone():
     else:
       MessageBox(text = "TimeZone " + builtins.Config['Board']['TimeZone'] + " not found. You will need to configure it manually.", title = "Non-Fatal Error", timeout = 10 )
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -159,6 +172,8 @@ def setSwapFile():
       
     Utils.appendFile(file = Utils.getPath("mnt/etc/dphys-swapfile"), lines = lines)
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -171,6 +186,8 @@ def setHostName():
     Utils.appendFile(file = Utils.getPath("mnt/etc/hostname"), lines = [builtins.Config['Board']['HostName'] ])
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -194,6 +211,8 @@ def setTTY():
       Utils.appendFile(file = Utils.getPath("mnt/etc/init/" + builtins.Boards['Serial']['TerminalDevice'] + ".conf"), lines = lines)
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -214,6 +233,8 @@ def setFsTab():
     Utils.appendFile(file = Utils.getPath("mnt/etc/fstab"), lines = partList)
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -249,7 +270,8 @@ def setInterface():
     Utils.appendFile(file = Utils.getPath("mnt/etc/network/interfaces"), lines = interface)
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
-  

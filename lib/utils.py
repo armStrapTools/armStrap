@@ -27,6 +27,8 @@ def extractTar(src, dst):
     xz.close()
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -40,6 +42,8 @@ def download(url):
       shutil.copyfileobj(src, out_file)
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -53,6 +57,8 @@ def unlinkFile(src):
       os.unlink(getPath(src))
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -67,6 +73,8 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs):
       os.utime(f.fileno() if os.utime in os.supports_fd else getPath(fname), dir_fd=None if os.supports_fd else dir_fd, **kwargs)
     UI.logExiting()
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -80,6 +88,8 @@ def checkPath(path):
       os.makedirs(getPath(path))
     UI.logExiting()
     return getPath(path)
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -92,6 +102,8 @@ def getPath(path):
     UI.logInfo("Complete path for " + path + " is " + p)
     UI.logExiting()
     return p
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -106,6 +118,8 @@ def checkFile(file):
     else:
       UI.logInfo(file + " does not exist")
       return False
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -119,6 +133,8 @@ def appendFile(file, lines):
         UI.logInfo(file + " adding line " + line)
         f.write(line + "\n")
     return True
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -132,113 +148,51 @@ def readArmStrapConfig():
     if config == False:
       config = configparser.ConfigParser()
     
-    if config.has_section("Board"):
-      UI.logInfo("Checking section Board")
-      if not config.has_option('Board', 'Branch'):
-        UI.logInfo("Adding item Branch")
-        config['Board']['Branch'] = "sunxi"
-      if not config.has_option('Board', 'Model'):
-        UI.logInfo("Adding item Model")
-        config['Board']['Model'] = "CubieTruck"
-      if not config.has_option('Board', 'HostName'):
-        UI.logInfo("Adding item HostName")
-        config['Board']['HostName'] = "armStrap"
-      if not config.has_option('Board', 'TimeZone'):
-        UI.logInfo("Adding item TimeZone")
-        config['Board']['TimeZone'] = "America/Montreal"
-      if not config.has_option('Board', 'Locales'):
-        UI.logInfo("Adding item Locales")
-        config['Board']['Locales'] = "en_US.UTF-8 fr_CA.UTF-8"
-    else:
-      UI.logInfo("Creating section Board")
-      config['Board'] = { }
-      config['Board']['Branch'] = "sunxi"
-      config['Board']['Model'] = "CubieTruck"
-      config['Board']['HostName'] = "armStrap"
-      config['Board']['TimeZone'] = "America/Montreal"
-      config['Board']['Locales'] = "en_US.UTF-8 fr_CA.UTF-8"
-
-    if config.has_section("Users"):
-      UI.logInfo("Checking section Users")
-      if not config.has_option('Users', 'RootPassword'):
-        UI.logInfo("Adding item RootPassword")
-        config['Users']['RootPassword'] = "armStrap"
-      if not config.has_option('Users', 'UserName'):
-        UI.logInfo("Adding item UserName")
-        config['Users']['UserName'] = "armStrap"
-      if not config.has_option('Users', 'UserPassword'):
-        UI.logInfo("Adding item UserPassword")
-        config['Users']['UserPassword'] = "armStrap"
-    else:
-      config['Users'] = { }
-      config['Users']['RootPassword'] = "armStrap"
-      config['Users']['UserName'] = "armStrap"
-      config['Users']['UserPassword'] = "armStrap"
-      
-    if config.has_section("Distribution"):
-      UI.logInfo("Checking section Distribution")
-      if not config.has_option('Distribution', 'Family'):
-        UI.logInfo("Adding item Family")
-        config['Distribution']['Family'] = "ubuntu"
-      if not config.has_option('Distribution', 'Version'):
-        UI.logInfo("Creating section Version")
-        config['Distribution']['Version'] = "vivid"
-    else:
-      UI.logInfo("Creating section Distribution")
-      config['Distribution'] = { }
-      config['Distribution']['Family'] = "ubuntu"
-      config['Distribution']['Version'] = "vivid"
-      
-    if config.has_section("Kernel"):
-      UI.logInfo("Checking section Kernel")
-      if not config.has_option('Kernel', 'Version'):
-        UI.logInfo("Adding item Version")
-        config['Kernel']['Version'] = "mainline"
-    else:
-      UI.logInfo("Creating section Kernel")
-      config['Kernel'] = { }
-      config['Kernel']['Version'] = "mainline"
+    getConfigValue(config, 'Board', 'Branch', "sunxi")
+    getConfigValue(config, 'Board', 'Model', "CubieTruck")
+    getConfigValue(config, 'Board', 'HostName', "armStrap")
+    getConfigValue(config, 'Board', 'TimeZone', "America/Montreal")
+    getConfigValue(config, 'Board', 'Locales', "en_US.UTF-8 fr_CA.UTF-8")
     
-    if config.has_section("Networking"):
-      UI.logInfo("Checking section Networking")
-      if not config.has_option('Networking', 'Mode'):
-        UI.logInfo("Adding item Mode")
-        config['Networking']['Mode'] = "dhcp"
-      if not config.has_option('Networking', 'MacAddress'):
-        UI.logInfo("Adding item MacAddress")
-        config['Networking']['MacAddress'] = ':'.join(map(lambda x: "%02x" % x, [ 0x00, 0x02, 0x46, random.randint(0x00, 0x7f), random.randint(0x00, 0xff), random.randint(0x00, 0xff) ]))
+    getConfigValue(config, 'Distribution', 'Family', "ubuntu")
+    getConfigValue(config, 'Distribution', 'Version', "vivid")
+   
+    getConfigValue(config, 'Kernel', 'Version', "mainline")
+    
+    if getConfigValue(config, 'Networking', 'Mode').lower() == "static":
+      getConfigValue(config, 'Networking', 'Ip', "192.168.0.100")
+      getConfigValue(config, 'Networking', 'Mask', "255.255.255.0")
+      getConfigValue(config, 'Networking', 'Gateway', "192.168.0.1")
+      getConfigValue(config, 'Networking', 'Domain', "armstrap.net")
+      getConfigValue(config, 'Networking', 'DNS', "8.8.8.8 8.8.4.4")
     else:
-      UI.logInfo("Creating section Networking")
-      config['Networking'] = { }
-      config['Networking']['Mode'] = "dhcp"
-      config['Networking']['MacAddress'] = ':'.join(map(lambda x: "%02x" % x, [ 0x00, 0x02, 0x46, random.randint(0x00, 0x7f), random.randint(0x00, 0xff), random.randint(0x00, 0xff) ]))
-      
-    if config.has_section("BoardsPackages"):
-      UI.logInfo("Checking section BoardsPackages")
-      if not config.has_option('BoardsPackages', 'InstallOptionalsPackages'):
-        UI.logInfo("Adding item InstallOptionalPackages")
-        config['BoardsPackages']['InstallOptionalsPackages'] = "no"
+      getConfigValue(config, 'Networking', 'Mode', "dhcp")
+    getConfigValue(config, 'Networking', 'MacAddress', ':'.join(map(lambda x: "%02x" % x, [ 0x00, 0x02, 0x46, random.randint(0x00, 0x7f), random.randint(0x00, 0xff), random.randint(0x00, 0xff) ])))
+
+    getConfigValue(config, 'BoardsPackages', 'InstallOptionalsPackages', "no")      
+
+    getConfigValue(config, 'Users', 'RootPassword', "armStrap")
+    getConfigValue(config, 'Users', 'UserName', "armStrap")
+    getConfigValue(config, 'Users', 'UserPassword', "armStrap")
+    
+    if getConfigSection(config, 'SwapFile') != False:
+      getConfigValue(config, 'SwapFile', 'File', "/var/swap")
+      getConfigValue(config, 'SwapFile', 'Size', "1024")
+      getConfigValue(config, "SwapFile", 'Factor', "2")
+      getConfigValue(config, "SwapFile", 'Maximum', "2048")
+    
+    if getConfigValue(config, 'Output', 'Image') == False:
+      getConfigValue(config, 'Output', 'Device', "/dev/mmcblk0")
     else:
-      UI.logInfo("Creating section BoardsPackages")
-      config['BoardsPackages'] = { }
-      config['BoardsPackages']['InstallOptionalsPackages'] = "no"
-      
-    if config.has_section("Output"):
-      UI.logInfo("Checking section Output")
-      if not config.has_option('Output', 'Image'):
-        if not config.has_option('Output', 'Device'):
-          UI.logInfo("Adding item Device")
-          config['Output']['Device'] = "/dev/mmcblk0"
-    else:
-      UI.logInfo("Creating section Output")
-      config['Output'] = { }
-      config['Output']['Device'] = "/dev/mmcblk0"
-      
+      getConfigValue(config, 'Output', 'ImageSize', "2048")
+    
     with open(getPath("armStrap.ini"), 'w') as configfile:
       config.write(configfile)
     
     UI.logExiting()
     return config
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -257,9 +211,92 @@ def readConfig(src):
       config = False
     UI.logExiting()
     return config
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
+
+
+# Get a section from a configuration list or configParser Object, return False if it doesn't exist.
+def getConfigSection(config, section):
+  try:
+    if isinstance(config, configparser.ConfigParser):
+      if config.has_section(section):
+        return config[section]
+    elif isinstance(config, dict):
+      if section in config:
+        return config[section]
+    return False
+  except SystemExit:
+    pass
+  except:
+    UI.logException(False)
+    return False
+
+# Get a value from a configuration list or configParser object, return False if it doesn't exist.
+# Or set it to its default value if one exist.
+def getConfigValue(config, section, key, defaultValue = False):
+  try:
+    if isinstance(config, configparser.ConfigParser):
+      if config.has_section(section):
+        if config.has_option(section, key):
+          return config[section][key]
+        else:
+          if defaultValue != False:
+            setConfigValue(config = config, section = section, key = key, value = defaultValue)
+            return config[section][key]
+      else:
+        if defaultValue != False:
+          setConfigValue(config = config, section = section, key = key, value = defaultValue)
+          return config[section][key]
+      return False
+    elif isinstance(config, dict):
+      if section in config:
+        if key in config[section]:
+          return config[section][key]
+        else:
+          if defaultValue != False:
+            setConfigValue(config = config, section = section, key = key, value = defaultValue)
+            return config[section][key]
+      else:
+        if defaultValue != False:
+          setConfigValue(config = config, section = section, key = key, value = defaultValue)
+          return config[section][key]
+      return False
+    else:
+      return False
+  except SystemExit:
+    pass
+  except:
+    UI.logException(False)
+    return False
+    
+
+
+# Set a value in a configuration list or configParser object.
+def setConfigValue(config, section, key, value):
+  try:
+    if isinstance(config, configparser.ConfigParser):
+      if not config.has_section(section):
+        config[section] = { }
+      if not config.has_option(section, key):
+        config[section][key] = value
+    elif isinstance(config, dict):
+      if not section in config:
+        config[section] = { }
+      if not key in config[section]:
+        config[section][key] = value
+    else:
+      return False
+    return True
+  except SystemExit:
+    pass
+  except:
+    UI.logException(False)
+    return False
+
+
 
 # Execute a command, capturing its output
 def captureCommand(command):
@@ -270,6 +307,8 @@ def captureCommand(command):
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
     UI.logExiting()
     return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return ( False, False )
@@ -283,6 +322,8 @@ def captureChrootCommand(command):
     (cmd_stdout_bytes, cmd_stderr_bytes) = p.communicate()
     UI.logExiting()
     return ( str(cmd_stdout_bytes.decode('utf-8')), str(cmd_stderr_bytes.decode('utf-8')) )
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return ( False, False )
@@ -298,6 +339,8 @@ def runCommand(command):
       Exit(text = "Error while running " + command +" (Error Code " + str(err) + ", " + os.strerror(err), title = "Fatal Error", timeout = 5, exitStatus = err)
     UI.logExiting()
     return err
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -313,6 +356,8 @@ def runChrootCommand(command):
       raise OSError
     UI.logExiting()
     return err
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -329,6 +374,8 @@ def runChrootAptGet(command, arguments = False):
       err = UI.chrootProgressBox( cmd = "/usr/bin/apt-get -q -y " + command , path = getPath("mnt"), title = "Running apt-get " + command )
     UI.logExiting()
     return err
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -338,6 +385,8 @@ def loadJsonURL(url):
   try:
     UI.logInfo("Requesting json from " + url)
     return(requests.get(url).json())
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
     return False
@@ -352,6 +401,8 @@ def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK):
     os.system("/usr/bin/clear")
   except SystemExit:
     pass
+  except SystemExit:
+    pass
   except:
     UI.logException(False)
   finally:
@@ -362,7 +413,3 @@ def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK):
         os.unlink(logFile)
     sys.exit(exitStatus)
 
-def testvar():
-  builtins.test = "123456"
-  builtins.test2 = "This is a test!"
-  print("Test : " + builtins.test + " test2 : " + builtins.test2)
