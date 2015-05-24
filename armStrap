@@ -183,6 +183,8 @@ if __name__ == '__main__':
         builtins.Status.update(percent = 100, text = "Done")
         
         builtins.Status.end()
+        
+        Utils.Exit(text = "All done", title = "Exiting", timeout = 5, exitStatus = os.EX_SOFTWARE)
     except SystemExit:
         pass
     except:
