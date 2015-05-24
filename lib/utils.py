@@ -158,13 +158,16 @@ def readArmStrapConfig():
     getConfigValue(config, 'Distribution', 'Version', "vivid")
    
     getConfigValue(config, 'Kernel', 'Version', "mainline")
-    
-    if getConfigValue(config, 'Networking', 'Mode').lower() == "static":
-      getConfigValue(config, 'Networking', 'Ip', "192.168.0.100")
-      getConfigValue(config, 'Networking', 'Mask', "255.255.255.0")
-      getConfigValue(config, 'Networking', 'Gateway', "192.168.0.1")
-      getConfigValue(config, 'Networking', 'Domain', "armstrap.net")
-      getConfigValue(config, 'Networking', 'DNS', "8.8.8.8 8.8.4.4")
+
+    if getConfigSection(config, 'Networking') != False:    
+      if getConfigValue(config, 'Networking', 'Mode').lower() == "static":
+        getConfigValue(config, 'Networking', 'Ip', "192.168.0.100")
+        getConfigValue(config, 'Networking', 'Mask', "255.255.255.0")
+        getConfigValue(config, 'Networking', 'Gateway', "192.168.0.1")
+        getConfigValue(config, 'Networking', 'Domain', "armstrap.net")
+        getConfigValue(config, 'Networking', 'DNS', "8.8.8.8 8.8.4.4")
+      else:
+        getConfigValue(config, 'Networking', 'Mode', "dhcp")
     else:
       getConfigValue(config, 'Networking', 'Mode', "dhcp")
     getConfigValue(config, 'Networking', 'MacAddress', ':'.join(map(lambda x: "%02x" % x, [ 0x00, 0x02, 0x46, random.randint(0x00, 0x7f), random.randint(0x00, 0xff), random.randint(0x00, 0xff) ])))

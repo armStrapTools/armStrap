@@ -1,34 +1,40 @@
 [Board]
-Branch = sunxi
-Model = CubieTruck
-HostName = armStrap
-Password = armStrap
-TimeZone = America/Montreal
-Locales = fr_CA.UTF-8 en_US.UTF-8
-
-[SwapFile]
-Size = 1024
-File = /var/swap
-Factor = 2
-Maximum = 2048
+branch = sunxi
+model = CubieTruck
+hostname = armStrap
+timezone = America/Montreal
+locales = en_US.UTF-8 fr_CA.UTF-8
 
 [Distribution]
-Family = ubuntu
-Version = vivid
+family = ubuntu
+version = vivid
 
 [Kernel]
-Version=mainline
+version = mainline
 
 [Networking]
-Mode = static
-Ip = 192.168.0.100
-Mask = 255.255.255.0
-Gateway = 192.168.0.1
-DNS = 8.8.8.8 8.8.4.4
-Domain = armstrap.net
-MacAddress = DE:AD:BE:EF:BA:AD
+mode = static
+ip = 192.168.0.100
+mask = 255.255.255.0
+gateway = 192.168.0.1
+domain = armstrap.net
+dns = 8.8.8.8 8.8.4.4
+macaddress = 00:02:46:52:e8:e4
+
+[BoardsPackages]
+installoptionalspackages = no
+
+[SwapFile]
+file = /var/swap
+size = 1024
+factor = 2
+maximum = 2048
+
+[Users]
+rootpassword = armStrap
+username = armStrap
+userpassword = armStrap
 
 [Output]
-Device = /dev/mmcblk0
-Image = armstrap.img
-Size = 2048
+device = /dev/mmcblk0
+
