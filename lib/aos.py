@@ -90,6 +90,7 @@ def chrootAddUser(User, Password):
     shutil.copytree(Utils.getPath("mnt/etc/skel"), Utils.getPath("mnt/home/" + User), symlinks=True)
     Utils.runChrootCommand("/usr/sbin/useradd " + User)
     Utils.runChrootCommand("/bin/chown " + User + ":" + User + " /home/" + User)
+    Utils.runChrootCommand("/usr/sbin/usermod -G sudo " + User)
     chrootPasswd(User = User, Password = Password)
     UI.logExiting()
     return true
@@ -184,6 +185,7 @@ def setHostName():
     builtins.Status.update(text = "Setting hostname to " + builtins.Config['Board']['HostName'])
     Utils.unlinkFile("mnt/etc/hostname")
     Utils.appendFile(file = Utils.getPath("mnt/etc/hostname"), lines = [builtins.Config['Board']['HostName'] ])
+    Utils.appendFile(file = Utils.getPath("mnt/etc/hosts"), lines = [ "127.0.0.1\t" + builtins.Config['Board']['HostName'] ])
     UI.logExiting()
     return True
   except SystemExit:
@@ -282,7 +284,7 @@ def ubootSetup(Device):
     fName = bName + ".fex"
     Utils.copyFiles(Utils.getPath("mnt/usr/share/armStrap-U-Boot/" + bName + "/"+ fName), Utils.getPath("mnt/boot/" + fName))
     Utils.runChrootCommand(command = "/usr/bin/fex2bin /boot/" + fName + " /boot/script.bin")
-    Utils.runCommand(command = "/bin/dd if=" + Utils.getPath("mnt/usr/share/armStrap-U-Boot/" + bName + "/"+ fName) + " of=" + Device + " bs=1024 seek=8")
+    Utils.runCommand(command = "/bin/dd if=" + Utils.getPath("mnt/usr/share/armStrap-U-Boot/" + bName + "/u-boot-sunxi-with-spl.bin") + " of=" + Device + " bs=1024 seek=8")
   except SystemExit:
     pass
   except:

@@ -46,7 +46,7 @@ class _Const(object):
         return 4
     @constant
     def VERSION():
-        return "1.0-Stage"
+        return "1.0-Beta1"
 
 CONST = _Const()
 
