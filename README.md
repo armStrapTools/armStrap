@@ -17,6 +17,11 @@ armStrap.ini
 
 This file is used to select what type of device and its basic configuration. The file is divided into several sections:
 
+Board
+-----
+
+This section is used to select what type of device and some basic information about it:
+
     [Board]
     branch = sunxi
     model = CubieTruck
@@ -24,31 +29,26 @@ This file is used to select what type of device and its basic configuration. The
     timezone = America/Montreal
     locales = en_US.UTF-8 fr_CA.UTF-8
 
-Board
-=====
-
-This section is used to select what type of device and some basic information about it:
-
 * Branch : The general type of the device, right now only sunxi is supported, i will add bcmrpi (Raspberry PI) at a later stage.
 * Model : Used to select the device you want, choices are CubieBoard, CubieBoard2, CubieTruck, HackBerry and A70x.
 * HostName : The hostname you want for the device.
 * TimeZone : The timeZone you want for the device.
 * Locales : A list of locales you want to configure on the device, the first one become the default locale.
 
+Distribution
+------------
+
+This section is used to select what version of linux you want to install on the device:
+
     [Distribution]
     family = ubuntu
     version = vivid
-
-Distribution
-============
-
-This section is used to select what version of linux you want to install on the device:
 
 * family : Your prefered flavor of linux, current valid choices are ubuntu and debian
 * version : Select a version, current valid choices are for Ubuntu : precise, trusty, utopic and vivid, for Debian : stable, testing, unstable
 
 Kernel
-======
+------
 
 This section is used to select the kernel that will be installed:
 
@@ -58,9 +58,15 @@ This section is used to select the kernel that will be installed:
 * version : Valid versions are : sun4i (CubieBoard, HackBerry), sun7i (CubieBoard2, CubieTruck, A70x), sun7i-ct (CubieTruck, with Wifi and Bluetooth), sunxi-next (all devices), mainline (all devices)
 
 Networking
-==========
+----------
 
 This section configure the first wired interface of the device:
+
+   [Networking]
+   mode = dhcp
+   macaddress = 00:02:46:52:e8:e4
+
+or
 
    [Networking]
    mode = static
@@ -81,7 +87,7 @@ This section configure the first wired interface of the device:
 * Dns : List of DNS resolver
 
 BoardsPackages
-==============
+--------------
 
 This section configure packages that will be installed on the device during setup. I do not recommend using this unless you have very specific needs:
 
@@ -95,7 +101,7 @@ This section configure packages that will be installed on the device during setu
 * Optional : A list of optional packages you want to install, need InstallOptionalsPackages = yes
 
 SwapFile
-========
+--------
 
 This section control the creation of a swapfile using dphys-swapfile.
 
@@ -111,7 +117,7 @@ This section control the creation of a swapfile using dphys-swapfile.
 * Maximum : If Size is not specified, the maximum size of the swapfile.
 
 Users
-=====
+-----
 
 This section control the creation of a normal user and the root password:
 
@@ -125,7 +131,7 @@ UserName : User name for the normal user (this user will be granted sudo rights)
 UserPassword : Password for your normal user
 
 Output
-======
+------
 
     [Output]
     device = /dev/mmcblk0
