@@ -44,8 +44,8 @@ This section is used to select what version of linux you want to install on the 
     family = ubuntu
     version = vivid
 
-* family : Your prefered flavor of linux, current valid choices are ubuntu and debian
-* version : Select a version, current valid choices are for Ubuntu : precise, trusty, utopic and vivid, for Debian : stable, testing, unstable
+* Family : Your prefered flavor of linux, current valid choices are ubuntu and debian
+* Version : Select a version, current valid choices are for Ubuntu : precise, trusty, utopic and vivid, for Debian : stable, testing, unstable
 
 Kernel
 ------
@@ -55,7 +55,7 @@ This section is used to select the kernel that will be installed:
     [Kernel]
     version = mainline
 
-* version : Valid versions are : sun4i (CubieBoard, HackBerry), sun7i (CubieBoard2, CubieTruck, A70x), sun7i-ct (CubieTruck, with Wifi and Bluetooth), sunxi-next (all devices), mainline (all devices)
+* Version : Valid versions are : sun4i (CubieBoard, HackBerry), sun7i (CubieBoard2, CubieTruck, A70x), sun7i-ct (CubieTruck, with Wifi and Bluetooth), sunxi-next (all devices), mainline (all devices)
 
 Networking
 ----------
@@ -125,23 +125,25 @@ This section control the creation of a normal user and the root password:
     username = armStrap
     userpassword = armStrap
 
-RootPassword : Wathever password you want for root
-UserName : User name for the normal user (this user will be granted sudo rights)
-UserPassword : Password for your normal user
+* RootPassword : Wathever password you want for root
+* UserName : User name for the normal user (this user will be granted sudo rights)
+* UserPassword : Password for your normal user
 
 Output
 ------
 
     [Output]
     device = /dev/mmcblk0
+
 or
+
     [Output]
     file = armStrap.img
     size = 2048
 
 * Device : The target device, be cautious with this option, if you select the wrong device, it will be erased
-  File : Create an image that can be dump (with dd or any other utility) to a SD card
-  size : Size of the image to create
+* File : Create an image that can be dump (with dd or any other utility) to a SD card
+* size : Size of the image to create
 
 Nand Installer
 --------------
