@@ -408,9 +408,13 @@ def runChrootAptGet(command, arguments = False):
     return False
 
 #Read a json url and return it as a dict
-def loadJsonURL(url):
+def loadJson(type, args = False):
   try:
-    UI.logDebug("Requesting json from " + url)
+    if args == False:
+      url = builtins.urlInfo['baseUrl'] + "/" + builtins.urlInfo['jsonDrv'] + "?type=" + type 
+    else:
+      url = builtins.urlInfo['baseUrl'] + "/" + builtins.urlInfo['jsonDrv'] + "?type=" + type + "&" + "&".join(args)
+    UI.logDebug("Requesting json configuration from " + url)
     return(requests.get(url).json())
   except SystemExit:
     pass

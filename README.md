@@ -3,11 +3,6 @@ armStrap
 
 An universal sd/image creator for small arm development platform
 
-WARNING
-=======
-
-You are on the development branch of armStrap, it may be broken at any moment and i do not offer any support until this branch is merged with Master!
-
 QuickStart
 ----------
 
@@ -15,12 +10,138 @@ You need to be root to run this script:
 
 1) Edit armStrap.ini to suit your needs
 
-2) As root, run ./armStrap and go take a coffee :)
+2) As root, run ./armStrap, verify the settings, hit enter and go take a coffee :)
+
+armStrap.ini
+------------
+
+This file is used to select what type of device and its basic configuration. The file is divided into several sections:
+
+    [Board]
+    branch = sunxi
+    model = CubieTruck
+    hostname = armStrap
+    timezone = America/Montreal
+    locales = en_US.UTF-8 fr_CA.UTF-8
+
+Board
+=====
+
+This section is used to select what type of device and some basic information about it:
+
+* Branch : The general type of the device, right now only sunxi is supported, i will add bcmrpi (Raspberry PI) at a later stage.
+* Model : Used to select the device you want, choices are CubieBoard, CubieBoard2, CubieTruck, HackBerry and A70x.
+* HostName : The hostname you want for the device.
+* TimeZone : The timeZone you want for the device.
+* Locales : A list of locales you want to configure on the device, the first one become the default locale.
+
+    [Distribution]
+    family = ubuntu
+    version = vivid
+
+Distribution
+============
+
+This section is used to select what version of linux you want to install on the device:
+
+* family : Your prefered flavor of linux, current valid choices are ubuntu and debian
+* version : Select a version, current valid choices are for Ubuntu : precise, trusty, utopic and vivid, for Debian : stable, testing, unstable
+
+Kernel
+======
+
+This section is used to select the kernel that will be installed:
+
+    [Kernel]
+    version = mainline
+
+* version : Valid versions are : sun4i (CubieBoard, HackBerry), sun7i (CubieBoard2, CubieTruck, A70x), sun7i-ct (CubieTruck, with Wifi and Bluetooth), sunxi-next (all devices), mainline (all devices)
+
+Networking
+==========
+
+This section configure the first wired interface of the device:
+
+   [Networking]
+   mode = static
+   ip = 192.168.0.100
+   mask = 255.255.255.0
+   gateway = 192.168.0.1
+   domain = armstrap.net
+   dns = 8.8.8.8 8.8.4.4
+   macaddress = 00:02:46:52:e8:e4
+
+* Mode : dhcp (ignore all other settings except MacAddress) or static
+* MacAddress : If not set, armStrap will generate a random Mac Address starting with 00:02:46. Or you can specify one.
+
+* Ip : Static ip address of the device
+* Mask : Netmask
+* Gateway : Default gateway
+* Domain : Default DNS search domain
+* Dns : List of DNS resolver
+
+BoardsPackages
+==============
+
+This section configure packages that will be installed on the device during setup. I do not recommend using this unless you have very specific needs:
+
+    [BoardsPackages]
+    installoptionalspackages = no
+    mandatory = ""
+    optional = ""
+
+* InstallOptionalPackages : armStrap comes with optional packages that are not installed by default (like the Nand Installer), if you want theses packages, set this option to yes.
+* Mandatory : A list of packages you want to install.
+* Optional : A list of optional packages you want to install, need InstallOptionalsPackages = yes
+
+SwapFile
+========
+
+This section control the creation of a swapfile using dphys-swapfile.
+
+    [SwapFile]
+    file = /var/swap
+    size = 1024
+    factor = 2
+    maximum = 2048
+
+* File : The location of the swap file.
+* Size : The Size of the swap file.
+* Factor : If Size is not specified, a swapfile of Ram x Factor will be automatically created.
+* Maximum : If Size is not specified, the maximum size of the swapfile.
+
+Users
+=====
+
+This section control the creation of a normal user and the root password:
+
+    [Users]
+    rootpassword = armStrap
+    username = armStrap
+    userpassword = armStrap
+
+RootPassword : Wathever password you want for root.
+UserName : User name for the normal user (this user will be granted sudo rights)
+UserPassword : Password for your normal user
+
+Output
+======
+
+    [Output]
+    device = /dev/mmcblk0
+or
+    [Output]
+    file = armStrap.img
+    size = 2048
+
+* Device : The target device, be cautious with this option, if you select the wrong device, it will be erased...
+  File : Create an image that can be dump (with dd or any other utility) to a SD card.
+  size : Size of the image to create.
 
 Nand Installer
 --------------
 
-A script to install the operating system in Nand, supporting the CubieBoard/HackBerry, CubieBoard2 and CubieTruck.
+A script to install the operating system in Nand, supporting the CubieBoard/HackBerry, CubieBoard2 and CubieTruck. To install the nand-installer, select InstallOptionalPackages in your configuration, or do 'sudo apt-get install armstrap-nand-installer' once your device is up and running.
 
     Usage : armStrap-nandinstaller <cubieboard|cubieboard2|cubietruck>
 
@@ -37,9 +158,9 @@ To add the key needed to use the repository, you can do something like this:
 
 The repository is located at https://archive.armstrap.net/apt/ and has the following suites avalables:
 
-* sunxi : This will be the main suite for version 1.x, while most of the feature are there, it is to be considered as unstable until version 1 is release.
+* sunxi : This is the main armStrap repository.
 
-Theses are the suites used by armStrap before version 1. They will be kept around for a while but probably not updated anymore.
+Theses are the suites used by armStrap before version 1. They will be kept around for a while but not updated anymore.
 * armStrap : General scripts and tools used by armStrap
 * armv6l : Specific scripts and tools for the armv6l architecture.
 * armv7l : Specific scripts and tolls for the armv7l architecture.

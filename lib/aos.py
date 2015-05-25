@@ -7,12 +7,14 @@ import subprocess
 from lib import ui as UI
 from lib import utils as Utils
 
-def installRootFS(url):
+def installRootFS():
   try:
     UI.logEntering()
     file = builtins.Boards['Common']['CpuArch'] + builtins.Boards['Common']['CpuFamily'] + "-" + builtins.Config['Distribution']['Family'] + "-" + builtins.Config['Distribution']['Version'] + ".txz"
+    url = builtins.urlInfo['baseUrl'] + "/" + builtins.urlInfo['RootFS'] + "/" + file
     builtins.Status.update(text="Downloading RootFS image " + file, percent = builtins.Status.getPercent())  
-    Utils.download(url + "/" + file)
+    UI.logDebug("Downloading " + url)
+    Utils.download(url)
     builtins.Status.update(name = "Installing RootFS", value = "-5", text="Extracting RootFS image " + file, percent = builtins.Status.getPercent())
     Utils.extractTar(file, "mnt")
     Utils.unlinkFile(file)

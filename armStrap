@@ -20,6 +20,7 @@ if __name__ == '__main__':
     try:
         #Always work from where the script live!
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
+        builtins.urlInfo = { 'baseUrl': "https://archive.armstrap.net", "jsonDrv": ".armStrap.php", "RootFS": "rootfs" }
         builtins.Status = False
         
         logFile = os.path.join( os.getcwd(), "armStrap.log" )
@@ -35,17 +36,17 @@ if __name__ == '__main__':
             Utils.Exit(text = "Unable to read aconfiguration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
         
         UI.InfoBox(text = "Fetching armstrap configuration", title = "Initializing")
-        builtins.armStrap = Utils.loadJsonURL(url = 'https://archive.armstrap.net/.armStrap.php?type=config&config=armstrap')
+        builtins.armStrap = Utils.loadJson( type = "config", args = "config=armstrap".split())
         if builtins.armStrap == False:
             Utils.Exit(text = "Unable to download armStrap configuration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
         
         UI.InfoBox(text = "Fetching " + builtins.Config['Board']['Branch'] + " configuration", title = "Initializing")
-        builtins.Boards = Utils.loadJsonURL(url = 'https://archive.armstrap.net/.armStrap.php?type=config&config=' + builtins.Config['Board']['Branch'].lower())
+        builtins.Boards = Utils.loadJson( type = "config", args = ("config=" + builtins.Config['Board']['Branch'].lower()).split() )
         if builtins.Boards == False:
             Utils.Exit(text = "Unable to download boards configuration for " + builtins.Config['Board']['Branch'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
             
         UI.InfoBox(text = "Fetching kernels configuration", title = "Initializing")
-        builtins.Kernels = Utils.loadJsonURL(url = 'https://archive.armstrap.net/.armStrap.php?type=config&config=kernels')
+        builtins.Kernels = Utils.loadJson( type = "config", args = "config=kernels".split() )
         if builtins.Kernels == False:
             Utils.Exit(text = "Unable to download kernels configuration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
         
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     
         builtins.Status.update(percent = 15)
     
-        if aOS.installRootFS(url = "https://archive.armstrap.net/root") == False:
+        if aOS.installRootFS() == False:
             Utils.Exit(text = "Error while extracting RootFS.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_DATAERR)
         builtins.Status.update(percent = 25)
 
