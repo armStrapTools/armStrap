@@ -29,11 +29,11 @@ This section is used to select what type of device and some basic information ab
     timezone = America/Montreal
     locales = en_US.UTF-8 fr_CA.UTF-8
 
-* Branch : The general type of the device, right now only sunxi is supported, i will add bcmrpi (Raspberry PI) at a later stage.
-* Model : Used to select the device you want, choices are CubieBoard, CubieBoard2, CubieTruck, HackBerry and A70x.
-* HostName : The hostname you want for the device.
-* TimeZone : The timeZone you want for the device.
-* Locales : A list of locales you want to configure on the device, the first one become the default locale.
+* Branch : The general type of the device, right now only sunxi is supported, i will add bcmrpi (Raspberry PI) at a later stage
+* Model : Used to select the device you want, choices are CubieBoard, CubieBoard2, CubieTruck, HackBerry and A70x
+* HostName : The hostname you want for the device
+* TimeZone : The timeZone you want for the device
+* Locales : A list of locales you want to configure on the device, the first one become the default locale
 
 Distribution
 ------------
@@ -78,8 +78,7 @@ or
     macaddress = 00:02:46:52:e8:e4
 
 * Mode : dhcp (ignore all other settings except MacAddress) or static
-* MacAddress : If not set, armStrap will generate a random Mac Address starting with 00:02:46. Or you can specify one.
-
+* MacAddress : If not set, armStrap will generate a random Mac Address starting with 00:02:46. Or you can specify one
 * Ip : Static ip address of the device
 * Mask : Netmask
 * Gateway : Default gateway
@@ -96,8 +95,8 @@ This section configure packages that will be installed on the device during setu
     mandatory = ""
     optional = ""
 
-* InstallOptionalPackages : armStrap comes with optional packages that are not installed by default (like the Nand Installer), if you want theses packages, set this option to yes.
-* Mandatory : A list of packages you want to install.
+* InstallOptionalPackages : armStrap comes with optional packages that are not installed by default (like the Nand Installer), if you want theses packages, set this option to yes
+* Mandatory : A list of packages you want to install
 * Optional : A list of optional packages you want to install, need InstallOptionalsPackages = yes
 
 SwapFile
@@ -111,10 +110,10 @@ This section control the creation of a swapfile using dphys-swapfile.
     factor = 2
     maximum = 2048
 
-* File : The location of the swap file.
-* Size : The Size of the swap file.
-* Factor : If Size is not specified, a swapfile of Ram x Factor will be automatically created.
-* Maximum : If Size is not specified, the maximum size of the swapfile.
+* File : The location of the swap file
+* Size : The Size of the swap file
+* Factor : If Size is not specified, a swapfile of Ram x Factor will be automatically created
+* Maximum : If Size is not specified, the maximum size of the swapfile
 
 Users
 -----
@@ -126,7 +125,7 @@ This section control the creation of a normal user and the root password:
     username = armStrap
     userpassword = armStrap
 
-RootPassword : Wathever password you want for root.
+RootPassword : Wathever password you want for root
 UserName : User name for the normal user (this user will be granted sudo rights)
 UserPassword : Password for your normal user
 
@@ -140,9 +139,9 @@ or
     file = armStrap.img
     size = 2048
 
-* Device : The target device, be cautious with this option, if you select the wrong device, it will be erased...
-  File : Create an image that can be dump (with dd or any other utility) to a SD card.
-  size : Size of the image to create.
+* Device : The target device, be cautious with this option, if you select the wrong device, it will be erased
+  File : Create an image that can be dump (with dd or any other utility) to a SD card
+  size : Size of the image to create
 
 Nand Installer
 --------------
