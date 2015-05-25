@@ -62,20 +62,20 @@ Networking
 
 This section configure the first wired interface of the device:
 
-   [Networking]
-   mode = dhcp
-   macaddress = 00:02:46:52:e8:e4
+    [Networking]
+    mode = dhcp
+    macaddress = 00:02:46:52:e8:e4
 
 or
 
-   [Networking]
-   mode = static
-   ip = 192.168.0.100
-   mask = 255.255.255.0
-   gateway = 192.168.0.1
-   domain = armstrap.net
-   dns = 8.8.8.8 8.8.4.4
-   macaddress = 00:02:46:52:e8:e4
+    [Networking]
+    mode = static
+    ip = 192.168.0.100
+    mask = 255.255.255.0
+    gateway = 192.168.0.1
+    domain = armstrap.net
+    dns = 8.8.8.8 8.8.4.4
+    macaddress = 00:02:46:52:e8:e4
 
 * Mode : dhcp (ignore all other settings except MacAddress) or static
 * MacAddress : If not set, armStrap will generate a random Mac Address starting with 00:02:46. Or you can specify one.
