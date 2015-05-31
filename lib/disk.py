@@ -81,7 +81,7 @@ def cleanDisk(device, bs="1M", count=64):
     UI.logEntering()
     if S_ISBLK(os.stat(device).st_mode) or os.path.isfile(device):
       Utils.runCommand( command = "/bin/dd if=/dev/zero of=" + device + " bs=" + bs + " count=" + str(count) + " conv=notrunc")
-    partProbe(Device = device)
+    partProbe()
     UI.logExiting()
     return True
   except SystemExit:
@@ -119,7 +119,7 @@ def formatDevice(Device, DiskLayout, percent = 0):
       builtins.Status.update(text="Setting up partition " + partSlice + str(partID), percent = builtins.Status.getPercent())
       Utils.runCommand( command = "/sbin/parted " + Device + " --script -- mkpart primary " + str(fs) + " " + str(offset) + " " + str(size))
       syncFS()
-      partProbe(Device = Device)
+      partProbe()
       builtins.Status.update(text="Waiting for partition " + partSlice + str(partID), percent = builtins.Status.getPercent())
       time.sleep(1)
       while os.path.exists(partSlice + str(partID)) == False:
