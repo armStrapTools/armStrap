@@ -148,7 +148,7 @@ class RunInBackground(threading.Thread):
             logDebug("Executing " + self.Cmd )
             err = os.system(self.Cmd + " > " + self.path + " 2>&1")
             if err != os.EX_OK:
-                UI.logWarning( "Error while executing " + self.Cmd +" (Error Code " + str(err) + ", " + os.strerror(err))
+                logWarning( "Error while executing " + self.Cmd +" (Error Code " + str(err) + ", " + os.strerror(err))
                 raise OSError
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
             logExiting()
@@ -191,7 +191,7 @@ class chrootRunInBackground(threading.Thread):
             logDebug("Running " + self.chrootCmd + " in the chroot environment")
             err = os.system("LC_ALL='' LANGUAGE='en_US:en' LANG='en_US.UTF-8' /usr/sbin/chroot " + self.chrootPath + " " + self.chrootCmd + " > " + self.path + " 2>&1")
             if err != os.EX_OK:
-                UI.logWarning( "Error while running " + self.chrootCmd +" (Error Code " + str(err) + ", " + os.strerror(err))
+                logWarning( "Error while running " + self.chrootCmd +" (Error Code " + str(err) + ", " + os.strerror(err))
                 raise OSError
             closeTempFile(fd = self.fd, file = self.file, path= self.path)
             logExiting()

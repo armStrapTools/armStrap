@@ -25,7 +25,7 @@ if __name__ == '__main__':
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
         
         builtins.urlInfo = { 'baseUrl': "https://archive.armstrap.net", "jsonDrv": ".armStrap.php", "RootFS": "rootfs" }
-        builtins.Version = "1.0 Beta 1"
+        builtins.Version = "1.0 Release Candidate 1"
         builtins.Header = os.path.basename(sys.argv[0]) + " version " + builtins.Version
         builtins.Copyright = builtins.Header + ", (C) 2013-2015 Eddy Beaupré"
         
@@ -167,7 +167,7 @@ if __name__ == '__main__':
             Utils.Exit(text = "Error while setting root password", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
         builtins.Status.update(name = "Installing RootFS", value = "-65", percent = 51)
         
-        if aOS.chrootAddUser(User = builtins.Config['Users']['UserName'], Password = builtins.Config['Users']['UserPassword']):
+        if aOS.chrootAddUser(User = builtins.Config['Users']['UserName'], Password = builtins.Config['Users']['UserPassword']) == False:
             Utils.Exit(text = "Error while creating user " + builtins.Config['Users']['UserName'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
         builtins.Status.update(name = "Installing RootFS", value = "-65", percent = 52)
     
@@ -248,7 +248,7 @@ if __name__ == '__main__':
         atexit.unregister(Disk)
     
         if Utils.unmountPartitions() == False:
-            Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
+            Utils.Exit(text = "Error while unmounting partitions", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
             
         builtins.Status.update(percent = 100, text = "Done")
         

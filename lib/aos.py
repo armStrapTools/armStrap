@@ -7,6 +7,7 @@ import subprocess
 
 from lib import ui as UI
 from lib import utils as Utils
+from lib import disk as Disk
 
 def installRootFS():
   try:
@@ -38,9 +39,9 @@ def chrootConfig():
     f.write("exit 101\n")
     f.close()
     os.chmod(Utils.getPath("mnt/usr/sbin/policy-rc.d"), 0o755 )
-    Utils.runCommand(command = "/bin/mount --bind /proc " + Utils.getPath("mnt/proc"))
-    Utils.runCommand(command = "/bin/mount --bind /sys " + Utils.getPath("mnt/sys"))
-    Utils.runCommand(command = "/bin/mount --bind /dev/pts " + Utils.getPath("mnt/dev/pts"))
+    Disk.doMount(Device = "/proc", Path = "mnt/proc", Bind = True)
+    Disk.doMount(Device = "/sys", Path = "mnt/sys", Bind = True)
+    Disk.doMount(Device = "/dev/pts", Path = "mnt/dev/pts", Bind = True)
     UI.logExiting()
     return True
   except SystemExit:
@@ -52,12 +53,9 @@ def chrootConfig():
 def chrootDeconfig():
   try:
     UI.logEntering()
-    if Utils.isPath(Utils.getPath("mnt/dev/pts")) == True:
-      Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/dev/pts"))
-    if Utils.isPath(Utils.getPath("mnt/sys")) == True:
-      Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/sys"))
-    if Utils.isPath(Utils.getPath("mnt/proc")) == True:
-      Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/proc"))
+    Disk.doUnMount("mnt/dev/pts");
+    Disk.doUnMount("mnt/sys");
+    Disk.doUnMount("mnt/proc");
     Utils.unlinkFile("mnt/usr/sbin/policy-rc.d")
     if os.path.isfile(Utils.getPath("mnt/usr/sbin/policy-rc.d_save")):
       shutil.move(Utils.getPath("mnt/usr/sbin/policy-rc.d_save"), Utils.getPath("mnt/usr/sbin/policy-rc.d"))

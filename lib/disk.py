@@ -48,6 +48,33 @@ def getLayout():
   except:
     logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
+    
+def doMount(Device, Path, Bind=False):
+  try:
+    if Utils.isPath(Path):
+      if Bind == False:
+        Utils.runCommand(command = "/bin/mount " + Device + " " + Utils.getPath(Path))
+      else:
+        Utils.runCommand(command = "/bin/mount --bind " + Device + " " + Utils.getPath(Path))
+      return True
+    return False
+  except SystemExit:
+    pass
+  except:
+    logging.exception("Caught Exception")
+    sys.exit(os.EX_SOFTWARE)
+
+def doUnMount(Path):
+  try:
+    if Utils.isPath(Path):
+      Utils.runCommand(command = "/bin/umount " + Utils.getPath(Path))
+      return True
+    return False
+  except SystemExit:
+    pass
+  except:
+    logging.exception("Caught Exception")
+    sys.exit(os.EX_SOFTWARE)
 
 def cleanDisk(device, bs="1M", count=64):
   try:
