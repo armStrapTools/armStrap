@@ -48,7 +48,7 @@ This section is used to select what type of device and some basic information ab
     locales = en_US.UTF-8 fr_CA.UTF-8
 
 * Branch : The general type of the device, right now only sunxi is supported, i will add bcmrpi (Raspberry PI) at a later stage
-* Model : Used to select the device you want, choices are CubieBoard, CubieBoard2, CubieTruck, HackBerry and A70x
+* Model : The model of the device, see ./armStrap -b for the list of avalable boards.
 * HostName : The hostname you want for the device
 * TimeZone : The timeZone you want for the device
 * Locales : A list of locales you want to configure on the device, the first one become the default locale
@@ -62,8 +62,8 @@ This section is used to select what version of linux you want to install on the 
     family = ubuntu
     version = vivid
 
-* Family : Your prefered flavor of linux, current valid choices are ubuntu and debian
-* Version : Select a version, current valid choices are for Ubuntu : precise, trusty, utopic and vivid, for Debian : stable, testing, unstable
+* Family : Specify the family of the root filesystem, see ./armStrap -r for a list of valid distributions
+* Version : Specify the version of the root filesystem.
 
 Kernel
 ------
@@ -73,7 +73,7 @@ This section is used to select the kernel that will be installed:
     [Kernel]
     version = mainline
 
-* Version : Valid versions are : sun4i (CubieBoard, HackBerry), sun7i (CubieBoard2, CubieTruck, A70x), sun7i-ct (CubieTruck, with Wifi and Bluetooth), sunxi-next (all devices), mainline (all devices)
+* Version : See ./armStrap -k for the list of avalable Kernels.
 
 Networking
 ----------
