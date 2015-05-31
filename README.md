@@ -28,7 +28,7 @@ Command line options
       -b, --boards   show avalable boards
       -i, --ini      create a default configuration file
     
-    Edit 'armStrap.ini' to configure the target device.
+    Edit '__armStrap.ini__' to configure the target device.
 
 armStrap.ini
 ------------
@@ -48,7 +48,7 @@ This section is used to select what type of device and some basic information ab
     locales = en_US.UTF-8 fr_CA.UTF-8
 
 * Branch : The general type of the device, right now only sunxi is supported, i will add bcmrpi (Raspberry PI) at a later stage
-* Model : The model of the device, see ./armStrap -b for the list of avalable boards.
+* Model : The model of the device, see __./armStrap -b__ for the list of avalable boards.
 * HostName : The hostname you want for the device
 * TimeZone : The timeZone you want for the device
 * Locales : A list of locales you want to configure on the device, the first one become the default locale
@@ -62,7 +62,7 @@ This section is used to select what version of linux you want to install on the 
     family = ubuntu
     version = vivid
 
-* Family : Specify the family of the root filesystem, see ./armStrap -r for a list of valid distributions
+* Family : Specify the family of the root filesystem, see __./armStrap -r__ for a list of valid distributions
 * Version : Specify the version of the root filesystem.
 
 Kernel
@@ -73,7 +73,7 @@ This section is used to select the kernel that will be installed:
     [Kernel]
     version = mainline
 
-* Version : See ./armStrap -k for the list of avalable Kernels.
+* Version : See __./armStrap -k__ for the list of avalable Kernels.
 
 Networking
 ----------
