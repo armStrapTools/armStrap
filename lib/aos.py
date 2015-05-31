@@ -1,6 +1,7 @@
 import builtins
 import logging
 import os
+import sys
 import shutil
 import subprocess
 
@@ -51,21 +52,24 @@ def chrootConfig():
 def chrootDeconfig():
   try:
     UI.logEntering()
-    Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/dev/pts"))
-    Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/sys"))
-    Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/proc"))
+    if Utils.isPath(Utils.getPath("mnt/dev/pts")) == True:
+      Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/dev/pts"))
+    if Utils.isPath(Utils.getPath("mnt/sys")) == True:
+      Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/sys"))
+    if Utils.isPath(Utils.getPath("mnt/proc")) == True:
+      Utils.runCommand(command = "/bin/umount " + Utils.getPath("mnt/proc"))
     Utils.unlinkFile("mnt/usr/sbin/policy-rc.d")
     if os.path.isfile(Utils.getPath("mnt/usr/sbin/policy-rc.d_save")):
       shutil.move(Utils.getPath("mnt/usr/sbin/policy-rc.d_save"), Utils.getPath("mnt/usr/sbin/policy-rc.d"))
-    os.unlink("mnt/usr/sbin/policy-rc.d.lock")
-    os.unlink("mnt/usr/bin/qemu-arm-static")
+    Utils.unlinkFile("mnt/usr/sbin/policy-rc.d.lock")
+    Utils.unlinkFile("mnt/usr/bin/qemu-arm-static")
     UI.logExiting()
     return True
   except SystemExit:
     pass
   except:
     logging.exception("Caught Exception")
-    sys.exit(os.EX_IOERR)
+    pass
 
 def chrootPasswd(User, Password):
   try:
@@ -95,7 +99,7 @@ def chrootAddUser(User, Password):
     Utils.runChrootCommand("/usr/sbin/usermod -G sudo " + User)
     chrootPasswd(User = User, Password = Password)
     UI.logExiting()
-    return true
+    return True
   except SystemExit:
     pass
   except:

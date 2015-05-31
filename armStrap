@@ -120,26 +120,26 @@ if __name__ == '__main__':
             Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, exitStatus = os.EX_OK)
     
         UI.Status()
+        
+        builtins.Device = False;
+        builtins.partList = False;
 
         if builtins.Config.has_option('Output', 'Device'):
-            (Device, partList) = Disk.formatSD()
+            (builtins.Device, builtins.partList) = Disk.formatSD()
         else:
-            (Device, partList) = Disk.formatIMG()
+            (builtins.Device, builtins.partList) = Disk.formatIMG()
         
-        if ( Device == False ) or ( partList == False ):
+        if ( builtins.Device == False ) or ( builtins.partList == False ):
             Utils.Exit(text = "Error while initializing device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
         
         builtins.Status.update(percent = 10)
-    
-        #Device = "/dev/mmcblk0"
-        #partList = [ { 'device': "/dev/mmcblk0p1", 'Mount_Order': "1", 'Mount_Point': "/"} ]
         
-        partMount = Disk.mountPartitions(Device = Device, partList = partList)
+        builtins.partMount = Utils.mountPartitions(Device = builtins.Device, partList = builtins.partList)
     
-        if partMount == False:
+        if builtins.partMount == False:
             Utils.Exit(text = "Error while mounting device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
     
-        atexit.register(Disk.unmountPartitions, Device = Device, partList = partMount)
+        atexit.register(Utils.unmountPartitions)
     
         builtins.Status.update(percent = 15)
     
@@ -151,7 +151,7 @@ if __name__ == '__main__':
             Utils.Exit(text = "Error while configuring chroot environment.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE)
     
         atexit.register(aOS.chrootDeconfig)
-
+        
         if Utils.runChrootAptGet(command = "update") == False:
             Utils.Exit(text = "Error while running apt-get update", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
         builtins.Status.update(name = "Installing RootFS", value = "-30", percent = 40)
@@ -227,7 +227,7 @@ if __name__ == '__main__':
         builtins.Status.update(name = "Installing BootLoader", value = "In Progress")
         if Utils.runChrootAptGet(command = "install", arguments = builtins.Kernels[builtins.Config['Kernel']['Version'].lower()]['bootloader'].split() ) == False:
             Utils.Exit(text = "Error while installing bootloader", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
-        if aOS.ubootSetup(Device = Device) == False:
+        if aOS.ubootSetup(Device = builtins.Device) == False:
             Utils.Exit(text = "Error while configuring bootloader", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
         
         builtins.Status.update(name = "Installing BootLoader", value = "Done", percent = 70) 
@@ -242,9 +242,9 @@ if __name__ == '__main__':
         if aOS.chrootDeconfig() == False:
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
         builtins.Status.update(percent = 95, text = "Cleaning up")
-        atexit.unregister(Disk.unmountPartitions)
+        atexit.unregister(Disk)
     
-        if Disk.unmountPartitions(Device = Device, partList = partMount) == False:
+        if Utils.unmountPartitions() == False:
             Utils.Exit(text = "Error while deconfiguring chroot environment", title = "Fatal Error", timeout = 5, exitStatus = os.EX_SOFTWARE)
             
         builtins.Status.update(percent = 100, text = "Done")

@@ -93,6 +93,21 @@ def checkPath(path):
   except:
     logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
+
+# Check if a path exist. Aways work from the work directory    
+def isPath(path):
+  try:
+    UI.logEntering()
+    if os.path.exists(getPath(path)) == False:
+      return False
+    UI.logExiting()
+    return True
+  except SystemExit:
+    pass
+  except:
+    logging.exception("Caught Exception")
+    sys.exit(os.EX_SOFTWARE)
+
   
 # Return a path starting at the work directory
 def getPath(path):
@@ -487,10 +502,63 @@ def listBoards():
   except:
     logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
+    
+# Mount all partitions
+def mountPartitions(Device, partList):
+  try:
+    UI.logEntering()
+    order = 1
+    sortedList = []
+    builtins.Status.update(name = "Installing RootFS", value = "-0")
+    while len(sortedList) != len(partList):
+      for p in partList:
+        if int(p['Mount_Order']) == order:
+          order += 1
+          sortedList.append( {'device': p['device'], 'Mount_Point': p['Mount_Point']} )
+    for p in sortedList:
+      d = checkPath("mnt/" + p['Mount_Point'].strip('/'))
+      builtins.Status.update(text="Mounting partition " + p['device'] + " to " + d, percent = builtins.Status.getPercent())
+      runCommand( command = "/bin/mount " + p['device'] + " " + d)
+    UI.logExiting()
+    return sortedList
+  except SystemExit:
+    pass
+  except:
+    logging.exception("Caught Exception")
+    sys.exit(os.EX_IOERR)
+
+# Unmount all partitions
+def unmountPartitions():
+  try:
+    UI.logEntering()
+    for p in builtins.partList[::-1]:
+      d = checkPath("mnt/" + p['Mount_Point'].strip('/'))
+      if builtins.Status != False:
+        builtins.Status.update(text="Unmounting partition " + p['device'] + " from " + d, percent = builtins.Status.getPercent())
+      runCommand( command = "/bin/umount " + d)
+  
+    if builtins.Device.find("loop") != -1:
+      runCommand( command = "/sbin/losetup -d " + builtins.Device)
+    UI.logExiting()
+    return True
+  except SystemExit:
+    pass
+  except:
+    logging.exception("Caught Exception")
+    pass
 
 # Exit from armStrap.
 def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK):
+  try:
     UI.logDebug("Shutting down")
+    mp = getPath("mnt")
+    mountList = []
+    with open("/proc/mounts", "r") as f:
+      for mount in f.readlines():
+        if mount.find(mp) != -1:
+          mountList.append(mount.split()[1])
+    for mount in sorted(mountList, reverse = True):
+      os.system("/bin/umount " + mount + " > /dev/null 2>&1")
     if builtins.Status != False:
       builtins.Status.end()
     builtins.Dialog.pause(text = text, title = title, seconds = timeout, backtitle = builtins.Header)
@@ -499,4 +567,7 @@ def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK):
     if os.path.isfile(logFile):
       if os.stat(logFile).st_size == 0:
         os.unlink(logFile)
+    os._exit(exitStatus)
+  except:
+    logging.exception("Caught Exception")
     os._exit(exitStatus)
