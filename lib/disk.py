@@ -49,11 +49,11 @@ def getLayout():
     logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
-def cleanDisk(device, bs="512", count=1):
+def cleanDisk(device, bs="1M", count=64):
   try:
     UI.logEntering()
     if S_ISBLK(os.stat(device).st_mode) or os.path.isfile(device):
-      Utils.runCommand( command = "/bin/dd if=/dev/zero of=" + device + " bs=" + bs + " count=" + str(count))
+      Utils.runCommand( command = "/bin/dd if=/dev/zero of=" + device + " bs=" + bs + " count=" + str(count) + " conv=notrunc")
     partProbe(Device = device)
     UI.logExiting()
     return True

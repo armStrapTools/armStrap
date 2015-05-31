@@ -114,9 +114,7 @@ if __name__ == '__main__':
             Utils.Exit(text = "Unable to download kernels configuration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
             
         if not (builtins.Boards[builtins.Config['Board']['Model']]['Cpu'] in builtins.Kernels[builtins.Config['Kernel']['Version']]['cpu']):
-            Utils.Exit(text = "Board " + builtins.Config['Board']['Model'] + " is not compatible with kernel " + builtins.Config['Kernel']['Version'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
-            
-        
+            Utils.Exit(text = "Board " + builtins.Config['Board']['Model'] + " is not compatible with kernel " + builtins.Config['Kernel']['Version'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)        
         
         if UI.Summary() == "cancel":
             Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, exitStatus = os.EX_OK)
