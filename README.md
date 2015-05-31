@@ -12,6 +12,24 @@ You need to be root to run this script:
 
 2) As root, run ./armStrap, confirm the settings, hit enter and go take a coffee :)
 
+Command line options
+--------------------
+
+    usage: armStrap [-h] [-v | -d] [-k] [-r] [-b] [-i]
+    
+    armStrap version 1.0 Release Candidate 1, (C) 2013-2015 Eddy Beaupré
+    
+    optional arguments:
+      -h, --help     show this help message and exit
+      -v, --verbose  increase logging verbosity
+      -d, --debug    increase logging verbosity to maximum
+      -k, --kernels  show avalable kernels
+      -r, --rootfs   show avalable rootfs
+      -b, --boards   show avalable boards
+      -i, --ini      create a default configuration file
+    
+    Edit 'armStrap.ini' to configure the target device.
+
 armStrap.ini
 ------------
 

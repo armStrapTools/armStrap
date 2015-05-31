@@ -29,7 +29,7 @@ if __name__ == '__main__':
         builtins.Header = os.path.basename(sys.argv[0]) + " version " + builtins.Version
         builtins.Copyright = builtins.Header + ", (C) 2013-2015 Eddy Beaupré"
         
-        parser = argparse.ArgumentParser(description=builtins.Copyright)
+        parser = argparse.ArgumentParser(description=builtins.Copyright, epilog="Edit 'armStrap.ini' to configure the target device.")
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-v", "--verbose", help="increase logging verbosity", action="count", default=0)
         group.add_argument("-d", "--debug", help="increase logging verbosity to maximum", action="store_true")
