@@ -125,10 +125,13 @@ if __name__ == '__main__':
         builtins.partList = False;
 
         if builtins.Config.has_option('Output', 'Device'):
-            (builtins.Device, builtins.partList) = Disk.formatSD()
+            if Disk.isMounted():
+                Utils.Exit(text = "Device " + builtins.Config['Output']['Device'] + " is mounted.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
+            else:
+                (builtins.Device, builtins.partList) = Disk.formatSD()
         else:
             (builtins.Device, builtins.partList) = Disk.formatIMG()
-        
+            
         if ( builtins.Device == False ) or ( builtins.partList == False ):
             Utils.Exit(text = "Error while initializing device.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
         

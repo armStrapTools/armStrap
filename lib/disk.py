@@ -147,3 +147,17 @@ def formatIMG():
   except:
     logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
+
+def isMounted():
+  try:
+    mountList = []
+    with open("/proc/mounts", "r") as f:
+      for mount in f.readlines():
+        if mount.find(builtins.Config['Output']['Device']) != -1:
+          return True
+    return False
+  except SystemExit:
+    pass
+  except:
+    logging.exception("Caught Exception")
+    sys.exit(os.EX_IOERR)
