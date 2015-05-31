@@ -61,6 +61,8 @@ if __name__ == '__main__':
             Utils.readArmStrapConfig()
             Utils.Exit(text = "Default configuration file 'armStrap.ini' generated, please edit it before running armStrap.", title = "armStrap", timeout = 5, exitStatus = os.EX_OK)
             
+        if args.kernels or args.rootfs or args.boards:
+            print("\n%s\n" % builtins.Copyright)
         if args.kernels:
             Utils.listKernels()
             
@@ -82,16 +84,39 @@ if __name__ == '__main__':
         builtins.armStrap = Utils.loadJson( type = "config", args = "config=armstrap".split())
         if builtins.armStrap == False:
             Utils.Exit(text = "Unable to download armStrap configuration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
+            
+        if not (builtins.Config['Board']['Branch'] in builtins.armStrap['Boards']['Types']):
+            Utils.Exit("Board type " + builtins.Config['Board']['Branch'] + " is not supported", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE)
         
         UI.InfoBox(text = "Fetching " + builtins.Config['Board']['Branch'] + " configuration", title = "Initializing")
         builtins.Boards = Utils.loadJson( type = "config", args = ("config=" + builtins.Config['Board']['Branch'].lower()).split() )
         if builtins.Boards == False:
             Utils.Exit(text = "Unable to download boards configuration for " + builtins.Config['Board']['Branch'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
             
+        if not (builtins.Config['Board']['Model'] in builtins.Boards['Boards']['Models']):
+            Utils.Exit("Board model " + builtins.Config['Board']['Model'] + " is not supported", title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE)            
+            
+        UI.InfoBox(text = "Fetching RootFS configuration", title = "Initializing")
+        builtins.Kernels = Utils.loadJson( type = "rootfs" )
+        
+        if not (builtins.Boards['Common']['CpuArch'] + builtins.Boards['Common']['CpuFamily'] in builtins.Kernels):
+            Utils.Exit(text = "RootFS unavalable for " + builtins.Boards['Common']['CpuArch'] + builtins.Boards['Common']['CpuFamily'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE)
+            
+        if not (builtins.Config['Distribution']['Family'] in builtins.Kernels[builtins.Boards['Common']['CpuArch'] + builtins.Boards['Common']['CpuFamily']]):
+            Utils.Exit(text = "RootFS Familly " + builtins.Config['Distribution']['Family'] + " unavalable for " + builtins.Boards['Common']['CpuArch'] + builtins.Boards['Common']['CpuFamily'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE)
+            
+        if not (builtins.Config['Distribution']['Version'] in builtins.Kernels[builtins.Boards['Common']['CpuArch'] + builtins.Boards['Common']['CpuFamily']][builtins.Config['Distribution']['Family']]):
+            Utils.Exit(text = "RootFS version " + builtins.Config['Distribution']['Version'] + " unavalable for " + builtins.Config['Distribution']['Family'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_UNAVAILABLE)
+            
         UI.InfoBox(text = "Fetching kernels configuration", title = "Initializing")
         builtins.Kernels = Utils.loadJson( type = "config", args = "config=kernels".split() )
         if builtins.Kernels == False:
             Utils.Exit(text = "Unable to download kernels configuration.", title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
+            
+        if not (builtins.Boards[builtins.Config['Board']['Model']]['Cpu'] in builtins.Kernels[builtins.Config['Kernel']['Version']]['cpu']):
+            Utils.Exit(text = "Board " + builtins.Config['Board']['Model'] + " is not compatible with kernel " + builtins.Config['Kernel']['Version'], title = "Fatal Error", timeout = 5, exitStatus = os.EX_IOERR)
+            
+        
         
         if UI.Summary() == "cancel":
             Utils.Exit(text = "armStrap will now exit", title = "Cancel by user", timeout = 5, exitStatus = os.EX_OK)

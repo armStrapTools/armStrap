@@ -457,13 +457,13 @@ def listKernels():
 def listRootFS():
   try:
     rFormat = "{0:15} {1:15} {2}"
-    print("Avalable Root FileSystems:\n")
-    print(rFormat.format("Arch", "Family", "Versions"))
+    print("Avalable Root FileSystems distributions:\n")
+    print(rFormat.format("Family", "Arch", "Versions"))
     print(rFormat.format("---------------", "---------------", "----------------------------------------------"))
     rootFSList = loadJson(type = "rootfs")
     for arch in sorted(rootFSList):
       for family in sorted(rootFSList[arch]):
-        print(rFormat.format(arch, family, ", ".join(sorted(list(rootFSList[arch][family].keys())))))
+        print(rFormat.format(family, arch, ", ".join(sorted(list(rootFSList[arch][family].keys())))))
     print("")
   except SystemExit:
     pass
