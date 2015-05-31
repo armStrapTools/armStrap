@@ -31,7 +31,7 @@ def extractTar(src, dst):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Download a file to the current directory
 def download(url):
@@ -46,7 +46,7 @@ def download(url):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Unlink a file 
 def unlinkFile(src):
@@ -61,7 +61,7 @@ def unlinkFile(src):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
     
 # Touch a file
 def touch(fname, mode=0o666, dir_fd=None, **kwargs):
@@ -77,7 +77,7 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Check if a path exist and create it. Aways work from the work directory    
 def checkPath(path):
@@ -92,7 +92,7 @@ def checkPath(path):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
   
 # Return a path starting at the work directory
 def getPath(path):
@@ -106,7 +106,7 @@ def getPath(path):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
     
 # Check if a file exist
 def checkFile(file):
@@ -122,7 +122,7 @@ def checkFile(file):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Append lines to a file    
 def appendFile(file, lines):
@@ -137,7 +137,7 @@ def appendFile(file, lines):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
     
 # Read armStrap config and set default values if missing.
 def readArmStrapConfig():
@@ -198,7 +198,7 @@ def readArmStrapConfig():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
   
 # Read a config file
 def readConfig(src):
@@ -218,7 +218,7 @@ def readConfig(src):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Get a section from a configuration list or configParser Object, return False if it doesn't exist.
 def getConfigSection(config, section):
@@ -241,7 +241,7 @@ def getConfigSection(config, section):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Get a value from a configuration list or configParser object, return False if it doesn't exist.
 # Or set it to its default value if one exist.
@@ -294,7 +294,7 @@ def getConfigValue(config, section, key, defaultValue = False):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Set a value in a configuration list or configParser object.
 def setConfigValue(config, section, key, value):
@@ -323,7 +323,7 @@ def setConfigValue(config, section, key, value):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Execute a command, capturing its output
 def captureCommand(command):
@@ -338,7 +338,7 @@ def captureCommand(command):
     pass
   except:
     UI.logException(False)
-    return ( False, False )
+    sys.exit(os.EX_SOFTWARE)
     
 # Execute a command in the chroot environment, capturing its output
 def captureChrootCommand(command):
@@ -353,7 +353,7 @@ def captureChrootCommand(command):
     pass
   except:
     UI.logException(False)
-    return ( False, False )
+    sys.exit(os.EX_SOFTWARE)
 
 #Execute a command, dropping its output
 def runCommand(command):
@@ -370,7 +370,7 @@ def runCommand(command):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 #Execute a command in the chroot environment, dropping its output
 def runChrootCommand(command):
@@ -387,7 +387,7 @@ def runChrootCommand(command):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
     
 #Execute apt-get -q -y [command] ih the chroot environment, with optional arguments.
 def runChrootAptGet(command, arguments = False):
@@ -405,7 +405,7 @@ def runChrootAptGet(command, arguments = False):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 #Read a json url and return it as a dict
 def loadJson(type, args = False):
@@ -420,7 +420,7 @@ def loadJson(type, args = False):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
     
 def copyFiles(src, dst):
   try:
@@ -433,27 +433,17 @@ def copyFiles(src, dst):
     pass 
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 # Exit from armStrap.
 def Exit(text = "", title = "", timeout = 0, exitStatus = os.EX_OK):
-  try:
     UI.logDebug("Shutting down")
     if builtins.Status != False:
       builtins.Status.end()
-    UI.MessageBox(text = text, title = title, timeout = timeout)
-    os.system("/usr/bin/clear")
-  except SystemExit:
-    pass
-  except SystemExit:
-    pass
-  except:
-    UI.logException(False)
-  finally:
-    logFile = os.path.join( os.getcwd(), "armStrap.log" )
+    builtins.Dialog.pause(text = text, title = title, seconds = timeout, backtitle = builtins.Header)
     logging.shutdown()
+    logFile = os.path.join( os.getcwd(), "armStrap.log" )
     if os.path.isfile(logFile):
       if os.stat(logFile).st_size == 0:
         os.unlink(logFile)
-    sys.exit(exitStatus)
-
+    os._exit(exitStatus)

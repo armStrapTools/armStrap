@@ -24,7 +24,7 @@ def installRootFS():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_IOERR)
 
 def chrootConfig():
   try:
@@ -46,7 +46,7 @@ def chrootConfig():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_IOERR)
   
 def chrootDeconfig():
   try:
@@ -65,7 +65,7 @@ def chrootDeconfig():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_IOERR)
 
 def chrootPasswd(User, Password):
   try:
@@ -83,7 +83,7 @@ def chrootPasswd(User, Password):
     pass
   except:
     UI.logException(False)
-    return ( False, False )
+    sys.exit(os.EX_SOFTWARE)
 
 def chrootAddUser(User, Password):
   try:
@@ -100,7 +100,7 @@ def chrootAddUser(User, Password):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 def setLocales():
   try:
@@ -128,7 +128,7 @@ def setLocales():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 def setTimeZone():
   try:
@@ -145,7 +145,7 @@ def setTimeZone():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
     
 def setSwapFile():
   try:
@@ -179,7 +179,7 @@ def setSwapFile():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 def setHostName():
   try:
@@ -194,7 +194,7 @@ def setHostName():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 def setTTY():
   try:
@@ -219,7 +219,7 @@ def setTTY():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 def setFsTab():
   try:
@@ -241,7 +241,7 @@ def setFsTab():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
 
 def setInterface():
   try:
@@ -278,7 +278,7 @@ def setInterface():
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)
     
 def ubootSetup(Device):
   try:
@@ -291,4 +291,4 @@ def ubootSetup(Device):
     pass
   except:
     UI.logException(False)
-    return False
+    sys.exit(os.EX_SOFTWARE)

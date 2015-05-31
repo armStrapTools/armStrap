@@ -8,9 +8,9 @@ QuickStart
 
 You need to be root to run this script:
 
-1) Edit armStrap.ini to suit your needs
+1) Edit armStrap.ini to suit your needs (if not present, armStrap will create one with default values).
 
-2) As root, run ./armStrap, verify the settings, hit enter and go take a coffee :)
+2) As root, run ./armStrap, confirm the settings, hit enter and go take a coffee :)
 
 armStrap.ini
 ------------

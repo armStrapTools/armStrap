@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import argparse
 import atexit
 import builtins
 import crypt
@@ -20,16 +21,46 @@ if __name__ == '__main__':
     try:
         #Always work from where the script live!
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
+        
         builtins.urlInfo = { 'baseUrl': "https://archive.armstrap.net", "jsonDrv": ".armStrap.php", "RootFS": "rootfs" }
-        builtins.Status = False
+        builtins.Version = "1.0 Beta 1"
+        builtins.Header = os.path.basename(sys.argv[0]) + " version " + builtins.Version
+        builtins.Copyright = builtins.Header + ", (C) 2013-2015 Eddy Beaupré"
+        
+        parser = argparse.ArgumentParser(description=builtins.Copyright)
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("-v", "--verbose", help="increase logging verbosity", action="count", default=0)
+        group.add_argument("-d", "--debug", help="increase logging verbosity to maximum", action="store_true")
+        parser.add_argument("-k", "--kernels", help="show avalable kernels", action="store_true")
+        parser.add_argument("-r", "--rootfs", help="show avalable rootfs", action="store_true")
+        parser.add_argument("-b", "--boards", help="show avalable boards", action="store_true")
+        parser.add_argument("-i", "--ini", help="create a default configuration file", action="store_true")
+        
+        args = parser.parse_args()
+        
+        loglevel = logging.WARNING
+        
+        if args.verbose == 1:
+            loglevel = logging.INFO
+            print("Log Level : INFO")
+        
+        if args.verbose > 1:
+            loglevel = logging.DEBUG
+            print("Log Level : DEBUG")
         
         logFile = os.path.join( os.getcwd(), "armStrap.log" )
-        if os.path.isfile(logFile):
-            os.unlink(logFile)
+        logging.basicConfig(filename = logFile, level = loglevel, filemode="w")
+        logging.captureWarnings(True)
         
-        logging.basicConfig(filename = logFile, level = logging.DEBUG)
         UI.armStrap_Dialog()
-
+        builtins.Status = False
+                
+        if args.ini or (not os.path.isfile(Utils.getPath("armStrap.ini"))):
+            if os.path.isfile(Utils.getPath("armStrap.ini")):
+                os.unlink(Utils.getPath("armStrap.ini"))        
+            Utils.readArmStrapConfig()
+            Utils.Exit(text = "Default configuration file 'armStrap.ini' generated, please edit it before running armStrap.", title = "armStrap", timeout = 5, exitStatus = os.EX_OK)
+        
         UI.InfoBox(text = "Reading user configuration", title = "Initializing")
         builtins.Config = Utils.readArmStrapConfig()
         if builtins.Config == False:
