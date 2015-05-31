@@ -17,7 +17,7 @@ Command line options
 
     usage: armStrap [-h] [-v | -d] [-k] [-r] [-b] [-i]
     
-    armStrap version 1.0 Release Candidate 1, (C) 2013-2015 Eddy Beaupré
+    armStrap version 1.0, (C) 2013-2015 Eddy Beaupré
     
     optional arguments:
       -h, --help     show this help message and exit

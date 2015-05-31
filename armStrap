@@ -21,11 +21,15 @@ locale.setlocale(locale.LC_ALL, '')
 
 if __name__ == '__main__': 
     try:
+        if os.getuid() != 0:
+            print("armStrap must be run as root.")
+            os._exit(0)
+        
         #Always work from where the script live!
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
         
         builtins.urlInfo = { 'baseUrl': "https://archive.armstrap.net", "jsonDrv": ".armStrap.php", "RootFS": "rootfs" }
-        builtins.Version = "1.0 Release Candidate 1"
+        builtins.Version = "1.0"
         builtins.Header = os.path.basename(sys.argv[0]) + " version " + builtins.Version
         builtins.Copyright = builtins.Header + ", (C) 2013-2015 Eddy Beaupré"
         
