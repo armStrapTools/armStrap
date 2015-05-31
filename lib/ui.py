@@ -97,7 +97,7 @@ def armStrap_Dialog():
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
 
 def openTempFile():
@@ -110,7 +110,7 @@ def openTempFile():
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
 
 def closeTempFile(fd, file, path):
@@ -124,7 +124,7 @@ def closeTempFile(fd, file, path):
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
  
 class RunInBackground(threading.Thread):
@@ -139,7 +139,7 @@ class RunInBackground(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
 
     def run(self):
@@ -155,7 +155,7 @@ class RunInBackground(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
         
             
@@ -166,7 +166,7 @@ class RunInBackground(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
         
 class chrootRunInBackground(threading.Thread):
@@ -182,7 +182,7 @@ class chrootRunInBackground(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
         
     def run(self):
@@ -198,7 +198,7 @@ class chrootRunInBackground(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
             
     def getName(self):
@@ -207,7 +207,7 @@ class chrootRunInBackground(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
 class Mixed(threading.Thread):
@@ -227,7 +227,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
         
     def run(self):
@@ -251,7 +251,7 @@ class Mixed(threading.Thread):
             except SystemExit:
                 pass
             except:
-                logException(False)
+                logging.exception("Caught Exception")
                 self.running = False
                 sys.exit(os.EX_SOFTWARE)
         logExiting()
@@ -263,7 +263,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def getRunning(self):
@@ -273,7 +273,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def getText(self):
@@ -283,7 +283,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def getTitle(self):
@@ -293,7 +293,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def getElements(self):
@@ -303,7 +303,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def show(self, percent = 0, text = ""):
@@ -317,7 +317,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def update(self, name = False, value = False, percent = False, text = False):
@@ -349,7 +349,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
             
     def hide(self):
@@ -361,7 +361,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def end(self):
@@ -375,7 +375,7 @@ class Mixed(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
  
 class Gauge(threading.Thread):
@@ -394,7 +394,7 @@ class Gauge(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
         
     def run(self):
@@ -421,7 +421,7 @@ class Gauge(threading.Thread):
             except SystemExit:
                 pass
             except:
-                logException(False)
+                logging.exception("Caught Exception")
                 self.running = False
                 sys.exit(os.EX_SOFTWARE)
         logExiting()
@@ -437,7 +437,7 @@ class Gauge(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
         
     def update(self, percent = 0, text = ""):
@@ -458,7 +458,7 @@ class Gauge(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
 
     def increment(self, percent = 0, text = ""):
@@ -477,7 +477,7 @@ class Gauge(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def decrement(self, percent = 0, text = ""):
@@ -496,7 +496,7 @@ class Gauge(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def hide(self):
@@ -508,7 +508,7 @@ class Gauge(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
     
     def end(self):
@@ -522,7 +522,7 @@ class Gauge(threading.Thread):
         except SystemExit:
             pass
         except:
-            logException(False)
+            logging.exception("Caught Exception")
             sys.exit(os.EX_SOFTWARE)
         
 def MessageBox(text = "", title = "", timeout = 0 ):
@@ -537,7 +537,7 @@ def MessageBox(text = "", title = "", timeout = 0 ):
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
         
 def InfoBox(text = "", title= ""):
@@ -548,7 +548,7 @@ def InfoBox(text = "", title= ""):
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
         
 def YesNo(text = "", title = ""):
@@ -558,7 +558,7 @@ def YesNo(text = "", title = ""):
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
     
 def Status():
@@ -576,7 +576,7 @@ def Status():
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
     
 def ProgressBox(cmd, title = ""):
@@ -596,7 +596,7 @@ def ProgressBox(cmd, title = ""):
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
     
 def chrootProgressBox(cmd, path, title = "" ) :
@@ -616,7 +616,7 @@ def chrootProgressBox(cmd, path, title = "" ) :
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
 
 # List the partitions of a device
@@ -631,7 +631,7 @@ def listDevice(device):
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)
         
 def Summary():
@@ -710,5 +710,5 @@ def Summary():
     except SystemExit:
         pass
     except:
-        logException(False)
+        logging.exception("Caught Exception")
         sys.exit(os.EX_SOFTWARE)

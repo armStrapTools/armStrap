@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 import subprocess
+import logging
 
 from lib import ui as UI
 from lib import utils as Utils

@@ -23,7 +23,7 @@ def installRootFS():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
 
 def chrootConfig():
@@ -45,7 +45,7 @@ def chrootConfig():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
   
 def chrootDeconfig():
@@ -64,7 +64,7 @@ def chrootDeconfig():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
 
 def chrootPasswd(User, Password):
@@ -82,7 +82,7 @@ def chrootPasswd(User, Password):
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
 def chrootAddUser(User, Password):
@@ -99,7 +99,7 @@ def chrootAddUser(User, Password):
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
 def setLocales():
@@ -127,7 +127,7 @@ def setLocales():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
 def setTimeZone():
@@ -144,7 +144,7 @@ def setTimeZone():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
     
 def setSwapFile():
@@ -178,7 +178,7 @@ def setSwapFile():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
 def setHostName():
@@ -193,7 +193,7 @@ def setHostName():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
 def setTTY():
@@ -218,7 +218,7 @@ def setTTY():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
 def setFsTab():
@@ -240,7 +240,7 @@ def setFsTab():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
 def setInterface():
@@ -277,7 +277,7 @@ def setInterface():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
     
 def ubootSetup(Device):
@@ -290,5 +290,5 @@ def ubootSetup(Device):
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)

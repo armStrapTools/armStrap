@@ -19,7 +19,7 @@ def syncFS():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
   
 def partProbe(Device=""):
@@ -31,7 +31,7 @@ def partProbe(Device=""):
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
 
 def getLayout():
@@ -46,7 +46,7 @@ def getLayout():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
 
 def cleanDisk(device, bs="512", count=1):
@@ -60,7 +60,7 @@ def cleanDisk(device, bs="512", count=1):
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
 
 def formatDevice(Device, DiskLayout, percent = 0):
@@ -117,7 +117,7 @@ def formatDevice(Device, DiskLayout, percent = 0):
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
 
 def formatSD():
@@ -126,7 +126,7 @@ def formatSD():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
 
 def formatIMG():
@@ -145,7 +145,7 @@ def formatIMG():
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
 
 def mountPartitions(Device, partList):
@@ -168,7 +168,7 @@ def mountPartitions(Device, partList):
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
 
 def unmountPartitions(Device, partList):
@@ -187,5 +187,5 @@ def unmountPartitions(Device, partList):
   except SystemExit:
     pass
   except:
-    UI.logException(False)
+    logging.exception("Caught Exception")
     sys.exit(os.EX_IOERR)
