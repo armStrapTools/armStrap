@@ -421,7 +421,8 @@ def loadJson(type, args = False):
   except:
     logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)
-    
+
+# Copy a file    
 def copyFiles(src, dst):
   try:
     UI.logEntering()
@@ -431,6 +432,58 @@ def copyFiles(src, dst):
     return True
   except SystemExit:
     pass 
+  except:
+    logging.exception("Caught Exception")
+    sys.exit(os.EX_SOFTWARE)
+    
+# List all avalables Kernels
+def listKernels():
+  try:
+    kFormat = "{0:15} {1:31} {2}"
+    print("Avalable Kernels:\n")
+    print(kFormat.format("Kernel", "BootLoader", "Compatible CPU"))
+    print(kFormat.format("---------------", "-------------------------------", "-------------------------------"))
+    Kernels = loadJson( type = "config", args = "config=kernels".split() )
+    for section in sorted(Kernels):
+      print(kFormat.format(section, Kernels[section]['bootloader'], " ".join(Kernels[section]['cpu'])))
+    print("")
+  except SystemExit:
+    pass
+  except:
+    logging.exception("Caught Exception")
+    sys.exit(os.EX_SOFTWARE)
+    
+# Liste all avalables RootFS
+def listRootFS():
+  try:
+    rFormat = "{0:15} {1:15} {2}"
+    print("Avalable Root FileSystems:\n")
+    print(rFormat.format("Arch", "Family", "Versions"))
+    print(rFormat.format("---------------", "---------------", "----------------------------------------------"))
+    rootFSList = loadJson(type = "rootfs")
+    for arch in sorted(rootFSList):
+      for family in sorted(rootFSList[arch]):
+        print(rFormat.format(arch, family, ", ".join(sorted(list(rootFSList[arch][family].keys())))))
+    print("")
+  except SystemExit:
+    pass
+  except:
+    logging.exception("Caught Exception")
+    sys.exit(os.EX_SOFTWARE)
+
+def listBoards():
+  try:
+    bFormat = "{0:15} {1:15} {2}"
+    print("Avalable Boards:\n")
+    print(bFormat.format("Model", "Arch", "CPU"))
+    print(bFormat.format("---------------", "---------------", "----------------------------------------------"))
+    armStrapCfg = loadJson(type = "config", args = ("config=armstrap".split()))
+    for type in sorted(armStrapCfg['Boards']['Types']):
+      boardsCfg = loadJson(type = "config", args = ("config=" + type).split())
+      for model in boardsCfg['Boards']['Models']:
+        print(bFormat.format(model, boardsCfg['Common']['CpuArch'] + boardsCfg['Common']['CpuFamily'], boardsCfg[model]['Cpu']))
+  except SystemExit:
+    pass
   except:
     logging.exception("Caught Exception")
     sys.exit(os.EX_SOFTWARE)

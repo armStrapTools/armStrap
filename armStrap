@@ -10,6 +10,7 @@ import os
 import sys
 import subprocess
 import logging
+import collections
 
 from lib import ui as UI
 from lib import utils as Utils
@@ -43,12 +44,10 @@ if __name__ == '__main__':
         
         if args.verbose == 1:
             loglevel = logging.INFO
-            print("Log Level : INFO")
         
-        if args.verbose > 1:
+        if (args.verbose > 1) or args.debug:
             loglevel = logging.DEBUG
-            print("Log Level : DEBUG")
-        
+            
         logFile = os.path.join( os.getcwd(), "armStrap.log" )
         logging.basicConfig(filename = logFile, level = loglevel, filemode="w")
         logging.captureWarnings(True)
@@ -61,7 +60,19 @@ if __name__ == '__main__':
                 os.unlink(Utils.getPath("armStrap.ini"))        
             Utils.readArmStrapConfig()
             Utils.Exit(text = "Default configuration file 'armStrap.ini' generated, please edit it before running armStrap.", title = "armStrap", timeout = 5, exitStatus = os.EX_OK)
-        
+            
+        if args.kernels:
+            Utils.listKernels()
+            
+        if args.rootfs:
+            Utils.listRootFS()
+            
+        if args.boards:
+            Utils.listBoards()
+            
+        if args.kernels or args.rootfs or args.boards:
+            sys.exit(0)
+            
         UI.InfoBox(text = "Reading user configuration", title = "Initializing")
         builtins.Config = Utils.readArmStrapConfig()
         if builtins.Config == False:
