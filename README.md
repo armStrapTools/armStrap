@@ -6,6 +6,8 @@ An universal sd/image creator for small arm development platform
 QuickStart
 ----------
 
+armStrap is configured via an ini file, from there, various part of the image creation can be configured. The default configuration of armStrap is to create a CubieTruck configuration using Ubuntu Vivid and mainline kernel on the first sd of the building computer (/dev/mmcblk0).
+
 * You need to be root to run this script
 * The following prerequisitions need to be installed
     * python3 
@@ -16,7 +18,7 @@ QuickStart
     * qemu-user-static
 
 1. Run __./armStrap-prereqs__ to install any missing prerequisitions or install them manually.
-2. Run __./armStrap__ to generate a default __armStrap.ini__.
+2. Run __./armStrap__ to generate a default __armStrap.ini__ or create one using armStrap.ini.dist as template.
 2. Edit __armStrap.ini__ to suit your needs.
 3. Run __./armStrap__, confirm settings, hit enter and go take a coffee :)
 
