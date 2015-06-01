@@ -6,7 +6,7 @@ An universal sd/image creator for small arm development platform
 QuickStart
 ----------
 
-* You need to be root to run this script
+* You need to be root to run this script.
 * The following prerequisitions need to be installed:
     * python3 
     * python3-dialog
@@ -16,7 +16,7 @@ QuickStart
     * qemu-user-static
 
 1. Run __./armStrap-prereqs__ to install any missing prerequisitions or install them manually.
-2. Run __./armStrap__ to generate a default __armStrap.ini__
+2. Run __./armStrap__ to generate a default __armStrap.ini__.
 2. Edit __armStrap.ini__ to suit your needs.
 3. Run __./armStrap__, confirm settings, hit enter and go take a coffee :)
 
