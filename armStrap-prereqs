@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo -n "Checking for prerequisitions"
+prereqs=(python3 python3-dialog python3-requests parted binfmt-support qemu-user-static joe)
+
+for i in ${prereqs[@]}; do
+	echo -n ", $i "
+	j=($(/usr/bin/dpkg --get-selections $i 2>/dev/null))
+	if [ "${j[1]}" != "install" ]; then
+		echo -n "missing"
+		k="$i ${k}"
+	else
+		echo -n "found"
+	fi
+done
+
+shopt -s extglob
+k="${k##*( )}"
+k="${k%%*( )}"
+shopt -u extglob
+
+if [ "${k}" != "" ]; then
+	echo -e "\nInstalling missing prerequisitions : ${k}\n"
+	/usr/bin/apt-get -q -y update
+	/usr/bin/apt-get -q -y dist-upgrade
+	/usr/bin/apt-get -q -y install $k
+	echo -e "\nDone"
+else
+	echo -e "\nAll prerequisitions found."
+fi
