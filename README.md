@@ -59,11 +59,11 @@ This section is used to select what type of device and some basic information ab
     timezone = America/Montreal
     locales = en_US.UTF-8 fr_CA.UTF-8
 
-* Branch : The general type of the device, right now only sunxi is supported, i will add bcmrpi (Raspberry PI) at a later stage
+* Branch : The general type of the device, right now only sunxi is supported, i will add bcmrpi (Raspberry PI) at a later stage.
 * Model : The model of the device, see __./armStrap -b__ for the list of avalable boards.
-* HostName : The hostname you want for the device
-* TimeZone : The timeZone you want for the device
-* Locales : A list of locales you want to configure on the device, the first one become the default locale
+* HostName : The hostname you want for the device.
+* TimeZone : The timeZone you want for the device.
+* Locales : A list of locales you want to configure on the device, the first one become the default locale.
 
 Distribution
 ------------
@@ -74,7 +74,7 @@ This section is used to select what version of linux you want to install on the 
     family = ubuntu
     version = vivid
 
-* Family : Specify the family of the root filesystem, see __./armStrap -r__ for a list of valid distributions
+* Family : Specify the family of the root filesystem, see __./armStrap -r__ for a list of valid distributions.
 * Version : Specify the version of the root filesystem.
 
 Kernel
@@ -107,13 +107,13 @@ or
     dns = 8.8.8.8 8.8.4.4
     macaddress = 00:02:46:52:e8:e4
 
-* Mode : dhcp (ignore all other settings except MacAddress) or static
-* MacAddress : If not set, armStrap will generate a random Mac Address starting with 00:02:46. Or you can specify one
-* Ip : Static ip address of the device
-* Mask : Netmask
-* Gateway : Default gateway
-* Domain : Default DNS search domain
-* Dns : List of DNS resolver
+* Mode : dhcp (ignore all other settings except MacAddress) or static.
+* MacAddress : If not set, armStrap will generate a random Mac Address starting with 00:02:46. Or you can specify one.
+* Ip : Static ip address of the device.
+* Mask : Netmask.
+* Gateway : Default gateway.
+* Domain : Default DNS search domain.
+* Dns : List of DNS resolver.
 
 BoardsPackages
 --------------
@@ -125,9 +125,9 @@ This section configure packages that will be installed on the device during setu
     mandatory = ""
     optional = ""
 
-* InstallOptionalPackages : armStrap comes with optional packages that are not installed by default (like the Nand Installer), if you want theses packages, set this option to yes
-* Mandatory : A list of packages you want to install
-* Optional : A list of optional packages you want to install, need InstallOptionalsPackages = yes
+* InstallOptionalPackages : armStrap comes with optional packages that are not installed by default (like the Nand Installer), if you want theses packages, set this option to yes.
+* Mandatory : A list of packages you want to install.
+* Optional : A list of optional packages you want to install, need InstallOptionalsPackages = yes.
 
 SwapFile
 --------
@@ -140,10 +140,10 @@ This section control the creation of a swapfile using dphys-swapfile.
     factor = 2
     maximum = 2048
 
-* File : The location of the swap file
-* Size : The Size of the swap file
-* Factor : If Size is not specified, a swapfile of Ram x Factor will be automatically created
-* Maximum : If Size is not specified, the maximum size of the swapfile
+* File : The location of the swap file.
+* Size : The Size of the swap file.
+* Factor : If Size is not specified, a swapfile of Ram x Factor will be automatically created.
+* Maximum : If Size is not specified, the maximum size of the swapfile.
 
 Users
 -----
@@ -155,14 +155,14 @@ This section control the creation of a normal user and the root password:
     username = armStrap
     userpassword = armStrap
 
-* RootPassword : Wathever password you want for root
-* UserName : User name for the normal user (this user will be granted sudo rights)
-* UserPassword : Password for your normal user
+* RootPassword : Wathever password you want for root.
+* UserName : User name for the normal user (this user will be granted sudo rights).
+* UserPassword : Password for your normal user.
 
 Output
 ------
 
-This section control where the image will be written, be very cautions with theses setting, specifying the wrong device may erase a whole disk. armStrap will try to detect if the device is already and will refuse to run if it is. Any data already present on the target device will be lost.
+This section control where the image will be written, be very cautions with theses setting, specifying the wrong device may erase a whole disk. armStrap will try to detect if the device is already mount and will refuse to run if it is. Any data already present on the target device will be lost.
 
     [Output]
     device = /dev/mmcblk0
@@ -173,9 +173,9 @@ or
     file = armStrap.img
     size = 2048
 
-* Device : The target device, be cautious with this option, if you select the wrong device, it will be erased
-* File : Create an image that can be dump (with dd or any other utility) to a SD card
-* size : Size of the image to create
+* Device : The target device, be cautious with this option, if you select the wrong device, it will be erased.
+* File : Create an image that can be dump (with dd or any other utility) to a SD card.
+* size : Size of the image to create.
 
 Nand Installer
 --------------
@@ -186,8 +186,14 @@ A script to install the operating system in Nand, supporting the CubieBoard/Hack
 
 Use the cubieboard target to install on CubieBoard/HackBerry.
 
+armStrap-Builder
+----------------
+
+armStrap-Builder is the script that i use to create and maintain the RootFS, Kernels, U-Boot and utilities for armStrap. The script is hosted in its own Github repository ( https://github.com/EddyBeaupre/armStrap-Builder ).
+
 armStrap APT repository
 -----------------------
+
 I also maintain a few repositories, mainly to support armStrap but which can also be useful to others.
 
 To add the key needed to use the repository, you can do something like this:
