@@ -119,6 +119,7 @@ def formatDevice(Device, DiskLayout, percent = 0):
       builtins.Status.update(text="Setting up partition " + partSlice + str(partID), percent = builtins.Status.getPercent())
       Utils.runCommand( command = "/sbin/parted " + Device + " --script -- mkpart primary " + str(fs) + " " + str(offset) + " " + str(size))
       syncFS()
+
       partProbe()
       builtins.Status.update(text="Waiting for partition " + partSlice + str(partID), percent = builtins.Status.getPercent())
       time.sleep(1)
@@ -166,7 +167,7 @@ def formatIMG():
     Utils.runCommand( command = "/usr/bin/touch " + Utils.getPath(builtins.Config['Output']['Image']))
     cleanDisk(Utils.getPath(builtins.Config['Output']['Image']), bs="1M", count=int(builtins.Config['Output']['Size']))
     builtins.Status.update(name = "Formatting Disk", value = "-25")
-    (stdout, stderr) = captureCommand("/sbin/losetup -f --show " + Utils.getPath(builtins.Config['Output']['Image']))
+    (stdout, stderr) = Utils.captureCommand("/sbin/losetup -f --show " + Utils.getPath(builtins.Config['Output']['Image']))
     UI.logExiting()
     return formatDevice(Device = stdout.splitlines()[0], DiskLayout = getLayout(), percent = 25)
   except SystemExit:
