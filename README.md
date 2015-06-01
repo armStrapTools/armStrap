@@ -6,8 +6,8 @@ An universal sd/image creator for small arm development platform
 QuickStart
 ----------
 
-* You need to be root to run this script.
-* The following prerequisitions need to be installed:
+* You need to be root to run this script
+* The following prerequisitions need to be installed
     * python3 
     * python3-dialog
     * python3-requests
