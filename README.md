@@ -162,6 +162,8 @@ This section control the creation of a normal user and the root password:
 Output
 ------
 
+This section control where the image will be written, be very cautions with theses setting, specifying the wrong device may erase a whole disk. armStrap will try to detect if the device is already and will refuse to run if it is. Any data already present on the target device will be lost.
+
     [Output]
     device = /dev/mmcblk0
 
