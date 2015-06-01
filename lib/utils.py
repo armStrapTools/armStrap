@@ -84,7 +84,7 @@ def checkPath(path):
   try:
     UI.logEntering()
     if os.path.exists(getPath(path)) == False:
-      logfile("Creating path " + getPath(path))
+      UI.logDebug("Creating path " + getPath(path))
       os.makedirs(getPath(path))
     UI.logExiting()
     return getPath(path)
