@@ -92,7 +92,7 @@ def chrootAddUser(User, Password):
     UI.logEntering()
     builtins.Status.update(text = "Creating home directory for user " + User)
     shutil.copytree(Utils.getPath("mnt/etc/skel"), Utils.getPath("mnt/home/" + User), symlinks=True)
-    Utils.runChrootCommand("/usr/sbin/useradd " + User)
+    Utils.runChrootCommand("/usr/sbin/useradd --shell /bin/bash " + User)
     Utils.runChrootCommand("/bin/chown " + User + ":" + User + " /home/" + User)
     Utils.runChrootCommand("/usr/sbin/usermod -G sudo " + User)
     chrootPasswd(User = User, Password = Password)

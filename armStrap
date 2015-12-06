@@ -29,7 +29,7 @@ if __name__ == '__main__':
         os.chdir(os.path.abspath(os.path.dirname(__file__)))
         
         builtins.urlInfo = { 'baseUrl': "https://archive.armstrap.net", "jsonDrv": ".armStrap.php", "RootFS": "rootfs" }
-        builtins.Version = "1.0"
+        builtins.Version = "1.01"
         builtins.Header = os.path.basename(sys.argv[0]) + " version " + builtins.Version
         builtins.Copyright = builtins.Header + ", (C) 2013-2015 Eddy Beaupré"
         
