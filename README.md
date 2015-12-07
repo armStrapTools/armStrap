@@ -189,7 +189,7 @@ Use the cubieboard target to install on CubieBoard/HackBerry.
 armStrap-Builder
 ----------------
 
-armStrap-Builder is the script that i use to create and maintain the RootFS, Kernels, U-Boot and utilities for armStrap. The script is hosted in its own Github repository ( https://github.com/EddyBeaupre/armStrap-Builder ).
+armStrap-Builder is the script that i use to create and maintain the RootFS, Kernels, U-Boot and utilities for armStrap. The script is hosted in its own Github repository ( https://github.com/armStrapTools/armStrap-Builder ).
 
 armStrap APT repository
 -----------------------
