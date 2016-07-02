@@ -170,11 +170,11 @@ This section control where the image will be written, be very cautions with thes
 or
 
     [Output]
-    file = armStrap.img
+    image = armStrap.img
     size = 2048
 
 * Device : The target device, be cautious with this option, if you select the wrong device, it will be erased.
-* File : Create an image that can be dump (with dd or any other utility) to a SD card.
+* image : Create an image that can be dump (with dd or any other utility) to a SD card.
 * size : Size of the image to create.
 
 Nand Installer
